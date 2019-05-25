@@ -8,15 +8,15 @@ jobs:
     docker:
       # specify the version you desire here
       - image: circleci/node:8.16
-          environment:
-              NODE_ENV: test
+        environment:
+            NODE_ENV: test
       # Specify service dependencies here if necessary # CircleCI maintains a library of pre-built images 
       # documented at https://circleci.com/docs/2.0/circleci-images/
       - image: circleci/postgres:10.8
-          environment:
-            POSTGRES_DB: mobilise_test
-            POSTGRES_PASSWORD: ""
-            POSTGRES_USER: test
+        environment:
+          POSTGRES_DB: mobilise_test
+          POSTGRES_PASSWORD: ""
+          POSTGRES_USER: test
 
     working_directory: ~/repo
 
