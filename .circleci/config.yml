@@ -39,6 +39,7 @@ jobs:
 
       - run: sudo apt-get update
       - run: sudo apt-get install postgresql-client
+      - run: npm install --save sequelize
       - run: sequelize db:migrate
 
       - run: yarn test
