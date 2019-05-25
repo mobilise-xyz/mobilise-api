@@ -37,7 +37,13 @@ jobs:
             - node_modules
           key: v1-dependencies-{{ checksum "yarn.lock" }}
 
-      - run: yarn test
+      - run: sudo apt-get update
+      - run: sudo apt-get install postgresql-client
+      - run: |
+          psql \
+          -d $TEST_DATABASE_URL \
+          -c "CREATE TABLE shifts (title char(25));"
+      - run: whoami
 
   deploy:
     docker:
