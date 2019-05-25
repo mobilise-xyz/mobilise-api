@@ -12,7 +12,7 @@ module.exports = {
   },
   list(req, res) {
       return Shift
-      .all()
+      .findAll()
       .then((shifts) => res.status(200).send(shifts))
       .catch((error) => res.status(400).send(error));
   },
