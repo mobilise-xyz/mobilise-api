@@ -35,6 +35,8 @@ jobs:
         name: Setup test environment
         command: |
           NODE_ENV=test
+          sudo apt-get update
+          sudo apt-get install postgresql-client
           psql -c 'create database mobilise_test;' -U postgres
           psql -c "CREATE USER test WITH PASSWORD null;" -U postgres
           sequelize db:migrate
