@@ -9,7 +9,8 @@ module.exports = {
   },
   "test": {
     "username": "test",
-    "password": null,
+    "password": "",
+    "port": 5432,
     "database": "mobilise_test",
     "host": "127.0.0.1",
     "dialect": "postgres"
