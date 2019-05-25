@@ -10,7 +10,6 @@ jobs:
       - image: circleci/node:8.16
         environment:
             NODE_ENV: test
-            TEST_DATABASE_URL: postgresql://test@localhost/mobilise_test
       # Specify service dependencies here if necessary # CircleCI maintains a library of pre-built images 
       # documented at https://circleci.com/docs/2.0/circleci-images/
       - image: circleci/postgres:10.8
@@ -47,13 +46,9 @@ jobs:
           name: Wait for db
           command: dockerize -wait tcp://localhost:5432 -timeout 1m
 
-      - run: sudo apt-get update
-      - run: sudo apt-get install postgresql-client
-      - run: whoami
-      - run: |
-          psql \
-          -d $TEST_DATABASE_URL \
-          -c "CREATE TABLE test (name char(25));"
+      - run: yarn add sequelize
+      - run: yarn add sequelize-cli
+      - run: sequelize db:migrate
 
   deploy:
     docker:
