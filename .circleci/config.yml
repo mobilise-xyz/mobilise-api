@@ -37,12 +37,6 @@ jobs:
             - node_modules
           key: v1-dependencies-{{ checksum "yarn.lock" }}
 
-      - run: sudo apt-get update
-      - run: sudo apt-get install postgresql-client
-      - run: npm install --save sequelize
-      - run: npm install --save sequelize-cli
-      - run: sequelize db:migrate
-
       - run: yarn test
 
   deploy:
