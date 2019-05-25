@@ -8,8 +8,8 @@ jobs:
     docker:
       # specify the version you desire here
       - image: circleci/node:8.16
-        environment:
-            NODE_ENV: test
+          environment:
+              NODE_ENV: test
       # Specify service dependencies here if necessary # CircleCI maintains a library of pre-built images 
       # documented at https://circleci.com/docs/2.0/circleci-images/
       - image: circleci/postgres:10.8
