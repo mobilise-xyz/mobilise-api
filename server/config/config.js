@@ -12,7 +12,7 @@ module.exports = {
     "password": "",
     "port": 5432,
     "database": "mobilise_test",
-    "host": "127.0.0.1/circle_test",
+    "host": "127.0.0.1",
     "dialect": "postgres"
   },
   "production": {

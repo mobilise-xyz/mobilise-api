@@ -10,6 +10,7 @@ jobs:
       - image: circleci/node:8.16
         environment:
             NODE_ENV: test
+            TEST_DATABASE_URL: postgresql://root@localhost/mobilise_test
       # Specify service dependencies here if necessary # CircleCI maintains a library of pre-built images 
       # documented at https://circleci.com/docs/2.0/circleci-images/
       - image: circleci/postgres:10.8
@@ -37,13 +38,22 @@ jobs:
             - node_modules
           key: v1-dependencies-{{ checksum "yarn.lock" }}
 
+      - run:
+          name: install dockerize
+          command: wget https://github.com/jwilder/dockerize/releases/download/$DOCKERIZE_VERSION/dockerize-linux-amd64-$DOCKERIZE_VERSION.tar.gz && sudo tar -C /usr/local/bin -xzvf dockerize-linux-amd64-$DOCKERIZE_VERSION.tar.gz && rm dockerize-linux-amd64-$DOCKERIZE_VERSION.tar.gz
+          environment:
+            DOCKERIZE_VERSION: v0.3.0
+      - run:
+          name: Wait for db
+          command: dockerize -wait tcp://localhost:5432 -timeout 1m
+
       - run: sudo apt-get update
       - run: sudo apt-get install postgresql-client
+      - run: whoami
       - run: |
           psql \
           -d $TEST_DATABASE_URL \
-          -c "CREATE TABLE shifts (title char(25));"
-      - run: whoami
+          -c "CREATE TABLE test (name char(25));"
 
   deploy:
     docker:
