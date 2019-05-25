@@ -8,11 +8,10 @@ module.exports = {
     "dialect": "postgres"
   },
   "test": {
-    "username": process.env.DB_USERNAME,
-    "password": process.env.DB_PASSWORD,
-    "database": process.env.DB_NAME,
+    "username": "test",
+    "password": null,
+    "database": "mobilise_test",
     "host": "127.0.0.1",
-    "port": process.env.DB_PORT,
     "dialect": "postgres"
   },
   "production": {

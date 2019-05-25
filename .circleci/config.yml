@@ -31,7 +31,28 @@ jobs:
             - node_modules
           key: v1-dependencies-{{ checksum "yarn.lock" }}
 
-      # run tests!
+  test:
+    docker: 
+      - image: circleci/node:8.16
+
+    working_directory: ~/repo
+    steps:
+      - checkout
+
+      - restore_cache:
+          keys:
+            - v1-dependencies-{{ checksum "yarn.lock" }}
+            # fallback to using the latest cache if no exact match is found
+            - v1-dependencies-
+
+      - run: 
+        name: Setup test environment
+        command: |
+          NODE_ENV=test
+          psql -c 'create database mobilise_test;' -U postgres
+          psql -c "CREATE USER test WITH PASSWORD null;" -U postgres
+          sequelize db:migrate
+
       - run: yarn test
 
   deploy:
@@ -76,13 +97,16 @@ jobs:
 
 workflows:
   version: 2
-  build-deploy:
+  build-test-deploy:
     jobs:
       - build
+      - test:
+        requires:
+          - build
       - deploy:
           requires:
             - build
+            - test
           filters:
             branches:
               only: master
-
