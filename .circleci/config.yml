@@ -51,9 +51,8 @@ jobs:
           command: dockerize -wait tcp://localhost:5432 -timeout 1m
           
       - run:
-          name: Test 
-          command: | 
-            yarn test
+          name: Run Tests 
+          command: yarn test
 
   deploy:
     docker:
