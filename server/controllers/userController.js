@@ -11,13 +11,23 @@ module.exports = {
             lastName: req.body.lastName,
             email: req.body.email,
             password: hash,
+            admin: req.body.admin,
             dob: req.body.dob
         })
-        .then((user) => res.status(201).send(user))
+        .then((user) => res.status(201).send(
+            {
+                id: user.id, 
+                firstName: user.firstName, 
+                lastName: user.lastName,
+                email: user.email,
+                admin: user.admin,
+                dob: user.dob
+            }
+            ))
         .catch((error) => res.status(400).send(error));
   },
 
-  authenticate: function(req, res) {
+  loginUser: function(req, res) {
       User.findOne({where: {email: req.body.email} })
       .then(function(user){
           if (user && validatePassword(req.body.password, user.password)) {
