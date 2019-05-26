@@ -8,9 +8,15 @@ jobs:
     docker:
       # specify the version you desire here
       - image: circleci/node:8.16
-# Specify service dependencies here if necessary # CircleCI maintains a library of pre-built images
+        environment:
+            NODE_ENV: test
+      # Specify service dependencies here if necessary # CircleCI maintains a library of pre-built images 
       # documented at https://circleci.com/docs/2.0/circleci-images/
-      # - image: circleci/mongo:3.4.4
+      - image: circleci/postgres:10.8
+        environment:
+          POSTGRES_DB: mobilise_test
+          POSTGRES_PASSWORD: ""
+          POSTGRES_USER: test
 
     working_directory: ~/repo
 
@@ -24,14 +30,24 @@ jobs:
             # fallback to using the latest cache if no exact match is found
             - v1-dependencies-
 
-      - run: yarn install --ignore-engies
+      - run: yarn install
 
       - save_cache:
           paths:
             - node_modules
           key: v1-dependencies-{{ checksum "yarn.lock" }}
 
-      # run tests!
+      - run:
+          name: install dockerize
+          command: wget https://github.com/jwilder/dockerize/releases/download/$DOCKERIZE_VERSION/dockerize-linux-amd64-$DOCKERIZE_VERSION.tar.gz && sudo tar -C /usr/local/bin -xzvf dockerize-linux-amd64-$DOCKERIZE_VERSION.tar.gz && rm dockerize-linux-amd64-$DOCKERIZE_VERSION.tar.gz
+          environment:
+            DOCKERIZE_VERSION: v0.3.0
+      - run:
+          name: Wait for db
+          command: dockerize -wait tcp://localhost:5432 -timeout 1m
+          
+      - run: cd server
+      - run: ./node_modules/.bin/sequelize db:migrate
       - run: yarn test
 
   deploy:
@@ -85,4 +101,3 @@ workflows:
           filters:
             branches:
               only: master
-

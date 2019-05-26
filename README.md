@@ -6,6 +6,14 @@ This is the API that serves the Mobilise app. The client for this web app can be
 
 ## Getting Started
 
+Add .env file with:
+DB_USERNAME=
+DB_PASSWORD=
+DB_NAME=
+DB_PORT=
+
+Set up local postgres database and populate .env values respectively.
+
 ```bash
 yarn install
 yarn start
