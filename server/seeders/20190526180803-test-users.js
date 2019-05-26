@@ -17,7 +17,7 @@ module.exports = {
           firstName: 'Test',
           lastName: 'Adminson',
           email: 'testadmin@testing.com',
-          password: '$$',
+          password: '$2b$08$FXaXqdaZyZ9898Xg4qy3mu27MNRkigGg.1QhZM4IS5i8dZDHU4dJy',
           admin: 'TRUE',
           dob: '1997-11-25',
           createdAt: '2019-06-06',

@@ -102,4 +102,60 @@ describe('Add shifts', function() {
       .set('Accept', 'application/json')
       .expect(401, done);
   });
+  
+  it('Does not allow non-admin to add shift', function(done){
+    // Acquire bearer token
+    request(app)
+      .post('/users/login')
+      .send(
+        {
+          email: 'testvolunteer@testing.com',
+          password: 'Volunteer123'
+        }
+        )
+      .set('Accept', 'application/json')
+      .expect(200)
+      .then(response => {
+        // Use bearer token to add shift
+        request(app)
+        .post('/shifts')
+        .send(
+        {
+          title: 'Food pickup',
+          description: 'I mean its pretty self explanatory mate',
+        }
+        )
+        .set('Authorization', 'Bearer '+response.body.token)
+        .set('Accept', 'application/json')
+        .expect(401, done);
+      });
+  }) 
+
+  it('Allows admin to add shift', function(done){
+    // Acquire bearer token
+    request(app)
+      .post('/users/login')
+      .send(
+        {
+          email: 'testadmin@testing.com',
+          password: 'Admin123'
+        }
+        )
+      .set('Accept', 'application/json')
+      .expect(200)
+      .then(response => {
+        // Use bearer token to add shift
+        request(app)
+        .post('/shifts')
+        .send(
+        {
+          title: 'Food pickup',
+          description: 'I mean its pretty self explanatory mate',
+        }
+        )
+        .set('Authorization', 'Bearer '+response.body.token)
+        .set('Accept', 'application/json')
+        .expect(201, done);
+      });
+  })
 })
