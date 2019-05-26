@@ -44,9 +44,6 @@ function validatePassword(password, hashedPassword){
 function generateToken(user){
     var tokenConfig =  config.token;
     return jwt.sign({
-      id: user.id,
-      firstName: user.firstName,
-      lastName: user.lastName,
-      email: user.email
+      id: user.id
     },config["jwt-secret"], {expiresIn: tokenConfig.timeout*60});
   }

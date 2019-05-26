@@ -13,6 +13,7 @@ DB_USERNAME=
 DB_PASSWORD=
 DB_NAME=
 DB_PORT=
+JWT_SECRET=literallyanything
 ```
 
 Set up local postgres database and populate .env values respectively.

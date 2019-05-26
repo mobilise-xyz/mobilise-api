@@ -12,7 +12,7 @@ describe('View shifts', function() {
 })
 
 describe('Add shifts', function() {
-  it('responds with json', function(done) {
+  it('Can add a shift', function(done) {
     request(app)
       .post('/shifts')
       .send(
@@ -27,7 +27,7 @@ describe('Add shifts', function() {
 })
 
 describe('Register user', function() {
-  it('responds with json', function(done) {
+  it('Can register a user', function(done) {
     request(app)
       .post('/users/register')
       .send(
@@ -45,7 +45,7 @@ describe('Register user', function() {
 })
 
 describe('Login user', function() {
-  it('approves correct credentials', function(done) {
+  it('Approves correct credentials', function(done) {
     request(app)
       .post('/users/login')
       .send(
@@ -58,7 +58,7 @@ describe('Login user', function() {
       .expect(200, done);
   });
 
-  it('rejects invalid email', function(done) {
+  it('Rejects invalid email', function(done) {
     request(app)
       .post('/users/login')
       .send(
@@ -71,7 +71,7 @@ describe('Login user', function() {
       .expect(400, done);
   });
 
-  it('rejects invalid password', function(done) {
+  it('Rejects invalid password', function(done) {
     request(app)
       .post('/users/login')
       .send(
