@@ -9,6 +9,7 @@ jobs:
       - image: circleci/node:8.16
         environment:
             NODE_ENV: test
+            JWT_SECRET: HeadedForAFadedHorizon
 
       - image: circleci/postgres:10.8
         environment:
