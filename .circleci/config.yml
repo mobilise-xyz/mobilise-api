@@ -47,9 +47,8 @@ jobs:
           command: dockerize -wait tcp://localhost:5432 -timeout 1m
 
       - run: npm install --save sequelize
-      - run: npm install --save sequelize-cli
-      - run: npm install --save pg pg-hstore
-      - run: sequelize db:migrate
+      - run: yarn global add sequelize-cli
+      - run: ./node_modules/.bin/sequelize db:migrate
 
   deploy:
     docker:
