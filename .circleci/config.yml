@@ -48,7 +48,7 @@ jobs:
 
       - run: npm install --save sequelize
       - run: yarn global add sequelize-cli
-      - run: ./node_modules/.bin/sequelize init
+      - run: cd server
       - run: ./node_modules/.bin/sequelize db:migrate
       - run: yarn test
 
