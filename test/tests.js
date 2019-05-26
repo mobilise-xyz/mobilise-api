@@ -1,7 +1,7 @@
 var request = require('supertest');
 var app = require('../app');
 
-describe('GET /shifts', function() {
+describe('View shifts', function() {
   it('responds with json', function(done) {
     request(app)
       .get('/shifts')
@@ -10,7 +10,7 @@ describe('GET /shifts', function() {
   });
 })
 
-describe('POST /shifts', function() {
+describe('Add shifts', function() {
   it('responds with json', function(done) {
     request(app)
       .post('/shifts')
@@ -40,5 +40,46 @@ describe('Register user', function() {
         )
       .set('Accept', 'application/json')
       .expect(201, done);
+  });
+})
+
+describe('Login user', function() {
+  it('approves correct credentials', function(done) {
+    request(app)
+      .post('/users/login')
+      .send(
+        {
+          email: 'testtesterson@testing.com',
+          password: 'Test123'
+        }
+        )
+      .set('Accept', 'application/json')
+      .expect(200, done);
+  });
+
+  it('rejects invalid email', function(done) {
+    request(app)
+      .post('/users/login')
+      .send(
+        {
+          email: 'testtesterson@testing.com',
+          password: 'Testing123'
+        }
+        )
+      .set('Accept', 'application/json')
+      .expect(400, done);
+  });
+
+  it('rejects invalid password', function(done) {
+    request(app)
+      .post('/users/login')
+      .send(
+        {
+          email: 'testtesterson@testing.com',
+          password: 'Invalid123'
+        }
+        )
+      .set('Accept', 'application/json')
+      .expect(400, done);
   });
 })
