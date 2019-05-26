@@ -3,10 +3,11 @@
   "version": "0.0.0",
   "private": true,
   "scripts": {
-    "start": "node ./bin/www",
-    "migrate": "./node_modules/.bin/sequelize db:migrate",
-    "preload": "./node_modules/.bin/sequelize db:seed:all",
-    "test": "mocha"
+    "start": "yarn migratedb && node ./bin/www",
+    "migratedb": "./node_modules/.bin/sequelize db:migrate",
+    "preloaddb": "./node_modules/.bin/sequelize db:seed:all",
+    "cleardb": "./node_modules/.bin/sequelize db:seed:undo:all",
+    "test": "yarn migratedb && yarn preloaddb && mocha && yarn cleardb"
   },
   "dependencies": {
     "bcrypt": "^3.0.6",

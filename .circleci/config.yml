@@ -53,8 +53,6 @@ jobs:
       - run:
           name: Test 
           command: | 
-            yarn migrate
-            yarn preload
             yarn test
 
   deploy:
