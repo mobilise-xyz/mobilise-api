@@ -2,17 +2,22 @@
 
 # Mobilise [API]
 
-This is the API that serves the Mobilise app. The client for this web app can be found [here](https://github.com/sonjoonho/mobilise-frontend)
+This is the API that serves the [Mobilise app](www.mobilise.xyz). The client for this web app can be found [here](https://github.com/sonjoonho/mobilise-frontend).
 
 ## Getting Started
 
 Add .env file with:
+
+```
 DB_USERNAME=
 DB_PASSWORD=
 DB_NAME=
 DB_PORT=
+```
 
 Set up local postgres database and populate .env values respectively.
+
+To start the development server:
 
 ```bash
 yarn install
