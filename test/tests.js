@@ -1,6 +1,7 @@
 var request = require('supertest');
 var app = require('../app');
 
+
 describe('View shifts', function() {
   it('responds with json', function(done) {
     request(app)
@@ -45,22 +46,6 @@ describe('Register user', function() {
 
 describe('Login user', function() {
   it('approves correct credentials', function(done) {
-    // Register a user
-    request(app)
-      .post('/users/register')
-      .send(
-        {
-          firstName: 'Test',
-          lastName: 'Testerson',
-          email: 'testtesterson@testing.com',
-          password: 'Test123',
-          dob: '1998-11-25'
-        }
-        )
-      .set('Accept', 'application/json')
-      .expect(201, null);
-    
-    // Login that user
     request(app)
       .post('/users/login')
       .send(
@@ -78,7 +63,7 @@ describe('Login user', function() {
       .post('/users/login')
       .send(
         {
-          email: 'testtesterson@testing.com',
+          email: 'testerson@testing.com',
           password: 'Testing123'
         }
         )

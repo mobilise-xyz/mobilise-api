@@ -4,8 +4,9 @@
   "private": true,
   "scripts": {
     "start": "node ./bin/www",
-    "test": "mocha",
-    "migrate": "./node_modules/.bin/sequelize db:migrate"
+    "migrate": "./node_modules/.bin/sequelize db:migrate",
+    "preload": "./node_modules/.bin/sequelize db:seed:all",
+    "test": "mocha"
   },
   "dependencies": {
     "bcrypt": "^3.0.6",

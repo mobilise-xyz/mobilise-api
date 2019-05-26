@@ -52,7 +52,7 @@ jobs:
       - run: cd server
 
       - run: yarn migrate
-
+      - run: yarn preload
       - run: yarn test
 
   deploy:
