@@ -45,6 +45,22 @@ describe('Register user', function() {
 
 describe('Login user', function() {
   it('approves correct credentials', function(done) {
+    // Register a user
+    request(app)
+      .post('/users/register')
+      .send(
+        {
+          firstName: 'Test',
+          lastName: 'Testerson',
+          email: 'testtesterson@testing.com',
+          password: 'Test123',
+          dob: '1998-11-25'
+        }
+        )
+      .set('Accept', 'application/json')
+      .expect(201, null);
+    
+    // Login that user
     request(app)
       .post('/users/login')
       .send(
