@@ -27,6 +27,7 @@ module.exports = {
           }
       })
       .catch(function(err){
+          console.log("Something went wrong");
           res.status(400).send(err)
       })
   }

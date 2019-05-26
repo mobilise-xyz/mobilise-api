@@ -51,8 +51,7 @@ jobs:
           
       - run:
           name: Test 
-          command: |
-            cd server 
+          command: | 
             yarn migrate
             yarn preload
             yarn test
