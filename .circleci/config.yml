@@ -30,7 +30,7 @@ jobs:
             # fallback to using the latest cache if no exact match is found
             - v1-dependencies-
 
-      - run: yarn install --ignore-engies
+      - run: yarn install
 
       - save_cache:
           paths:
@@ -45,9 +45,7 @@ jobs:
       - run:
           name: Wait for db
           command: dockerize -wait tcp://localhost:5432 -timeout 1m
-
-      - run: npm install --save sequelize
-      - run: yarn global add sequelize-cli
+          
       - run: cd server
       - run: ./node_modules/.bin/sequelize db:migrate
       - run: yarn test
