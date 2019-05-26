@@ -32,10 +32,10 @@ describe('Register user', function() {
       .post('/users/register')
       .send(
         {
-          firstName: 'Test',
-          lastName: 'Testerson',
-          email: 'testtesterson@testing.com',
-          password: 'Test123',
+          firstName: 'James',
+          lastName: 'Test',
+          email: 'jamestest@testing.com',
+          password: 'Testing123',
           dob: '1998-11-25'
         }
         )
