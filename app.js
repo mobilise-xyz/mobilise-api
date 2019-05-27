@@ -4,8 +4,13 @@ var cors = require('cors');
 var path = require('path');
 var cookieParser = require('cookie-parser');
 var logger = require('morgan');
+const passport = require('passport');
 
-require('dotenv').config()
+if(process.env.NODE_ENV !== 'production') {
+  require('dotenv').config()
+}
+
+require('./passport');
 
 var app = express();
 
@@ -28,7 +33,7 @@ app.use(express.static(path.join(__dirname, 'public')));
 
 app.use('/', indexRouter);
 app.use('/users', usersRouter);
-app.use('/shifts', shiftsRouter);
+app.use('/shifts', passport.authenticate('jwt', {session:false}), shiftsRouter);
 
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {

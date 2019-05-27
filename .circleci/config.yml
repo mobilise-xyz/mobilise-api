@@ -9,6 +9,7 @@ jobs:
       - image: circleci/node:8.16
         environment:
             NODE_ENV: test
+            JWT_SECRET: HeadedForAFadedHorizon
 
       - image: circleci/postgres:10.8
         environment:
@@ -49,11 +50,9 @@ jobs:
           name: Wait for DB
           command: dockerize -wait tcp://localhost:5432 -timeout 1m
           
-      - run: cd server
-
-      - run: ./node_modules/.bin/sequelize db:migrate
-
-      - run: yarn test
+      - run:
+          name: Run Tests 
+          command: yarn test
 
   deploy:
     docker:

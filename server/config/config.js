@@ -1,4 +1,9 @@
 module.exports = {
+  "token": {
+    "timeout": 9999
+  },
+  "jwt-secret": process.env.JWT_SECRET
+  ,
   "development": {
     "username": process.env.DB_USERNAME,
     "password": process.env.DB_PASSWORD,

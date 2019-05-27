@@ -3,10 +3,14 @@
   "version": "0.0.0",
   "private": true,
   "scripts": {
-    "start": "node ./bin/www",
-    "test": "mocha"
+    "start": "yarn migratedb && node ./bin/www",
+    "migratedb": "./node_modules/.bin/sequelize db:migrate",
+    "preloaddb": "./node_modules/.bin/sequelize db:seed:all",
+    "cleardb": "./node_modules/.bin/sequelize db:seed:undo:all",
+    "test": "yarn migratedb && yarn preloaddb && mocha && yarn cleardb"
   },
   "dependencies": {
+    "bcrypt": "^3.0.6",
     "cookie-parser": "~1.4.4",
     "cors": "^2.8.5",
     "debug": "~2.6.9",
@@ -14,9 +18,12 @@
     "express": "~4.16.1",
     "http-errors": "~1.6.3",
     "jade": "~1.11.0",
+    "jsonwebtoken": "^8.5.1",
     "mocha": "^6.1.4",
     "morgan": "~1.9.1",
     "node-pg-migrate": "^3.20.0",
+    "passport": "^0.4.0",
+    "passport-jwt": "^4.0.0",
     "pg": "^7.11.0",
     "sequelize": "^5.8.6",
     "sequelize-cli": "^5.4.0",
