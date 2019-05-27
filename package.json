@@ -3,7 +3,7 @@
   "version": "0.0.0",
   "private": true,
   "scripts": {
-    "start": "yarn migratedb && node ./bin/www",
+    "start": "./node_modules/.bin/sequelize db:migrate && node ./bin/www",
     "migratedb": "./node_modules/.bin/sequelize db:migrate",
     "preloaddb": "./node_modules/.bin/sequelize db:seed:all",
     "cleardb": "./node_modules/.bin/sequelize db:seed:undo:all",
