@@ -21,11 +21,11 @@ module.exports = {
     "dialect": "postgres"
   },
   "production": {
-    "host": process.env.DOC_HOSTNAME,
-    "database": process.env.DOC_DB_NAME,
-    "username": process.env.DOC_USERNAME,
-    "password": process.env.DOC_PASSWORD,
-    "port" : process.env.DOC_PORT,
+    "host": process.env.RDS_HOSTNAME,
+    "database": process.env.RDS_DB_NAME,
+    "username": process.env.RDS_USERNAME,
+    "password": process.env.RDS_PASSWORD,
+    "port" : process.env.RDS_PORT,
     "dialect": "postgres"
   }
 }
