@@ -9,7 +9,7 @@ module.exports = {
         type: Sequelize.INTEGER
       },
       roles: {
-        type: Sequelize.ARRAY(Sequelize.STRING)
+        type: Sequelize.ARRAY(Sequelize.INTEGER)
       },
       createdAt: {
         allowNull: false,
