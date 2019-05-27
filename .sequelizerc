@@ -1,5 +1,9 @@
 const path = require('path');
 
+if(process.env.NODE_ENV !== 'production' && process.env.NODE_ENV !== 'test') {
+  require('dotenv').config()
+}
+
 module.exports = {
   'config': path.resolve('server/config', 'config.js'),
   'models-path': path.resolve('server', 'models'),
