@@ -7,7 +7,6 @@ describe('Register users', function() {
       .post('/users/register')
       .send(
         {
-          id: '8fa1b90c-80b6-11e9-bc42-526af7764f64',
           firstName: 'James',
           lastName: 'Test',
           email: 'jamestest@testing.com',
