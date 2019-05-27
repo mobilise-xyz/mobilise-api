@@ -23,7 +23,7 @@ module.exports = {
   "production": {
     "host": process.env.DOC_HOSTNAME,
     "database": process.env.DOC_DB_NAME,
-    "user": process.env.DOC_USERNAME,
+    "username": process.env.DOC_USERNAME,
     "password": process.env.DOC_PASSWORD,
     "port" : process.env.DOC_PORT,
     "dialect": "postgres"
