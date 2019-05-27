@@ -1,12 +1,11 @@
 'use strict';
+const User = require('../models').User;
 module.exports = (sequelize, DataTypes) => {
     const Volunteer = sequelize.define('Volunteer', {
 
     }, {});
     Volunteer.associate = function(models) {
-        // associations can be defined here
+        this.myAssociation = this.belongsTo(models.User);
     };
-    // belongsTo adds foreign key to source
-    Volunteer.belongsTo(User);
     return Volunteer;
 };
