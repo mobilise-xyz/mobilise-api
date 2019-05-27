@@ -14,6 +14,18 @@ module.exports = {
       description: {
         type: Sequelize.STRING
       },
+      date: {
+        type: Sequelize.DATEONLY
+      }, 
+      start: {
+        type: Sequelize.TIME
+      },
+      stop: {
+        type: Sequelize.TIME
+      },
+      postcode: {
+        type: Sequelize.STRING
+      },
       createdAt: {
         allowNull: false,
         type: Sequelize.DATE

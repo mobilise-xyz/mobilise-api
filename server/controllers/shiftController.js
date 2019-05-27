@@ -8,7 +8,11 @@ module.exports = {
       return Shift
       .create({
         title: req.body.title,
-        description: req.body.description
+        description: req.body.description,
+        date: req.body.date,
+        start: req.body.start,
+        stop: req.body.stop,
+        postcode: req.body.postcode
       })
       .then((shift) => res.status(201).send(shift))
       .catch((error) => res.status(400).send(error));
