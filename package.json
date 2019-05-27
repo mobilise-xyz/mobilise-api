@@ -10,7 +10,7 @@
     "test": "yarn migratedb && yarn preloaddb && mocha && yarn cleardb"
   },
   "dependencies": {
-    "bcrypt": "^3.0.6",
+    "bcryptjs": "^2.4.3",
     "cookie-parser": "~1.4.4",
     "cors": "^2.8.5",
     "debug": "~2.6.9",
