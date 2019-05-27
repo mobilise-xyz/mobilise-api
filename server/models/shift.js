@@ -3,8 +3,9 @@ module.exports = (sequelize, DataTypes) => {
   const Shift = sequelize.define('Shift', {
     title: DataTypes.STRING,
     description: DataTypes.STRING,
-    start: DataTypes.DATE,
-    stop: DataTypes.DATE,
+    date: DataTypes.DATEONLY,
+    start: DataTypes.TIME,
+    stop: DataTypes.TIME,
     postcode: DataTypes.STRING
   }, {});
   Shift.associate = function(models) {
