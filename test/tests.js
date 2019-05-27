@@ -151,6 +151,10 @@ describe('Add shifts', function() {
         {
           title: 'Food pickup',
           description: 'I mean its pretty self explanatory mate',
+          date: '2019/05/27',
+          start: '16:00',
+          stop: '18:00',
+          postcode: 'SW72AZ'
         }
         )
         .set('Authorization', 'Bearer '+response.body.token)
