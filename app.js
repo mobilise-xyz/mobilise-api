@@ -19,6 +19,7 @@ app.use(cors());
 var indexRouter = require('./server/routes/index');
 var usersRouter = require('./server/routes/users');
 var shiftsRouter = require('./server/routes/shifts');
+var rolesRouter = require('./server/routes/roles');
 var authRouter = require('./server/routes/auth');
 
 // view engine setup
@@ -35,6 +36,7 @@ app.use(express.static(path.join(__dirname, 'public')));
 app.use('/', indexRouter);
 app.use('/auth', authRouter);
 app.use('/shifts', passport.authenticate('jwt', {session:false}), shiftsRouter);
+app.use('/roles', passport.authenticate('jwt', {session:false}), rolesRouter);
 app.use('/users', passport.authenticate('jwt', {session:false}), usersRouter);
 
 // catch 404 and forward to error handler
