@@ -271,3 +271,34 @@ describe('Add roles', function() {
       });
   })
 })
+
+describe('Retrieve roles', function() {
+  it('Does not allow unauthorised requests to get roles', function(done) {
+    request(app)
+      .get('/roles')
+      .set('Accept', 'application/json')
+      .expect(401, done);
+  });
+
+  it('Allows authorised request to get roles', function(done) {
+    // Acquire bearer token
+    request(app)
+      .post('/auth/login')
+      .send(
+        {
+          email: 'testvolunteer@testing.com',
+          password: 'Volunteer123'
+        }
+        )
+      .set('Accept', 'application/json')
+      .expect(200)
+      .then(response => {
+        // Use bearer token to get roles
+        request(app)
+        .get('/roles')
+        .set('Authorization', 'Bearer '+response.body.token)
+        .set('Accept', 'application/json')
+        .expect(200, done);
+      });
+  });
+})
