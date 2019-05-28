@@ -1,4 +1,5 @@
 const User = require('../models').User;
+const Volunteer = require('../models').Volunteer;
 var bcrypt = require('bcryptjs');
 var config = require('../config/config.js');
 var jwt = require('jsonwebtoken');
@@ -14,6 +15,17 @@ module.exports = {
             admin: req.body.admin,
             dob: req.body.dob
         })
+        .then((user) => {
+            if (!user.admin) {
+              Volunteer.create({
+                id: user.id
+              })
+            } else {
+              // Admin table
+            }
+      
+            return user
+          })
         .then((user) => res.status(201).send(
             {
                 id: user.id, 

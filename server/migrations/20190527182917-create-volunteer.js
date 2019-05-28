@@ -4,9 +4,13 @@ module.exports = {
     return queryInterface.createTable('Volunteers', {
       id: {
         allowNull: false,
-        autoIncrement: true,
         primaryKey: true,
-        type: Sequelize.INTEGER
+        type: Sequelize.UUID,
+        references: {
+          model: 'Users',
+          key: 'id'
+        },
+        onDelete: 'CASCADE'
       },
       roles: {
         type: Sequelize.ARRAY(Sequelize.INTEGER)
