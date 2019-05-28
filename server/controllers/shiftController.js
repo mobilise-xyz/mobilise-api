@@ -1,6 +1,5 @@
 const Shift = require('../models').Shift;
 const Role = require('../models').Role;
-const ShiftRole = require('../models').ShiftRole;
 
 module.exports = {
   create(req, res) {
@@ -16,7 +15,7 @@ module.exports = {
         stop: req.body.stop,
         postcode: req.body.postcode
       })
-      .then((shift) => {
+      .then(shift => {
         if (req.body.rolesRequired) {
           var rolesRequired = JSON.parse(req.body.rolesRequired);
           var i;
@@ -25,21 +24,17 @@ module.exports = {
             Role
             .findOne({where: {id: roleRequired.roleId}})
             .then((role) => {
-              ShiftRole
-              .create({
-                shiftId: shift.id,
-                roleId: role.id,
-                numberRequired: roleRequired.number
-              })
-            })
+              shift
+              .addRole(role, {through: {  numberRequired: roleRequired.number}});
+              });
+            }
           }
-        }
-        return shift;
+          return shift;
+        })
+      .then(result => {
+        res.status(201).send(result);
       })
-      .then(shift => {
-        res.status(201).send(shift);
-      })
-      .catch((error) => res.status(400).send(error));
+      .catch(error => res.status(400).send(error));
     }
   },
   
