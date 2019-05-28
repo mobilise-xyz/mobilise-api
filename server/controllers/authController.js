@@ -42,7 +42,7 @@ module.exports = {
       User.findOne({where: {email: req.body.email} })
       .then((user) => {
           if (user && validatePassword(req.body.password, user.password)) {
-            res.status(200).json({message: "Successful login!", token: generateToken(user)});
+            res.status(200).json({message: "Successful login!", uid: user.id, token: generateToken(user)});
           } else{
             res.status(400).json({message: "Invalid username/password"});
           }
