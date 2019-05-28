@@ -1,6 +1,6 @@
 var express = require('express');
 var router = express.Router();
-var controller = require('../controllers/authController');
+var controller = require('../controllers').AuthController;
 
 router.post('/login',	function(req, res) {
   controller.loginUser(req, res);

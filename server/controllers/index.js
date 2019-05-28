@@ -1,5 +1,11 @@
-const shiftController = require('./shiftController');
+const ShiftController = require('./shiftController');
+const AuthController = require('./authController');
+const RoleController = require('./roleController');
+const UserController = require('./userController');
 
 module.exports = {
-  shiftController,
+  ShiftController,
+  AuthController,
+  RoleController,
+  UserController,
 };
