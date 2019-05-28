@@ -8,8 +8,8 @@ jobs:
     docker:
       - image: circleci/node:8.16
         environment:
-            NODE_ENV: test
-            JWT_SECRET: HeadedForAFadedHorizon
+          NODE_ENV: test
+          JWT_SECRET: HeadedForAFadedHorizon
 
       - image: circleci/postgres:10.8
         environment:
@@ -49,9 +49,9 @@ jobs:
       - run:
           name: Wait for DB
           command: dockerize -wait tcp://localhost:5432 -timeout 1m
-          
+
       - run:
-          name: Run Tests 
+          name: Run Tests
           command: yarn test
 
   deploy:
@@ -90,7 +90,7 @@ jobs:
       - run:
           name: Deploy to Elastic Beanstalk
           command: |
-            eb use Mobilise-env --profile eb-cli
+            eb use mobilise-api-dev2 --profile eb-cli
             eb deploy -v --staged --profile eb-cli
 
 workflows:
