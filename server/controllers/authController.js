@@ -18,12 +18,11 @@ module.exports = {
         .then((user) => {
             if (!user.admin) {
               Volunteer.create({
-                id: user.id
+                userId: user.id
               })
             } else {
               // Admin table
             }
-      
             return user
           })
         .then((user) => res.status(201).send(
