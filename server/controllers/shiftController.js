@@ -1,4 +1,4 @@
-const shiftRepository = require('../repositories/shiftRepository');
+const shiftRepository = require('../repositories').ShiftRepository;
 
 module.exports = {
   create(req, res) {

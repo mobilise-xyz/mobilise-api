@@ -1,6 +1,6 @@
 const Role = require('../models').Role;
 const Shift = require('../models').Shift;
-const roleRepository = require('./roleRepository');
+const roleRepository = require('./').RoleRepository;
 const Q = require('q');
 
 module.exports = {

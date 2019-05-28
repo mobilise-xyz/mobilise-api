@@ -1,5 +1,5 @@
-const userRepository = require('../repositories/userRepository');
-const volunteerRepository = require('../repositories/volunteerRepository');
+const userRepository = require('../repositories').UserRepository;
+const volunteerRepository = require('../repositories').VolunteerRepository;
 var bcrypt = require('bcryptjs');
 var config = require('../config/config.js');
 var jwt = require('jsonwebtoken');

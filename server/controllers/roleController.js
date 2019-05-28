@@ -1,4 +1,4 @@
-const roleRepository = require('../repositories/roleRepository');
+const roleRepository = require('../repositories').RoleRepository;
 
 module.exports = {
   create(req, res) {

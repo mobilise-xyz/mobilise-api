@@ -1,4 +1,4 @@
-const userRepository = require('../repositories/userRepository');
+const userRepository = require('../repositories').UserRepository;
 
 module.exports = {
   getById: function(req, res) {
