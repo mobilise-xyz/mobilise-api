@@ -5,10 +5,7 @@ module.exports = {
     if (!req.user.admin) {
       res.status(401).send({message: "Only admin can add roles"})
     } else {
-      return roleRepository.add({
-        name: req.body.name,
-        involves: req.body.involves
-      })
+      return roleRepository.add(req.body)
       .then(role => res.status(201).send(role))
       .catch(error => res.status(400).send(error));
     }

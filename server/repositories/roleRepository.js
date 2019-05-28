@@ -14,6 +14,15 @@ module.exports = {
     return deferred.promise;
   },
 
+  getById: function(id) {
+    var deferred = Q.defer();
+    Role
+    .findOne({where: {id: id}})
+    .then(role => deferred.resolve(role))
+    .catch(error => deferred.reject(error));
+    return deferred.promise;
+  },
+
   getAll: function()  {
     var deferred = Q.defer();
     Role
