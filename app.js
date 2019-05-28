@@ -19,6 +19,7 @@ app.use(cors());
 var indexRouter = require('./server/routes/index');
 var usersRouter = require('./server/routes/users');
 var shiftsRouter = require('./server/routes/shifts');
+var authRouter = require('./server/routes/auth');
 
 // view engine setup
 app.set('views', path.join(__dirname, 'views'));
@@ -32,8 +33,9 @@ app.use(express.static(path.join(__dirname, 'public')));
 
 
 app.use('/', indexRouter);
-app.use('/users', usersRouter);
+app.use('/auth', authRouter);
 app.use('/shifts', passport.authenticate('jwt', {session:false}), shiftsRouter);
+app.use('/users', passport.authenticate('jwt', {session:false}), usersRouter);
 
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {
