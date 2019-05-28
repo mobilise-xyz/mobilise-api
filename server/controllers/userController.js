@@ -1,30 +1,40 @@
 const User = require('../models').User;
+const Volunteer = require('../models').Volunteer;
 var bcrypt = require('bcryptjs');
 var config = require('../config/config.js');
 var jwt = require('jsonwebtoken');
 
 module.exports = {
   registerUser: function(req, res) {
-      var hash = hashedPassword(req.body.password)
-        return User.create({
-            firstName: req.body.firstName,
-            lastName: req.body.lastName,
-            email: req.body.email,
-            password: hash,
-            admin: req.body.admin,
-            dob: req.body.dob
+
+    return User.create({
+      firstName: req.body.firstName,
+      lastName: req.body.lastName,
+      email: req.body.email,
+      password: hashedPassword(req.body.password),
+      admin: req.body.admin,
+      dob: req.body.dob
+    })
+    .then((user) => {
+      if (!user.admin) {
+        Volunteer.create({
+          id: user.id
         })
-        .then((user) => res.status(201).send(
-            {
-                id: user.id, 
-                firstName: user.firstName, 
-                lastName: user.lastName,
-                email: user.email,
-                admin: user.admin,
-                dob: user.dob
-            }
-            ))
-        .catch((error) => res.status(400).send(error));
+      } else {
+        // Admin table
+      }
+
+      return user
+    })
+    .then((user) => res.status(201).send({
+        id: user.id, 
+        firstName: user.firstName, 
+        lastName: user.lastName,
+        email: user.email,
+        admin: user.admin,
+        dob: user.dob
+    }))
+    .catch((error) => res.status(400).send(error));
   },
 
   loginUser: function(req, res) {
