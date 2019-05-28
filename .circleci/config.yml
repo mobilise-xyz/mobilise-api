@@ -90,7 +90,7 @@ jobs:
       - run:
           name: Deploy to Elastic Beanstalk
           command: |
-            eb use mobilise-api-dev --profile eb-cli
+            eb use Mobilise-env --profile eb-cli
             eb deploy -v --staged --profile eb-cli
 
 workflows:
