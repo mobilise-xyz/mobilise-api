@@ -33,7 +33,11 @@ module.exports = (sequelize, DataTypes) => {
     },
   }, {});
   Shift.associate = function(models) {
-    // associations can be defined here
+    Shift.belongsToMany(models.Role, {
+      through: models.ShiftRole,
+      as: "roles",
+      foreignKey: "shiftId"
+    });
   };
   return Shift;
 };

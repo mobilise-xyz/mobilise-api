@@ -5,7 +5,11 @@ module.exports = (sequelize, DataTypes) => {
     involves: DataTypes.STRING
   }, {});
   Role.associate = function(models) {
-    // associations can be defined here
+    Role.belongsToMany(models.Shift, {
+      as: 'shifts', 
+      through: models.ShiftRole,
+      foreignKey: 'roleId' }
+   );
   };
   return Role;
 };
