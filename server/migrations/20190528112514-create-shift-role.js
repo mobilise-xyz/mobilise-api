@@ -1,19 +1,29 @@
 'use strict';
 module.exports = {
   up: (queryInterface, Sequelize) => {
-    return queryInterface.createTable('Volunteers', {
-      userId: {
+    return queryInterface.createTable('ShiftRoles', {
+      shiftId: {
         allowNull: false,
         primaryKey: true,
         type: Sequelize.UUID,
         references: {
-          model: 'Users',
+          model: 'Shifts',
           key: 'id'
         },
         onDelete: 'CASCADE'
       },
-      roles: {
-        type: Sequelize.ARRAY(Sequelize.INTEGER)
+      roleId: {
+        type: Sequelize.INTEGER,
+        allowNull: false,
+        primaryKey: true,
+        references: {
+          model: 'Roles',
+          key: 'id'
+        },
+        onDelete: 'CASCADE'
+      },
+      numberRequired: {
+        type: Sequelize.INTEGER
       },
       createdAt: {
         allowNull: false,
@@ -26,6 +36,6 @@ module.exports = {
     });
   },
   down: (queryInterface, Sequelize) => {
-    return queryInterface.dropTable('Volunteers');
+    return queryInterface.dropTable('ShiftRoles');
   }
 };
