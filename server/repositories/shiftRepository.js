@@ -21,15 +21,23 @@ module.exports = {
   },
 
   addRequiredRoles: function(shift, rolesRequired) {
-    var deferred = Q.defer();
+    var promises = [];
     rolesRequired.forEach(function(roleRequired) {
+      promises.push(
       roleRepository.getById(roleRequired.roleId)
-      .then((role) => {
-        shift
+      .then(role => {
+        return shift
         .addRole(role, {through: {  numberRequired: roleRequired.number}});
-        });
+      }));
     });
-    deferred.resolve(shift);
+    return Q.all(promises).then(roles => {return {shift: shift, roles: roles}});
+  },
+
+  getAll: function() {
+    var deferred = Q.defer();
+    Shift.findAll({include: ['roles']})
+    .then(shifts => deferred.resolve(shifts))
+    .catch(err => deferred.resolve(err));
     return deferred.promise;
   }
 };
