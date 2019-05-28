@@ -1,13 +1,13 @@
 branch-defaults:
   master:
-    environment: mobilise-api-dev
+    environment: Mobilise-env
     group_suffix: null
 environment-defaults:
   mobilise-api-dev:
     branch: null
     repository: null
 global:
-  application_name: mobilise-api
+  application_name: mobilise
   branch: null
   default_ec2_keyname: null
   default_platform: Node.js
