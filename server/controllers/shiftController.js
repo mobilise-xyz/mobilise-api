@@ -1,5 +1,3 @@
-const Shift = require('../models').Shift;
-const Role = require('../models').Role;
 const shiftRepository = require('../repositories/shiftRepository');
 
 module.exports = {
@@ -16,10 +14,10 @@ module.exports = {
         }
         return shift;
         })
+      .catch(error => res.status(400).send(error))
       .then(result => {
         res.status(201).send(result);
-      })
-      .catch(error => res.status(400).send(error));
+      });
     }
   },
   

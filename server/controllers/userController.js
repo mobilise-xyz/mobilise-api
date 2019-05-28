@@ -1,12 +1,16 @@
-const User = require('../models').User;
+const userRepository = require('../repositories/userRepository');
 
 module.exports = {
   getById: function(req, res) {
-      User.findOne({where: {id: req.params.id}, attributes: ['id', 'firstName', 'lastName', 'email']})
-      .then((user) => {
-          res.status(200).send(user);
+      userRepository.getById(req.params.id)
+      .then(user => {
+          res.status(200).send({
+              id: user.id,
+              firstName: user.firstName,
+              lastName: user.lastName
+          });
       })
-      .catch((err) => {
+      .catch(err => {
           res.status(400).send(err);
       })
   }
