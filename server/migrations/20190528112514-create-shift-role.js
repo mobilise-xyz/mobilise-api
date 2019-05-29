@@ -12,13 +12,13 @@ module.exports = {
         },
         onDelete: 'CASCADE'
       },
-      roleId: {
-        type: Sequelize.INTEGER,
+      roleName: {
+        type: Sequelize.STRING,
         allowNull: false,
         primaryKey: true,
         references: {
           model: 'Roles',
-          key: 'id'
+          key: 'name'
         },
         onDelete: 'CASCADE'
       },
