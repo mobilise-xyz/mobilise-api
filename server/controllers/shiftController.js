@@ -15,7 +15,7 @@ module.exports = {
           var i;
           for (i = 0; i < rolesRequired.length; i++) {
             var roleRequired = rolesRequired[i];
-            await roleRepository.getById(roleRequired.roleId)
+            await roleRepository.getByName(roleRequired.roleName)
             .then(role => {
               if (role) {
                 return shift.addRole(role, {through: {numberRequired: roleRequired.number}});
