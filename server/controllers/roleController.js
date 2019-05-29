@@ -10,7 +10,7 @@ module.exports = {
       roleRepository.getByName(req.body.name)
       .then(role => {
         if (role) {
-          res.send(400).send({message: "Role with that name already exists"})
+          res.status(400).send({message: "Role with that name already exists"})
         } else { 
           roleRepository.add(req.body)
           .then(role => res.status(201).send(role))

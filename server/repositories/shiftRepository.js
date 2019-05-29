@@ -19,11 +19,21 @@ module.exports = {
     return deferred.promise;
   },
 
-  getAll: function() {
+  getAllWithRoles: function() {
     var deferred = Q.defer();
     Shift.findAll({include: ['roles']})
     .then(shifts => deferred.resolve(shifts))
     .catch(err => deferred.resolve(err));
     return deferred.promise;
+  },
+
+  getAll: function(attributes) {
+    var deferred = Q.defer();
+    Shift.findAll({attributes: attributes})
+    .then(shifts => deferred.resolve(shifts))
+    .catch(err => deferred.resolve(err));
+    return deferred.promise;
   }
+
+
 };
