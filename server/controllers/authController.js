@@ -1,5 +1,6 @@
 const userRepository = require('../repositories').UserRepository;
 const volunteerRepository = require('../repositories').VolunteerRepository;
+const adminRepository = require('../repositories').AdminRepository;
 var bcrypt = require('bcryptjs');
 var config = require('../config/config.js');
 var jwt = require('jsonwebtoken');
@@ -12,7 +13,7 @@ module.exports = {
           if (!user.admin) {
             volunteerRepository.add({userId: user.id})
           } else {
-            // Admin table
+            adminRepository.add({userId: user.id})
           }
           return user
       })
