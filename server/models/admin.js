@@ -17,6 +17,7 @@ module.exports = (sequelize, DataTypes) => {
     });
     Admin.hasMany(models.Shift, {
       as: "shifts",
+      foreignKey: "creatorId"
     });
   };
   return Admin;

@@ -24,7 +24,7 @@ module.exports = {
     var deferred = Q.defer();
     Shift.findAll({include: ['roles']})
     .then(shifts => deferred.resolve(shifts))
-    .catch(err => deferred.resolve(err));
+    .catch(err => deferred.reject(err));
     return deferred.promise;
   }
 };

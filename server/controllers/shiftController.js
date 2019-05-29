@@ -36,7 +36,7 @@ module.exports = {
   
   list(req, res) {
       shiftRepository.getAll()
-      .then((shifts) => res.status(200).send(shifts))
-      .catch((error) => res.status(400).send(error));
+      .then(shifts => res.status(200).send(shifts))
+      .catch(error => res.status(400).send(error));
   },
 };
