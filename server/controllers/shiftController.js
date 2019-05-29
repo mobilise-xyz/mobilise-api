@@ -1,23 +1,36 @@
 const shiftRepository = require('../repositories').ShiftRepository;
+const roleRepository = require('../repositories').RoleRepository;
+const Q = require('q');
 
 module.exports = {
   create(req, res) {
     if (!req.user.admin) {
       res.status(401).send({message: "Only admin can add shifts"})
     } else {
-      return shiftRepository
+      shiftRepository
       .add(req.body)
-      .then(shift => {
+      .then(async(shift) => {
         if (req.body.rolesRequired) {
           var rolesRequired = JSON.parse(req.body.rolesRequired);
-          return shiftRepository.addRequiredRoles(shift, rolesRequired);
+          var i;
+          for (i = 0; i < rolesRequired.length; i++) {
+            var roleRequired = rolesRequired[i];
+            await roleRepository.getById(roleRequired.roleId)
+            .then(role => {
+              if (role) {
+                return shift.addRole(role, {through: {numberRequired: roleRequired.number}});
+              } else {
+                return Q.reject("No role with id");
+              }
+            });
+          }
         }
         return shift;
         })
-      .catch(error => res.status(400).send(error))
       .then(result => {
         res.status(201).send(result);
-      });
+      })
+      .catch(error => res.status(400).send(error))
     }
   },
   
