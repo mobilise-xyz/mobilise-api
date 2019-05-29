@@ -2,15 +2,15 @@ var request = require('supertest');
 var app = require('../app');
 var chai = require('chai');
 
-describe('Register users', function() {
-  it('Can register a user', function(done) {
+describe('Register Volunteer', function() {
+  it('Can register a volunteer', function(done) {
     request(app)
       .post('/auth/register')
       .send(
         {
-          firstName: 'James',
-          lastName: 'Test',
-          email: 'jamestest@testing.com',
+          firstName: 'Volun',
+          lastName: 'Teer',
+          email: 'volunteer@testing.com',
           password: 'Testing123',
           dob: '1998-11-25'
         }
@@ -22,10 +22,11 @@ describe('Register users', function() {
           done(error);
         }
 
-        chai.expect(response.body.firstName).to.equal('James');
-        chai.expect(response.body.lastName).to.equal('Test');
-        chai.expect(response.body.email).to.equal('jamestest@testing.com');
+        chai.expect(response.body.firstName).to.equal('Volun');
+        chai.expect(response.body.lastName).to.equal('Teer');
+        chai.expect(response.body.email).to.equal('volunteer@testing.com');
         chai.expect(response.body.dob).to.equal('1998-11-25');
+        chai.expect(response.body.admin).to.equal(false);
         
         done();
       })
