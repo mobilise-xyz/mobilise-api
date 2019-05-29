@@ -2,11 +2,20 @@ const roleRepository = require('../repositories').RoleRepository;
 
 module.exports = {
   create(req, res) {
+    // Check if admin
     if (!req.user.admin) {
       res.status(401).send({message: "Only admin can add roles"})
     } else {
-      return roleRepository.add(req.body)
-      .then(role => res.status(201).send(role))
+      // Check if already exists
+      roleRepository.getByName(req.body.name)
+      .then(role => {
+        if (role) {
+          res.send(400).send({message: "Role with that name already exists"})
+        } else { 
+          roleRepository.add(req.body)
+          .then(role => res.status(201).send(role))
+        }
+      })
       .catch(error => res.status(500).send(error));
     }
   },
@@ -14,7 +23,7 @@ module.exports = {
   list(req, res) {
       return roleRepository
       .getAll()
-      .then((roles) => res.status(200).send(roles))
-      .catch((error) => res.status(500).send(error));
+      .then(roles => res.status(200).send(roles))
+      .catch(err => res.status(500).send(error));
   },
 };
