@@ -44,14 +44,30 @@ module.exports = {
         .then(result => {
           res.status(201).send(result);
         })
-        .catch(error => res.status(500).send(error))
+        .catch(err => res.status(500).send(err))
         }
     }
   },
   
   list(req, res) {
-      shiftRepository.getAll()
-      .then(shifts => res.status(200).send(shifts))
-      .catch(error => res.status(500).send(error));
+    shiftRepository.getAllWithRoles()
+    .then(shifts => res.status(200).send(shifts))
+    .catch(err => res.status(500).send(err));
   },
+
+
+  listTitles(req, res) {
+    shiftRepository.getAll(["title"])
+    .then(shifts => {
+      var titles = [];
+      shifts.forEach(shift => {
+        if (titles.indexOf(shift.title) == -1) {
+          titles.push(shift.title)
+        }
+      });
+      res.status(200).send(titles)
+    })
+    .catch(err => res.status(500).send(err));
+  }
+
 };
