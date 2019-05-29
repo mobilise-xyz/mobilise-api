@@ -1,5 +1,6 @@
 var request = require('supertest');
 var app = require('../app');
+var chai = require('chai');
 
 describe('Register users', function() {
   it('Can register a user', function(done) {
@@ -13,9 +14,21 @@ describe('Register users', function() {
           password: 'Testing123',
           dob: '1998-11-25'
         }
-        )
+      )
       .set('Accept', 'application/json')
-      .expect(201, done);
+      .expect(201)
+      .end(function(error, response) {
+        if (error) {
+          done(error);
+        }
+
+        chai.expect(response.body.firstName).to.equal('James');
+        chai.expect(response.body.lastName).to.equal('Test');
+        chai.expect(response.body.email).to.equal('jamestest@testing.com');
+        chai.expect(response.body.dob).to.equal('1998-11-25');
+        
+        done();
+      })
   });
 })
 
