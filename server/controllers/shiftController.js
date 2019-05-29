@@ -20,7 +20,7 @@ module.exports = {
               if (role) {
                 return shift.addRole(role, {through: {numberRequired: roleRequired.number}});
               } else {
-                return Q.reject("No role with id");
+                return Q.reject("No role with name:" + role.name);
               }
             });
           }
@@ -37,6 +37,6 @@ module.exports = {
   list(req, res) {
       shiftRepository.getAll()
       .then(shifts => res.status(200).send(shifts))
-      .catch(error => res.status(400).send(error));
+      .catch(error => res.status(500).send(error));
   },
 };

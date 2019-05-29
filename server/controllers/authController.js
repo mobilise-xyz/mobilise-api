@@ -27,7 +27,7 @@ module.exports = {
               dob: user.dob
           }
       ))
-      .catch(error => res.status(400).send(error));
+      .catch(error => res.status(500).send(error));
   },
 
   loginUser: function(req, res) {
@@ -40,7 +40,7 @@ module.exports = {
         }
       })
       .catch(err => {
-          res.status(400).send(err);
+          res.status(500).send(err);
       })
   },
 };
