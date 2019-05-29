@@ -1,5 +1,6 @@
 const Shift = require('../models').Shift;
 const Q = require('q');
+const sequelize = require('sequelize')
 
 module.exports = {
   add: function(shift, id) {
@@ -21,7 +22,9 @@ module.exports = {
 
   getAllWithRoles: function() {
     var deferred = Q.defer();
-    Shift.findAll({include: ['roles']})
+    Shift.findAll({include: ['roles'], order: [
+      [sequelize.literal('date, start'), 'asc']
+    ]})
     .then(shifts => deferred.resolve(shifts))
     .catch(err => deferred.resolve(err));
     return deferred.promise;
@@ -29,11 +32,11 @@ module.exports = {
 
   getAll: function(attributes) {
     var deferred = Q.defer();
-    Shift.findAll({attributes: attributes})
+    Shift.findAll({attributes: attributes, order: [
+      [sequelize.literal('date, start'), 'asc']
+    ]})
     .then(shifts => deferred.resolve(shifts))
     .catch(err => deferred.resolve(err));
     return deferred.promise;
   }
-
-
 };
