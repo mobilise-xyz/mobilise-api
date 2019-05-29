@@ -42,10 +42,6 @@ module.exports = (sequelize, DataTypes) => {
       as: "roles",
       foreignKey: "shiftId"
     });
-    Shift.belongsTo(models.Admin, {
-      as: "admin",
-      foreignKey: "creatorId"
-    });
   };
   return Shift;
 };

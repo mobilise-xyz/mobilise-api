@@ -34,8 +34,7 @@ module.exports = (sequelize, DataTypes) => {
     }
   }, {});
   User.associate = function(models) {
-    User.hasOne(models.Volunteer)
-    User.hasOne(models.Admin)
+    
   };
   return User;
 };
