@@ -2,7 +2,10 @@ var request = require('supertest');
 var app = require('../app');
 var chai = require('chai');
 
+var expect = chai.expect;
+
 describe('Register Volunteer', function() {
+
   it('Can register a volunteer', function(done) {
     request(app)
       .post('/auth/register')
@@ -11,7 +14,7 @@ describe('Register Volunteer', function() {
           firstName: 'Volun',
           lastName: 'Teer',
           email: 'volunteer@testing.com',
-          password: 'Testing123',
+          password: 'Volunteer123',
           dob: '1998-11-25'
         }
       )
@@ -22,18 +25,20 @@ describe('Register Volunteer', function() {
           done(error);
         }
 
-        chai.expect(response.body.firstName).to.equal('Volun');
-        chai.expect(response.body.lastName).to.equal('Teer');
-        chai.expect(response.body.email).to.equal('volunteer@testing.com');
-        chai.expect(response.body.dob).to.equal('1998-11-25');
-        chai.expect(response.body.admin).to.equal(false);
+        expect(response.body.email).to.equal('volunteer@testing.com');
+        expect(response.body.firstName).to.equal('Volun');
+        expect(response.body.dob).to.equal('1998-11-25');
+        expect(response.body.admin).to.equal(false);
+        expect(response.body.lastName).to.equal('Teer');
         
         done();
       })
   });
+
 })
 
 describe('Login users', function() {
+
   it('Approves correct credentials', function(done) {
     request(app)
       .post('/auth/login')
@@ -44,8 +49,17 @@ describe('Login users', function() {
         }
         )
       .set('Accept', 'application/json')
-      .expect(200, done);
+      .expect(200)
+      .end(function(error, response) {
+        if (error) {
+          done(error);
+        }
+
+        expect(response.body).to.have.property('token');
+        done();
+      })
   });
+
   it('Rejects invalid email', function(done) {
     request(app)
       .post('/auth/login')
@@ -58,21 +72,24 @@ describe('Login users', function() {
       .set('Accept', 'application/json')
       .expect(400, done);
   });
+
   it('Rejects invalid password', function(done) {
     request(app)
       .post('/auth/login')
       .send(
         {
-          email: 'testvolunteer@testing.com',
+          email: 'volunteer@testing.com',
           password: 'Invalid123'
         }
         )
       .set('Accept', 'application/json')
       .expect(400, done);
   });
+
 })
 
 describe('Retrieve shifts', function() {
+
   it('Does not allow unauthorised requests to get shifts', function(done) {
     request(app)
       .get('/shifts')
@@ -89,18 +106,28 @@ describe('Retrieve shifts', function() {
           email: 'testvolunteer@testing.com',
           password: 'Volunteer123'
         }
-        )
+      )
       .set('Accept', 'application/json')
       .expect(200)
       .then(response => {
         // Use bearer token to get shifts
         request(app)
-        .get('/shifts')
-        .set('Authorization', 'Bearer '+response.body.token)
-        .set('Accept', 'application/json')
-        .expect(200, done);
+          .get('/shifts')
+          .set('Authorization', 'Bearer '+response.body.token)
+          .set('Accept', 'application/json')
+          .expect(200)
+          .end(function(error, response) {
+            if (error) {
+              done(error);
+            }
+
+
+
+            done();
+          })
       });
   });
+
 })
 
 describe('Add shifts', function() {
@@ -108,14 +135,14 @@ describe('Add shifts', function() {
     request(app)
       .post('/shifts')
       .send(
-      {
-        title: 'Food pickup',
-          description: 'I mean its pretty self explanatory mate',
-          date: '2019-02-08',
-          start: '16:00',
-          stop: '18:00',
-          postcode: 'SW72AZ'
-      }
+        {
+          title: 'Food pickup',
+            description: 'I mean its pretty self explanatory mate',
+            date: '2019-02-08',
+            start: '16:00',
+            stop: '18:00',
+            postcode: 'SW72AZ'
+        }
       )
       .set('Accept', 'application/json')
       .expect(401, done);
@@ -130,7 +157,7 @@ describe('Add shifts', function() {
           email: 'testvolunteer@testing.com',
           password: 'Volunteer123'
         }
-        )
+      )
       .set('Accept', 'application/json')
       .expect(200)
       .then(response => {
@@ -138,14 +165,14 @@ describe('Add shifts', function() {
         request(app)
         .post('/shifts')
         .send(
-        {
-          title: 'Food pickup',
-          description: 'I mean its pretty self explanatory mate',
-          date: '2019-02-08',
-          start: '16:00',
-          stop: '18:00',
-          postcode: 'SW72AZ'
-        }
+          {
+            title: 'Food pickup',
+            description: 'I mean its pretty self explanatory mate',
+            date: '2019-02-08',
+            start: '16:00',
+            stop: '18:00',
+            postcode: 'SW72AZ'
+          }
         )
         .set('Authorization', 'Bearer '+response.body.token)
         .set('Accept', 'application/json')
@@ -162,7 +189,7 @@ describe('Add shifts', function() {
           email: 'testadmin@testing.com',
           password: 'Admin123'
         }
-        )
+      )
       .set('Accept', 'application/json')
       .expect(200)
       .then(response => {
@@ -170,14 +197,14 @@ describe('Add shifts', function() {
         request(app)
         .post('/shifts')
         .send(
-        {
-          title: 'Food pickup',
-          description: 'I mean its pretty self explanatory mate',
-          date: '2019-02-08',
-          start: '16:00',
-          stop: '18:00',
-          postcode: 'SW72AZ'
-        }
+          {
+            title: 'Food pickup',
+            description: 'I mean its pretty self explanatory mate',
+            date: '2019-02-08',
+            start: '16:00',
+            stop: '18:00',
+            postcode: 'SW72AZ'
+          }
         )
         .set('Authorization', 'Bearer '+response.body.token)
         .set('Accept', 'application/json')
@@ -202,7 +229,7 @@ describe('Retrieving users', function() {
           email: 'testadmin@testing.com',
           password: 'Admin123'
         }
-        )
+      )
       .set('Accept', 'application/json')
       .expect(200)
       .then((response) => {
@@ -220,10 +247,10 @@ describe('Add roles', function() {
     request(app)
       .post('/roles')
       .send(
-      {
-        name: 'Drivers mate',
-        involves: 'Some heavy lifting',
-      }
+        {
+          name: 'Drivers mate',
+          involves: 'Some heavy lifting',
+        }
       )
       .set('Accept', 'application/json')
       .expect(401, done);
@@ -238,7 +265,7 @@ describe('Add roles', function() {
           email: 'testvolunteer@testing.com',
           password: 'Volunteer123'
         }
-        )
+      )
       .set('Accept', 'application/json')
       .expect(200)
       .then(response => {
@@ -246,10 +273,10 @@ describe('Add roles', function() {
         request(app)
           .post('/roles')
           .send(
-          {
-            name: 'Drivers mate',
-            involves: 'Some heavy lifting',
-          }
+            {
+              name: 'Drivers mate',
+              involves: 'Some heavy lifting',
+            }
           )
           .set('Accept', 'application/json')
           .set('Authorization', 'Bearer '+response.body.token)
@@ -266,7 +293,7 @@ describe('Add roles', function() {
           email: 'testadmin@testing.com',
           password: 'Admin123'
         }
-        )
+      )
       .set('Accept', 'application/json')
       .expect(200)
       .then(response => {
@@ -274,10 +301,10 @@ describe('Add roles', function() {
         request(app)
           .post('/roles')
           .send(
-          {
-            name: 'Drivers mate',
-            involves: 'Some heavy lifting',
-          }
+            {
+              name: 'Drivers mate',
+              involves: 'Some heavy lifting',
+            }
           )
           .set('Accept', 'application/json')
           .set('Authorization', 'Bearer '+response.body.token)
@@ -303,7 +330,7 @@ describe('Retrieve roles', function() {
           email: 'testvolunteer@testing.com',
           password: 'Volunteer123'
         }
-        )
+      )
       .set('Accept', 'application/json')
       .expect(200)
       .then(response => {
