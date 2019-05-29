@@ -15,6 +15,9 @@ module.exports = (sequelize, DataTypes) => {
       },
       onDelete: 'CASCADE'
     });
+    Admin.hasMany(models.Shift, {
+      as: "shifts",
+    });
   };
   return Admin;
 };
