@@ -1,5 +1,4 @@
 const Shift = require('../models').Shift;
-const roleRepository = require('./').RoleRepository;
 const Q = require('q');
 
 module.exports = {
@@ -24,7 +23,7 @@ module.exports = {
     var deferred = Q.defer();
     Shift.findAll({include: ['roles']})
     .then(shifts => deferred.resolve(shifts))
-    .catch(err => deferred.reject(err));
+    .catch(err => deferred.resolve(err));
     return deferred.promise;
   }
 };

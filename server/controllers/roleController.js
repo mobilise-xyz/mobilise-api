@@ -7,7 +7,7 @@ module.exports = {
     } else {
       return roleRepository.add(req.body)
       .then(role => res.status(201).send(role))
-      .catch(error => res.status(400).send(error));
+      .catch(error => res.status(500).send(error));
     }
   },
   
@@ -15,6 +15,6 @@ module.exports = {
       return roleRepository
       .getAll()
       .then((roles) => res.status(200).send(roles))
-      .catch((error) => res.status(400).send(error));
+      .catch((error) => res.status(500).send(error));
   },
 };
