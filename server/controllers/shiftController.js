@@ -8,7 +8,7 @@ module.exports = {
       res.status(401).send({message: "Only admin can add shifts"})
     } else {
       shiftRepository
-      .add(req.body)
+      .add(req.body, req.user.id)
       .then(async(shift) => {
         if (req.body.rolesRequired) {
           var rolesRequired = JSON.parse(req.body.rolesRequired);

@@ -3,11 +3,12 @@ const roleRepository = require('./').RoleRepository;
 const Q = require('q');
 
 module.exports = {
-  add: function(shift) {
+  add: function(shift, id) {
     var deferred = Q.defer();
     Shift
     .create({
       title: shift.title,
+      creatorId: id,
       description: shift.description,
       date: shift.date,
       start: shift.start,

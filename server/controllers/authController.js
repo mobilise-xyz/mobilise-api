@@ -1,5 +1,6 @@
 const userRepository = require('../repositories').UserRepository;
 const volunteerRepository = require('../repositories').VolunteerRepository;
+const adminRepository = require('../repositories').AdminRepository
 var bcrypt = require('bcryptjs');
 var config = require('../config/config.js');
 var jwt = require('jsonwebtoken');
@@ -8,11 +9,11 @@ module.exports = {
   registerUser: function(req, res) {
       var hash = hashedPassword(req.body.password)
       userRepository.add(req.body, hash)
-      .then(user => {
+      .then(async(user) => {
           if (!user.admin) {
-            volunteerRepository.add({userId: user.id})
+            await volunteerRepository.add({userId: user.id})
           } else {
-            // Admin table
+            await adminRepository.add({userId: user.id})
           }
           return user
       })
