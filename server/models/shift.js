@@ -31,7 +31,7 @@ module.exports = (sequelize, DataTypes) => {
       type: DataTypes.TIME,
       allowNull: false
     },
-    location: {
+    address: {
       type: DataTypes.STRING,
       allowNull: false
     },
