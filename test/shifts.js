@@ -57,7 +57,7 @@ describe('Add shifts', function() {
             date: '2019-02-08',
             start: '16:00',
             stop: '18:00',
-            postcode: 'SW72AZ'
+            location: 'SW72AZ'
         }
       )
       .set('Accept', 'application/json')
@@ -87,7 +87,7 @@ describe('Add shifts', function() {
             date: '2019-02-08',
             start: '16:00',
             stop: '18:00',
-            postcode: 'SW72AZ'
+            location: 'SW72AZ'
           }
         )
         .set('Authorization', 'Bearer '+response.body.token)
@@ -119,7 +119,7 @@ describe('Add shifts', function() {
             date: '2019-02-08',
             start: '16:00',
             stop: '18:00',
-            postcode: 'SW72AZ'
+            location: 'SW72AZ'
           }
         )
         .set('Authorization', 'Bearer '+response.body.token)
