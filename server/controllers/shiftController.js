@@ -12,7 +12,7 @@ module.exports = {
       var numbers = [];
       var errs = [];
       if (req.body.rolesRequired) {
-        var rolesRequired = JSON.parse(req.body.rolesRequired);
+        var rolesRequired = req.body.rolesRequired;
         var i;
         for (i = 0; i < rolesRequired.length; i++) {
           var roleRequired = rolesRequired[i];
