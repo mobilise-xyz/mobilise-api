@@ -38,5 +38,13 @@ module.exports = {
     .then(shifts => deferred.resolve(shifts))
     .catch(err => deferred.resolve(err));
     return deferred.promise;
+  },
+
+  removeById: function(id) {
+    var deferred = Q.defer();
+    Shift.destroy({where: {id: id}})
+    .then(shift => deferred.resolve(shift))
+    .catch(err => deferred.resolve(err));
+    return deferred.promise;
   }
 };

@@ -68,6 +68,12 @@ module.exports = {
       res.status(200).send(titles)
     })
     .catch(err => res.status(500).send(err));
+  },
+
+  deleteById(req, res) {
+    shiftRepository.removeById(req.params.id)
+    .then(shift => res.status(200).send({message: "Successfully deleted"}))
+    .catch(err => res.status(500).send(err));
   }
 
 };
