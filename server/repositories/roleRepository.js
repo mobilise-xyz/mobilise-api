@@ -14,10 +14,10 @@ module.exports = {
     return deferred.promise;
   },
 
-  getById: function(id) {
+  getByName: function(name) {
     var deferred = Q.defer();
     Role
-    .findOne({where: {id: id}})
+    .findOne({where: {name: name}})
     .then(role => deferred.resolve(role))
     .catch(error => deferred.reject(error));
     return deferred.promise;

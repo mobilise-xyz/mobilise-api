@@ -10,8 +10,6 @@ module.exports = {
               lastName: user.lastName
           });
       })
-      .catch(err => {
-          res.status(400).send(err);
-      })
+      .catch(err => res.status(500).send(err))
   }
 };

@@ -7,6 +7,10 @@ module.exports = (sequelize, DataTypes) => {
       type: DataTypes.UUID,
       defaultValue: DataTypes.UUIDV4
     },
+    creatorId : {
+      allowNull: false,
+      type: DataTypes.UUID
+    },
     title: {
       type: DataTypes.STRING,
       allowNull: false
@@ -27,7 +31,7 @@ module.exports = (sequelize, DataTypes) => {
       type: DataTypes.TIME,
       allowNull: false
     },
-    postcode: {
+    address: {
       type: DataTypes.STRING,
       allowNull: false
     },

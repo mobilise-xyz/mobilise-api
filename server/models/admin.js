@@ -1,21 +1,24 @@
 'use strict';
 module.exports = (sequelize, DataTypes) => {
-  const Volunteer = sequelize.define('Volunteer', {
+  const Admin = sequelize.define('Admin', {
     userId : {
       allowNull: false,
       primaryKey: true,
       type: DataTypes.UUID
-    },
-    roles: DataTypes.ARRAY(DataTypes.STRING)
+    }
   }, {});
-  Volunteer.associate = function(models) {
-    Volunteer.belongsTo(models.User, {
+  Admin.associate = function(models) {
+    Admin.belongsTo(models.User, {
       foreignKey: {
         name: 'userId',
         allowNull: false
       },
       onDelete: 'CASCADE'
     });
+    Admin.hasMany(models.Shift, {
+      as: "shifts",
+      foreignKey: "creatorId"
+    });
   };
-  return Volunteer;
+  return Admin;
 };

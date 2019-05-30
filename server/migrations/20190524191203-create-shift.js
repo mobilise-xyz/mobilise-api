@@ -28,7 +28,7 @@ module.exports = {
         type: Sequelize.TIME,
         allowNull: false
       },
-      postcode: {
+      address: {
         type: Sequelize.STRING,
         allowNull: false
       },

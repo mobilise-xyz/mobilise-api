@@ -46,7 +46,7 @@ describe('Add shifts', function() {
             date: '2019-02-08',
             start: '16:00',
             stop: '18:00',
-            postcode: 'SW72AZ'
+            address: 'SW72AZ'
           }
         )
         .set('Authorization', 'Bearer '+response.body.token)
@@ -78,7 +78,7 @@ describe('Add shifts', function() {
             date: '2019-02-08',
             start: '16:00',
             stop: '18:00',
-            postcode: 'SW72AZ'
+            address: 'SW72AZ'
           }
         )
         .set('Authorization', 'Bearer '+response.body.token)
