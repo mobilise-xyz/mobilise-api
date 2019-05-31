@@ -8,6 +8,7 @@ module.exports = (sequelize, DataTypes) => {
     },
     roles: DataTypes.ARRAY(DataTypes.STRING)
   }, {});
+
   Volunteer.associate = function(models) {
     Volunteer.belongsTo(models.User, {
       foreignKey: {
@@ -15,6 +16,17 @@ module.exports = (sequelize, DataTypes) => {
         allowNull: false
       },
       onDelete: 'CASCADE'
+    });
+
+    Volunteer.hasMany(models.Booking, {
+      as: "bookings",
+      foreignKey: "volunteerId"
+    });
+
+    Volunteer.belongsToMany(models.Shift, {
+      as: "shifts",
+      through: models.Booking,
+      foreignKey: "volunteerId"
     });
   };
   return Volunteer;
