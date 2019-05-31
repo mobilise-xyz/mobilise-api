@@ -49,30 +49,16 @@ var ShiftController = function(shiftRepository, roleRepository) {
     }
 
     // Check the referenced roles
-    var errs = [];
-    var rolesRequired = req.body.rolesRequired;
-    if (rolesRequired) {
-      var i;
-      for (i = 0; i < rolesRequired.length; i++) {
-        await roleRepository.getByName(rolesRequired[i].roleName)
-        .then(role => {
-          if (role) {
-            rolesRequired[i].role = role
-          } else {
-            errs.push("No role with name: " + rolesRequired[i].roleName);
-          }
-        });
-      }
-    }
+    var { errs, rolesRequired } = await checkRoles(req, roleRepository);
     if (errs.length > 0) {
         res.status(400).send({"Could not add shift due to invalid roles" : errs});
         return;
     }
-    // Check if repeated
     var type = req.body.repeatedType
-      // Check if valid request
+
+    // Check if valid request
     if (!['weekly', 'daily', 'none'].includes(type)) {
-      res.status(400).send({message: "Invalid repeated type, must be weekly or daily."});
+      res.status(400).send({message: "Invalid repeatedType, must be weekly, daily or none."});
       return;
     }
     
@@ -93,3 +79,25 @@ var ShiftController = function(shiftRepository, roleRepository) {
 }
 
 module.exports = new ShiftController(shiftRepository, roleRepository);
+
+
+async function checkRoles(req, roleRepository) {
+  var errs = [];
+  var rolesRequired = req.body.rolesRequired;
+  if (rolesRequired) {
+    var i;
+    for (i = 0; i < rolesRequired.length; i++) {
+      await roleRepository.getByName(rolesRequired[i].roleName)
+      .then(role => {
+        if (role) {
+          rolesRequired[i].role = role;
+        }
+        else {
+          errs.push("No role with name: " + rolesRequired[i].roleName);
+        }
+      });
+    }
+  }
+  return { errs, rolesRequired };
+}
+
