@@ -41,6 +41,7 @@ RoleRepository.getAll = function()  {
   return deferred.promise;
 }
 
+
 RoleRepository.removeByName = function(name) {
   var deferred = Q.defer();
 
