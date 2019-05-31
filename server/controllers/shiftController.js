@@ -45,49 +45,59 @@ var ShiftController = function(shiftRepository, roleRepository) {
     // Check if user is admin
     if (!req.user.admin) {
       res.status(401).send({message: "Only admin can add shifts"})
-    } else {
-      // Check the referenced roles
-      var roles = [];
-      var numbers = [];
-      var errs = [];
-      if (req.body.rolesRequired) {
-        var rolesRequired = req.body.rolesRequired;
-        var i;
-        for (i = 0; i < rolesRequired.length; i++) {
-          var roleRequired = rolesRequired[i];
-          numbers.push(roleRequired.number);
-          
-          await roleRepository
-            .getByName(roleRequired.roleName)
-            .then(role => {
-              if (role) {
-                roles.push(role)
-              } else {
-                errs.push("No role with name: " + roleRequired.roleName);
-              }
-            });
-        }
-      }
+      return;
+    }
 
-      if (errs.length > 0) {
-        res.status(400).send({"Could not add shift" : errs});
-      } else {
-        // Add the shift
-        shiftRepository
-          .add(req.body, req.user.id)
-          .then(async(shift) => {
-            // Add the roles to shift
-            var i;
-            for (i = 0; i < roles.length; i++) {
-              await shift.addRole(roles[i], {through: {numberRequired: numbers[i]}})
-            }
-            return shift;
-          })
-          .then(result => res.status(201).send(result))
-          .catch(err => res.status(500).send(err))
-        }
+    // Check the referenced roles
+    var { errs, rolesRequired } = await checkRoles(req, roleRepository);
+    if (errs.length > 0) {
+        res.status(400).send({"Could not add shift due to invalid roles" : errs});
+        return;
+    }
+    var type = req.body.repeatedType
+
+    // Check if valid request
+    if (!['weekly', 'daily', 'none'].includes(type)) {
+      res.status(400).send({message: "Invalid repeatedType, must be weekly, daily or none."});
+      return;
+    }
+    
+    if (type == 'none') {
+      shiftRepository.add(req.body, req.user.id, rolesRequired)
+      .then(result => {
+        res.status(201).send(result);
+      })
+      .catch(err => res.status(500).send(err));
+    } else {
+      shiftRepository.addRepeated(req.body, req.user.id, rolesRequired, type)
+      .then(result => {
+        res.status(201).send(result);
+      })
+      .catch(err => res.status(500).send(err));
     }
   };
 }
 
 module.exports = new ShiftController(shiftRepository, roleRepository);
+
+
+async function checkRoles(req, roleRepository) {
+  var errs = [];
+  var rolesRequired = req.body.rolesRequired;
+  if (rolesRequired) {
+    var i;
+    for (i = 0; i < rolesRequired.length; i++) {
+      await roleRepository.getByName(rolesRequired[i].roleName)
+      .then(role => {
+        if (role) {
+          rolesRequired[i].role = role;
+        }
+        else {
+          errs.push("No role with name: " + rolesRequired[i].roleName);
+        }
+      });
+    }
+  }
+  return { errs, rolesRequired };
+}
+

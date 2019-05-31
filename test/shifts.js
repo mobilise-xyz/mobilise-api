@@ -16,6 +16,7 @@ describe('Add shifts', function() {
           date: '2019-02-08',
           start: '16:00',
           stop: '18:00',
+          repeatedType: 'none',
           postcode: 'SW72AZ'
         }
       )
@@ -46,6 +47,7 @@ describe('Add shifts', function() {
             date: '2019-02-08',
             start: '16:00',
             stop: '18:00',
+            repeatedType: 'none',
             address: 'SW72AZ'
           }
         )
@@ -78,6 +80,7 @@ describe('Add shifts', function() {
             date: '2019-02-08',
             start: '16:00',
             stop: '18:00',
+            repeatedType: 'none',
             address: 'SW72AZ'
           }
         )
