@@ -13,7 +13,7 @@ module.exports = {
       date: shift.date,
       start: shift.start,
       stop: shift.stop,
-      postcode: shift.postcode
+      address: shift.address
     })
     .then(result => deferred.resolve(result))
     .catch(error => deferred.reject(error));
