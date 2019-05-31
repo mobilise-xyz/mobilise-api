@@ -42,6 +42,10 @@ module.exports = (sequelize, DataTypes) => {
       as: "roles",
       foreignKey: "shiftId"
     });
+    Shift.belongsTo(models.RepeatedShift, {
+      as: "repeated",
+      foreignKey: "repeatedId"
+    });
   };
   return Shift;
 };

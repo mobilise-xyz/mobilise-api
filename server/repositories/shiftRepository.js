@@ -35,7 +35,7 @@ module.exports = {
 
   getAllWithRoles: function() {
     var deferred = Q.defer();
-    Shift.findAll({include: ['roles'], order: [
+    Shift.findAll({include: ['roles', 'repeated'], order: [
       [sequelize.literal('date, start'), 'asc']
     ]})
     .then(shifts => deferred.resolve(shifts))
