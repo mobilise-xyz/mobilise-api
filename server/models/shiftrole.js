@@ -9,7 +9,7 @@ module.exports = (sequelize, DataTypes) => {
     roleName: {
       allowNull: false,
       primaryKey: true,
-      type: DataTypes.String
+      type: DataTypes.STRING
     },
     numberRequired: DataTypes.INTEGER
   }, {});
