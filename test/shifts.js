@@ -88,7 +88,7 @@ describe('Add shifts', function() {
   })
 })
 
-describe('Retrieve shifts', function() {
+describe('Retrieve Shifts', function() {
 
   it('Does not allow unauthorised requests to get shifts', function(done) {
     request(app)
@@ -115,16 +115,7 @@ describe('Retrieve shifts', function() {
           .get('/shifts')
           .set('Authorization', 'Bearer '+response.body.token)
           .set('Accept', 'application/json')
-          .expect(200)
-          .end(function(error, response) {
-            if (error) {
-              done(error);
-            }
-
-            // TODO: Check seeded shift content
-
-            done();
-          })
+          .expect(200, done);
       });
   });
 
