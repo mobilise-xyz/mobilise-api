@@ -54,6 +54,11 @@ module.exports = (sequelize, DataTypes) => {
       as: "volunteers",
       foreignKey: "shiftId"
     })
+
+    Shift.hasMany(models.Booking, {
+      as: "bookings",
+      foreignKey: "shiftId"
+    })
   };
   return Shift;
 };

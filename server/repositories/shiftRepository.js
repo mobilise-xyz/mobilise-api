@@ -80,7 +80,7 @@ ShiftRepository.getAllWithRoles = function() {
 
   Shift
     .findAll({
-      include: ['roles'], 
+      include: ['volunteers', 'roles'], 
       order: [[sequelize.literal('date, start'), 'asc']]
     })
 
