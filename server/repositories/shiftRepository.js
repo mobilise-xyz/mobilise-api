@@ -1,5 +1,6 @@
 const Shift = require('../models').Shift;
 const RepeatedShift = require('../models').RepeatedShift;
+const Booking = require('../models').Booking;
 const Q = require('q');
 const sequelize = require('sequelize');
 const moment = require('moment');
@@ -84,7 +85,7 @@ ShiftRepository.getAllWithRoles = function() {
     })
 
     .then(shifts => deferred.resolve(shifts))
-    .catch(err => deferred.resolve(err));
+    .catch(err => deferred.reject(err));
 
   return deferred.promise;
 };
@@ -98,10 +99,21 @@ ShiftRepository.getAll = function(attributes) {
       order: [[sequelize.literal('date, start'), 'asc']]
     })
     .then(shifts => deferred.resolve(shifts))
-    .catch(err => deferred.resolve(err));
+    .catch(err => deferred.reject(err));
 
   return deferred.promise;
 };
+
+ShiftRepository.getById = function(id) {
+  var deferred = Q.defer();
+
+  Shift
+    .findOne({where: {id: id}})
+    .then(shift => deferred.resolve(shift))
+    .catch(err => deferred.reject(err));
+
+  return deferred.promise;
+}
 
 ShiftRepository.removeById = function(id) {
   var deferred = Q.defer();
@@ -109,7 +121,36 @@ ShiftRepository.removeById = function(id) {
   Shift
     .destroy({where: {id: id}})
     .then(shift => deferred.resolve(shift))
-    .catch(err => deferred.resolve(err));
+    .catch(err => deferred.reject(err));
+
+  return deferred.promise;
+}
+
+ShiftRepository.bookRole = function(shiftId, volunteerId, roleName) {
+  var deferred = Q.defer();
+
+  Booking
+    .create({
+      shiftId: shiftId,
+      volunteerId: volunteerId,
+      roleName: roleName
+    })
+    .then(booking => deferred.resolve(booking))
+    .catch(err => deferred.reject(err));
+
+  return deferred.promise;
+}
+
+ShiftRepository.getBookingById = function(shiftId, volunteerId) {
+  var deferred = Q.defer();
+
+  Booking
+    .findOne({
+      shiftId: shiftId,
+      volunteerId: volunteerId
+    })
+    .then(booking => deferred.resolve(booking))
+    .catch(err => deferred.reject(err));
 
   return deferred.promise;
 }
