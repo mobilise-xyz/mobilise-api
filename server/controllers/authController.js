@@ -5,10 +5,17 @@ var bcrypt = require('bcryptjs');
 var config = require('../config/config.js');
 var jwt = require('jsonwebtoken');
 
-module.exports = {
-  registerUser: function(req, res) {
-      var hash = hashedPassword(req.body.password)
-      userRepository.add(req.body, hash)
+var AuthController = function(userRepository, volunteerRepository, adminRepository) {
+
+  this.userRepository = userRepository;
+  this.volunteerRepository = volunteerRepository;
+  this.adminRepository = adminRepository;
+
+  this.registerUser = function(req, res) {
+    var hash = hashedPassword(req.body.password)
+
+    userRepository
+      .add(req.body, hash)
       .then(async(user) => {
           if (!user.admin) {
             await volunteerRepository.add({userId: user.id})
@@ -19,19 +26,21 @@ module.exports = {
       })
       .then(user => res.status(201).send(
           {
-              id: user.id,
-              firstName: user.firstName,
-              lastName: user.lastName,
-              email: user.email,
-              admin: user.admin,
-              dob: user.dob
+            id: user.id,
+            firstName: user.firstName,
+            lastName: user.lastName,
+            email: user.email,
+            admin: user.admin,
+            dob: user.dob
           }
       ))
       .catch(error => res.status(500).send(error));
-  },
+  };
 
-  loginUser: function(req, res) {
-      userRepository.getByEmail(req.body.email)
+  this.loginUser = function(req, res) {
+
+    userRepository
+      .getByEmail(req.body.email)
       .then(user => {
         if (user && validatePassword(req.body.password, user.password)) {
           res.status(200).json({message: "Successful login!", uid: user.id, token: generateToken(user)});
@@ -39,12 +48,14 @@ module.exports = {
           res.status(400).json({message: "Invalid username/password"});
         }
       })
-      .catch(err => {
-          res.status(500).send(err);
-      })
-  },
-};
+      .catch(err => res.status(500).send(err))
 
+  };
+}
+
+module.exports = new AuthController(userRepository, volunteerRepository, adminRepository);
+
+/* Helper functions */
 function hashedPassword(password){
     return bcrypt.hashSync(password, bcrypt.genSaltSync(8), null);
   }
