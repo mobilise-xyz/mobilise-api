@@ -69,21 +69,21 @@ var ShiftController = function(shiftRepository, roleRepository) {
         return;
     }
     // Check if repeated
-    if (req.body.isRepeating) {
-      var type = req.body.repeatedType
+    var type = req.body.repeatedType
       // Check if valid request
-      if (!['weekly', 'daily'].includes(type)) {
-        res.status(400).send({message: "Invalid repeated type, must be weekly or daily."});
-        return;
-      }
-      shiftRepository.addRepeated(req.body, req.user.id, rolesRequired, type)
+    if (!['weekly', 'daily', 'none'].includes(type)) {
+      res.status(400).send({message: "Invalid repeated type, must be weekly or daily."});
+      return;
+    }
+    
+    if (type == 'none') {
+      shiftRepository.add(req.body, req.user.id, rolesRequired)
       .then(result => {
         res.status(201).send(result);
       })
       .catch(err => res.status(500).send(err));
     } else {
-      // Add the shift
-      shiftRepository.add(req.body, req.user.id, rolesRequired)
+      shiftRepository.addRepeated(req.body, req.user.id, rolesRequired, type)
       .then(result => {
         res.status(201).send(result);
       })
