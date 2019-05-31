@@ -1,7 +1,11 @@
 const roleRepository = require('../repositories').RoleRepository;
 
-module.exports = {
-  create(req, res) {
+var RoleController = function(roleRepository) {
+  
+  this.roleRepository = roleRepository;
+
+  // Create a new role 
+  this.create = function(req, res) {
     // Check if admin
     if (!req.user.admin) {
       res.status(401).send({message: "Only admin can add roles"})
@@ -18,12 +22,15 @@ module.exports = {
       })
       .catch(error => res.status(500).send(error));
     }
-  },
-  
-  list(req, res) {
-      return roleRepository
-      .getAll()
-      .then(roles => res.status(200).send(roles))
-      .catch(err => res.status(500).send(error));
-  },
-};
+  };
+
+  // Retrieve all existing roles
+  this.list = function(req, res) {
+    return roleRepository
+        .getAll()
+        .then(roles => res.status(200).send(roles))
+        .catch(err => res.status(500).send(error));
+  }
+}
+
+module.exports = new RoleController(roleRepository);
