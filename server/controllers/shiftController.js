@@ -2,8 +2,47 @@ const shiftRepository = require('../repositories').ShiftRepository;
 const roleRepository = require('../repositories').RoleRepository;
 const moment = require('moment');
 
-module.exports = {
-  async create(req, res) {
+var ShiftController = function(shiftRepository, roleRepository) {
+  
+  this.shiftRepository = shiftRepository;
+  this.roleRepository = roleRepository;
+
+  this.list = function(req, res) {
+
+    shiftRepository
+      .getAllWithRoles()
+      .then(shifts => res.status(200).send(shifts))
+      .catch(err => res.status(500).send(err));
+
+  };
+
+  this.listTitles = function(req, res) {
+
+    shiftRepository
+      .getAll(["title"])
+      .then(shifts => {
+        var titles = [];
+        shifts.forEach(shift => {
+          if (titles.indexOf(shift.title) == -1) {
+            titles.push(shift.title)
+          }
+        });
+        res.status(200).send(titles)
+      })
+      .catch(err => res.status(500).send(err));
+
+  };
+
+  this.deleteById = function(req, res) {
+
+    shiftRepository
+      .removeById(req.params.id)
+      .then(shift => res.status(200).send({message: "Successfully deleted"}))
+      .catch(err => res.status(500).send(err));
+
+  };
+
+  this.create = async function(req, res) {
     // Check if user is admin
     if (!req.user.admin) {
       res.status(401).send({message: "Only admin can add shifts"})
@@ -94,33 +133,7 @@ module.exports = {
       })
       .catch(err => res.status(500).send(err));
     }
-  },
-  
-  list(req, res) {
-    shiftRepository.getAllWithRoles()
-    .then(shifts => res.status(200).send(shifts))
-    .catch(err => res.status(500).send(err));
-  },
+  };
+}
 
-
-  listTitles(req, res) {
-    shiftRepository.getAll(["title"])
-    .then(shifts => {
-      var titles = [];
-      shifts.forEach(shift => {
-        if (titles.indexOf(shift.title) == -1) {
-          titles.push(shift.title)
-        }
-      });
-      res.status(200).send(titles)
-    })
-    .catch(err => res.status(500).send(err));
-  },
-
-  deleteById(req, res) {
-    shiftRepository.removeById(req.params.id)
-    .then(shift => res.status(200).send({message: "Successfully deleted"}))
-    .catch(err => res.status(500).send(err));
-  }
-
-};
+module.exports = new ShiftController(shiftRepository, roleRepository);

@@ -1,8 +1,13 @@
 const userRepository = require('../repositories').UserRepository;
 
-module.exports = {
-  getById: function(req, res) {
-      userRepository.getById(req.params.id)
+var UserController = function(userRepository) {
+
+  this.userRepository = userRepository;
+
+  this.getById = function(req, res) {
+
+    userRepository
+      .getById(req.params.id)
       .then(user => {
           res.status(200).send({
               id: user.id,
@@ -10,6 +15,9 @@ module.exports = {
               lastName: user.lastName
           });
       })
-      .catch(err => res.status(500).send(err))
+      .catch(err => res.status(500).send(err));
+
   }
-};
+}
+
+module.exports = new UserController(userRepository);

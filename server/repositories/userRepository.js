@@ -1,10 +1,13 @@
 const User = require('../models').User;
 const Q = require('q');
+const UserRepositoryInterface = require('./interfaces/userRepositoryInterface');
 
-module.exports = {
-  add: function(user, hash) {
-    var deferred = Q.defer();
-    User
+var UserRepository = Object.create(UserRepositoryInterface);
+
+UserRepository.add = function(user, hash) {
+  var deferred = Q.defer();
+  
+  User
     .create({
         firstName: user.firstName,
         lastName: user.lastName,
@@ -15,24 +18,30 @@ module.exports = {
     })
     .then(user => deferred.resolve(user))
     .catch(error => deferred.reject(error));
-    return deferred.promise;
-  },
+  
+  return deferred.promise;
+};
 
-  getByEmail: function(email) {
-    var deferred = Q.defer();
-    User
+UserRepository.getByEmail = function(email) {
+  var deferred = Q.defer();
+
+  User
     .findOne({where: {email: email}})
     .then(user => deferred.resolve(user))
     .catch(error => deferred.reject(error));
-    return deferred.promise;
-  },
 
-  getById: function(id) {
-    var deferred = Q.defer();
-    User
+  return deferred.promise;
+};
+
+UserRepository.getById = function(id) {
+  var deferred = Q.defer();
+
+  User
     .findOne({where: {id: id}})
     .then(user => deferred.resolve(user))
     .catch(error => deferred.reject(error));
-    return deferred.promise;
-  }
+
+  return deferred.promise;
 };
+
+module.exports = UserRepository;
