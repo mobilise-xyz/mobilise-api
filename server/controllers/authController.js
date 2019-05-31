@@ -34,7 +34,7 @@ module.exports = {
       userRepository.getByEmail(req.body.email)
       .then(user => {
         if (user && validatePassword(req.body.password, user.password)) {
-          res.status(200).json({message: "Successful login!", uid: user.id, token: generateToken(user)});
+          res.status(200).json({message: "Successful login!", uid: user.id, isAdmin: user.admin, token: generateToken(user)});
         } else{
           res.status(400).json({message: "Invalid username/password"});
         }
