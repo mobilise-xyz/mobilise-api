@@ -37,15 +37,23 @@ module.exports = {
           var increment = repeatedTypes[req.body.repeatedType];
           // Check if valid request
           if (increment) {
-            // Create repeated shift
+            var repeatedId;
+            var lastShift;
             var successful = true;
+            await shiftRepository.addRepeatedShift(req.body.repeatedType)
+            .then(result => repeatedId = result.id)
+            .catch(err => {
+              successful = false;
+              res.status(500).send(err);
+            })
+            // Create repeated shift
             var startDate = moment(req.body.date,"YYYY-MM-DD");
             var untilDate =  moment(req.body.untilDate,"YYYY-MM-DD");
             while (moment(startDate).isBefore(untilDate) && successful) {
               // Add the shift
               req.body.date = startDate;
               await shiftRepository
-              .add(req.body, req.user.id)
+              .add(req.body, req.user.id, repeatedId)
               .then(async(shift) => {
                 // Add the roles to shift
                 var i;
@@ -54,6 +62,7 @@ module.exports = {
                 }
                 return shift;
               })
+              .then(shift => lastShift = shift)
               .catch(err => {
                 successful = false;
                 res.status(500).send(err);
@@ -61,7 +70,7 @@ module.exports = {
               startDate = moment(startDate).add(increment, 'd').toDate()
             }
             if (successful) {
-              res.status(200).send({message: "Created recurring shift"})
+              res.status(200).send({message: "Created recurring shift", lastShift: lastShift})
             }
           } else {
             res.status(400).send({message: "Invalid repeated type, must be weekly or daily."});

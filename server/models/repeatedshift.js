@@ -7,6 +7,10 @@ module.exports = (sequelize, DataTypes) => {
       type: DataTypes.UUID,
       defaultValue: DataTypes.UUIDV4
     },
+    type: {
+      type: DataTypes.ENUM('weekly', 'daily'),
+      allowNull: false
+    }
   }, {});
   RepeatedShift.associate = function(models) {
     RepeatedShift.hasMany(models.Shift, {

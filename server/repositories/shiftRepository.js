@@ -1,9 +1,10 @@
 const Shift = require('../models').Shift;
+const RepeatedShift = require('../models').RepeatedShift;
 const Q = require('q');
 const sequelize = require('sequelize')
 
 module.exports = {
-  add: function(shift, id) {
+  add: function(shift, id, repeatedId) {
     var deferred = Q.defer();
     Shift
     .create({
@@ -13,7 +14,19 @@ module.exports = {
       date: shift.date,
       start: shift.start,
       stop: shift.stop,
-      address: shift.address
+      address: shift.address,
+      repeatedId: repeatedId
+    })
+    .then(result => deferred.resolve(result))
+    .catch(error => deferred.reject(error));
+    return deferred.promise;
+  },
+
+  addRepeatedShift: function(type) {
+    var deferred = Q.defer();
+    RepeatedShift
+    .create({
+      type: type
     })
     .then(result => deferred.resolve(result))
     .catch(error => deferred.reject(error));
