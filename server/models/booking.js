@@ -1,20 +1,23 @@
 'use strict';
 module.exports = (sequelize, DataTypes) => {
-  const ShiftRole = sequelize.define('ShiftRole', {
-    shiftId : {
+  const Booking = sequelize.define('Booking', {
+    shiftId: {
+      allowNull: false,
+      primaryKey: true,
+      type: DataTypes.UUID
+    },
+    volunteerId: {
       allowNull: false,
       primaryKey: true,
       type: DataTypes.UUID
     },
     roleName: {
       allowNull: false,
-      primaryKey: true,
-      type: DataTypes.String
-    },
-    numberRequired: DataTypes.INTEGER
+      type: DataTypes.STRING
+    }
   }, {});
-  ShiftRole.associate = function(models) {
+  Booking.associate = function(models) {
     // associations can be defined here
   };
-  return ShiftRole;
+  return Booking;
 };
