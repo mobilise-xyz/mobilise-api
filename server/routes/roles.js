@@ -8,4 +8,7 @@ router.post('/', controller.create);
 /* GET shifts. */
 router.get('/', controller.list);
 
+/* DELETE shifts */
+router.delete('/', controller.remove);
+
 module.exports = router;
