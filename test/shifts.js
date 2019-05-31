@@ -120,3 +120,36 @@ describe('Retrieve Shifts', function() {
   });
 
 })
+
+describe('Retrieve Shift Titles', function() {
+
+  it('Does not allow unauthorised requests to get shift titles', function(done) {
+    request(app)
+      .get('/shifts/titles')
+      .set('Accept', 'application/json')
+      .expect(401, done);
+  });
+
+  it('Allows authorised request to get shift titles', function(done) {
+    // Acquire bearer token
+    request(app)
+      .post('/auth/login')
+      .send(
+        {
+          email: 'testvolunteer@testing.com',
+          password: 'Volunteer123'
+        }
+      )
+      .set('Accept', 'application/json')
+      .expect(200)
+      .then(response => {
+        // Use bearer token to get shifts
+        request(app)
+          .get('/shifts/titles')
+          .set('Authorization', 'Bearer '+response.body.token)
+          .set('Accept', 'application/json')
+          .expect(200, done);
+      });
+  });
+
+})
