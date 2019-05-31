@@ -9,6 +9,9 @@ var ShiftRepository = Object.create(ShiftRepositoryInterface);
 
 ShiftRepository.add = async function(shift, creatorId, rolesRequired, repeatedId) {
   var deferred = Q.defer();
+  if (!rolesRequired) {
+    rolesRequired = [];
+  }
   await Shift
     .create({
       title: shift.title,
