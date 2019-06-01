@@ -9,14 +9,7 @@ module.exports = {
         defaultValue: Sequelize.UUIDV4
       },
       type: {
-        type: Sequelize.ENUM([
-          "weekly",
-          "daily",
-          "weekdays",
-          "weekends",
-          "monthly",
-          "annually"
-        ]),
+        type: Sequelize.STRING,
         allowNull: false
       },
       createdAt: {

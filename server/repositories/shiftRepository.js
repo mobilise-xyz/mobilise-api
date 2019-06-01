@@ -69,7 +69,8 @@ var ShiftRepository = Object.create(ShiftRepositoryInterface);
     var untilDate = moment(shift.untilDate, "YYYY-MM-DD");
     while (moment(startDate).isBefore(untilDate) && successful) {
       // Add the shift
-      shift.date = startDate;
+      shift.date = moment(startDate).format("YYYY-MM-DD");
+      console.log(shift.date);
       await ShiftRepository.add(shift, creatorId, rolesRequired, repeatedId)
         .then(shift => (lastShift = shift))
         .catch(err => {
@@ -103,12 +104,16 @@ var ShiftRepository = Object.create(ShiftRepositoryInterface);
               .add(1, "d")
               .toDate();
           } while (isWeekend(startDate));
+          break;
         case "weekends":
           do {
+            console.log(startDate + " before");
             startDate = moment(startDate)
               .add(1, "d")
               .toDate();
+            console.log(startDate + " after");
           } while (!isWeekend(startDate));
+          console.log("Last date is a weekend");
           break;
         default:
       }
@@ -197,6 +202,6 @@ ShiftRepository.removeById = function(id) {
 };
 
 module.exports = ShiftRepository;
-function isWeekend(startDate) {
-  return startDate.getDay() in [6, 0];
+function isWeekend(date) {
+  return date.getDay() % 6 == 0;
 }
