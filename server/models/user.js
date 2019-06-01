@@ -34,7 +34,16 @@ module.exports = (sequelize, DataTypes) => {
     }
   }, {});
   User.associate = function(models) {
-    
+
+    User.hasOne(models.Volunteer, {
+      as: "volunteer",
+      foreignKey: "userId"
+    });
+
+    User.hasOne(models.Admin, {
+      as: "admin",
+      foreignKey: "userId"
+    });
   };
   return User;
 };

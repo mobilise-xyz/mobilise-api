@@ -30,6 +30,17 @@ BookingRepository.getAll = function() {
   return deferred.promise;
 }
 
+BookingRepository.getAllWithShifts = function() {
+  var deferred = Q.defer();
+
+  Booking
+    .findAll({include: ['shift']})
+    .then(bookings => deferred.resolve(bookings))
+    .catch(err => deferred.reject(err));
+
+  return deferred.promise;
+}
+
 BookingRepository.getById = function(shiftId, volunteerId) {
     var deferred = Q.defer();
   

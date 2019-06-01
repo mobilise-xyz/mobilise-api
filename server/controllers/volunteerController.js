@@ -13,6 +13,14 @@ var VolunteerController = function(volunteerRepository) {
 
   }
 
+  this.listShifts = function(req, res) {
+    
+    req.body.user.getVolunteer({includes: ['shifts']})
+      .then(shifts => res.status(200).send(shifts))
+      .catch(err => res.status(500).send(err));
+
+  }
+
 }
 
 module.exports = new VolunteerController(volunteerRepository);
