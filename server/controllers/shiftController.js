@@ -67,7 +67,7 @@ var ShiftController = function(shiftRepository, roleRepository) {
         if (!shift) {
           res.status(400).send({message: "No shift with id: "+req.params.id});
         } else {
-          return bookingRepository.bookRole(req.params.id, req.user.id, req.body.roleName);
+          return bookingRepository.add(req.params.id, req.user.id, req.body.roleName);
         }
       })
       .then(booking => {
