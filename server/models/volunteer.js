@@ -11,6 +11,7 @@ module.exports = (sequelize, DataTypes) => {
 
   Volunteer.associate = function(models) {
     Volunteer.belongsTo(models.User, {
+      as: "user",
       foreignKey: {
         name: 'userId',
         allowNull: false

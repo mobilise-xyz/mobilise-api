@@ -1,11 +1,8 @@
 var express = require('express');
 var router = express.Router();
-var controller = require('../controllers').ShiftController;
+var controller = require('../controllers').VolunteerController;
 
-/* Create a new shift. */
-router.post('/:id/roles', controller.create);
-
-/* Get all shifts. */
-router.get('/:id/shifts', controller.list);
+/* Get all volunteers */
+router.get('/', controller.list);
 
 module.exports = router;
