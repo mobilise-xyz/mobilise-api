@@ -28,4 +28,15 @@ VolunteerRepository.getAll = function() {
   return deferred.promise;
 }
 
+VolunteerRepository.getById = function(id) {
+  var deferred = Q.defer();
+
+  Volunteer
+    .findOne({where: {userId: id}})
+    .then(volunteer => deferred.resolve(volunteer))
+    .catch(err => deferred.reject(err));
+
+  return deferred.promise;
+}
+
 module.exports = VolunteerRepository;
