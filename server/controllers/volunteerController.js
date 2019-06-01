@@ -13,13 +13,6 @@ var VolunteerController = function(volunteerRepository) {
 
   }
 
-  this.listShifts = function(req, res) {
-
-    volunteerRepository
-      .
-
-  }
-
 }
 
 module.exports = new VolunteerController(volunteerRepository);
