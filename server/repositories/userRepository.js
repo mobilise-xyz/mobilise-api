@@ -13,7 +13,7 @@ UserRepository.add = function(user, hash) {
         lastName: user.lastName,
         email: user.email,
         password: hash,
-        admin: user.admin,
+        isAdmin: user.isAdmin,
         dob: user.dob
     })
     .then(user => deferred.resolve(user))

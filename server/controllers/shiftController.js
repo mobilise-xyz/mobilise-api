@@ -44,7 +44,7 @@ var ShiftController = function(shiftRepository, roleRepository) {
 
   this.book = function(req, res) {
 
-    if (req.user.admin) {
+    if (req.user.isAdmin) {
       res.status(400).send({message: "Admin cannot book onto shift"});
       return;
     }
@@ -82,7 +82,7 @@ var ShiftController = function(shiftRepository, roleRepository) {
   this.create = async function(req, res) {
 
     // Check if user is admin
-    if (!req.user.admin) {
+    if (!req.user.isAdmin) {
       res.status(401).send({message: "Only admin can add shifts"});
       return;
     }

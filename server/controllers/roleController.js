@@ -7,7 +7,7 @@ var RoleController = function(roleRepository) {
   // Create a new role 
   this.create = function(req, res) {
     // Check if admin
-    if (!req.user.admin) {
+    if (!req.user.isAdmin) {
       res.status(401).send({message: "Only admins can add roles"})
     } else {
       // Check if already exists
@@ -37,7 +37,7 @@ var RoleController = function(roleRepository) {
   // Removing a role
   this.remove = function(req, res) {
     // Check if admin
-    if (!req.user.admin) {
+    if (!req.user.isAdmin) {
       res.status(401).send({message: "Only admins can remove roles"})
     } else {
       roleRepository
