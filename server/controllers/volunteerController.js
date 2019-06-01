@@ -13,9 +13,16 @@ var VolunteerController = function(volunteerRepository) {
 
   }
 
-  this.listShifts = function(req, res) {
+  this.listShiftsByVolunteerId = function(req, res) {
     
-    req.user.getVolunteer({include: ['shifts']})
+    volunteerRepository.getById(req.params.id)
+      .then(volunteer => {
+        if (!volunteer) {
+          res.status(400).send({message: "No volunteer with that id"});
+        } else {
+          return volunteer.getShifts();
+        }
+      })
       .then(shifts => res.status(200).send(shifts))
       .catch(err => res.status(500).send(err));
 
