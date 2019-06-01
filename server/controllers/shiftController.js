@@ -46,11 +46,9 @@ var ShiftController = function(shiftRepository, roleRepository) {
       .getById(req.params.id, req.user.id)
       .then(booking => {
         if (booking) {
-          res
-            .status(400)
-            .send({
-              message: "Booking already exists for this shift and volunteer"
-            });
+          res.status(400).send({
+            message: "Booking already exists for this shift and volunteer"
+          });
         } else {
           return roleRepository.getByName(req.body.roleName);
         }
@@ -102,16 +100,8 @@ var ShiftController = function(shiftRepository, roleRepository) {
       return;
     }
     var type = req.body.repeatedType;
-    // Check if valid request
-    if (!["weekly", "daily", "none"].includes(type)) {
-      res
-        .status(400)
-        .send({
-          message: "Invalid repeatedType, must be weekly, daily or none."
-        });
-      return;
-    }
-    if (type == "none") {
+
+    if (!type || type == "none") {
       shiftRepository
         .add(req.body, req.user.id, rolesRequired)
         .then(result => {
@@ -119,6 +109,13 @@ var ShiftController = function(shiftRepository, roleRepository) {
         })
         .catch(err => res.status(500).send(err));
     } else {
+      // Check if valid request
+      if (!["weekly", "daily", "none"].includes(type)) {
+        res.status(400).send({
+          message: "Invalid repeatedType, must be weekly, daily or none."
+        });
+        return;
+      }
       shiftRepository
         .addRepeated(req.body, req.user.id, rolesRequired, type)
         .then(result => {
