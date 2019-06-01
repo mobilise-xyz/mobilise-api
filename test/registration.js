@@ -29,7 +29,7 @@ describe('Register Volunteer', function() {
         expect(response.body.firstName).to.equal('Volun');
         expect(response.body.lastName).to.equal('Teer');
         expect(response.body.dob).to.equal('1998-11-25');
-        expect(response.body.admin).to.equal(false);
+        expect(response.body.isAdmin).to.equal(false);
         
         done();
       })
@@ -49,7 +49,7 @@ describe('Register Admin', function() {
           email: 'admin@testing.com',
           password: 'Admin123',
           dob: '1998-11-25',
-          admin: 'true'
+          isAdmin: true
         }
       )
       .set('Accept', 'application/json')
@@ -63,7 +63,7 @@ describe('Register Admin', function() {
         expect(response.body.firstName).to.equal('Ad');
         expect(response.body.lastName).to.equal('Min');
         expect(response.body.dob).to.equal('1998-11-25');
-        expect(response.body.admin).to.equal(true);
+        expect(response.body.isAdmin).to.equal(true);
         
         done();
       })

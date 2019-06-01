@@ -37,15 +37,28 @@ module.exports = (sequelize, DataTypes) => {
     },
   }, {});
   Shift.associate = function(models) {
+
     Shift.belongsToMany(models.Role, {
       through: models.ShiftRole,
       as: "roles",
       foreignKey: "shiftId"
     });
+
     Shift.belongsTo(models.RepeatedShift, {
       as: "repeated",
       foreignKey: "repeatedId"
     });
+
+    Shift.belongsToMany(models.Volunteer, {
+      through: models.Booking,
+      as: "volunteers",
+      foreignKey: "shiftId"
+    })
+
+    Shift.hasMany(models.Booking, {
+      as: "bookings",
+      foreignKey: "shiftId"
+    })
   };
   return Shift;
 };

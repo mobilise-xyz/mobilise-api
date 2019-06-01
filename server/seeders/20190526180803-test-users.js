@@ -10,7 +10,7 @@ module.exports = {
           lastName: 'Volunteerson',
           email: 'testvolunteer@testing.com',
           password: bcrypt.hashSync('Volunteer123', bcrypt.genSaltSync(8), null),
-          admin: 'FALSE',
+          isAdmin: false,
           dob: '1997-11-25',
           createdAt: '2019-06-06',
           updatedAt: '2019-06-06'
@@ -21,7 +21,7 @@ module.exports = {
           lastName: 'Adminson',
           email: 'testadmin@testing.com',
           password: bcrypt.hashSync('Admin123', bcrypt.genSaltSync(8), null),
-          admin: 'TRUE',
+          isAdmin: true,
           dob: '1997-11-25',
           createdAt: '2019-06-06',
           updatedAt: '2019-06-06'

@@ -79,12 +79,12 @@ ShiftRepository.getAllWithRoles = function() {
 
   Shift
     .findAll({
-      include: ['roles'], 
+      include: ['volunteers', 'roles'], 
       order: [[sequelize.literal('date, start'), 'asc']]
     })
 
     .then(shifts => deferred.resolve(shifts))
-    .catch(err => deferred.resolve(err));
+    .catch(err => deferred.reject(err));
 
   return deferred.promise;
 };
@@ -98,10 +98,21 @@ ShiftRepository.getAll = function(attributes) {
       order: [[sequelize.literal('date, start'), 'asc']]
     })
     .then(shifts => deferred.resolve(shifts))
-    .catch(err => deferred.resolve(err));
+    .catch(err => deferred.reject(err));
 
   return deferred.promise;
 };
+
+ShiftRepository.getById = function(id) {
+  var deferred = Q.defer();
+
+  Shift
+    .findOne({where: {id: id}})
+    .then(shift => deferred.resolve(shift))
+    .catch(err => deferred.reject(err));
+
+  return deferred.promise;
+}
 
 ShiftRepository.removeById = function(id) {
   var deferred = Q.defer();
@@ -109,7 +120,7 @@ ShiftRepository.removeById = function(id) {
   Shift
     .destroy({where: {id: id}})
     .then(shift => deferred.resolve(shift))
-    .catch(err => deferred.resolve(err));
+    .catch(err => deferred.reject(err));
 
   return deferred.promise;
 }

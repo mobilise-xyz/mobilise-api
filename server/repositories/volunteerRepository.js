@@ -17,4 +17,15 @@ VolunteerRepository.add = function(volunteer) {
   return deferred.promise;
 }
 
+VolunteerRepository.getAll = function() {
+  var deferred = Q.defer();
+
+  Volunteer
+    .findAll({include: ['user']})
+    .then(volunteers => deferred.resolve(volunteers))
+    .catch(err => deferred.reject(err));
+
+  return deferred.promise;
+}
+
 module.exports = VolunteerRepository;

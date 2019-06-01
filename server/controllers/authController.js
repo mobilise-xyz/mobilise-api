@@ -17,7 +17,7 @@ var AuthController = function(userRepository, volunteerRepository, adminReposito
     userRepository
       .add(req.body, hash)
       .then(async(user) => {
-          if (!user.admin) {
+          if (!user.isAdmin) {
             await volunteerRepository.add({userId: user.id})
           } else {
             await adminRepository.add({userId: user.id})
@@ -30,7 +30,7 @@ var AuthController = function(userRepository, volunteerRepository, adminReposito
             firstName: user.firstName,
             lastName: user.lastName,
             email: user.email,
-            admin: user.admin,
+            isAdmin: user.isAdmin,
             dob: user.dob
           }
       ))
@@ -43,7 +43,7 @@ var AuthController = function(userRepository, volunteerRepository, adminReposito
       .getByEmail(req.body.email)
       .then(user => {
         if (user && validatePassword(req.body.password, user.password)) {
-          res.status(200).json({message: "Successful login!", uid: user.id, isAdmin: user.admin, token: generateToken(user)});
+          res.status(200).json({message: "Successful login!", uid: user.id, isAdmin: user.isAdmin, token: generateToken(user)});
         } else{
           res.status(400).json({message: "Invalid username/password"});
         }
