@@ -97,7 +97,7 @@ var ShiftRepository = Object.create(ShiftRepositoryInterface);
             .add(1, "y")
             .toDate();
           break;
-        case "weekends":
+        case "weekdays":
           do {
             startDate = moment(startDate)
               .add(1, "d")
