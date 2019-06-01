@@ -15,7 +15,7 @@ var VolunteerController = function(volunteerRepository) {
 
   this.listShifts = function(req, res) {
     
-    req.body.user.getVolunteer({includes: ['shifts']})
+    req.user.getVolunteer({include: ['shifts']})
       .then(shifts => res.status(200).send(shifts))
       .catch(err => res.status(500).send(err));
 

@@ -6,6 +6,6 @@ var controller = require('../controllers').VolunteerController;
 router.get('/', controller.list);
 
 /* Get all shifts for a volunteer */
-router.get('/:id', controller.listShifts);
+router.get('/:id/shifts', controller.listShifts);
 
 module.exports = router;
