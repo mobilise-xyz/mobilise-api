@@ -12,10 +12,15 @@ var AuthController = function(userRepository, volunteerRepository, adminReposito
   this.adminRepository = adminRepository;
 
   this.registerUser = function(req, res) {
-    var hash = hashedPassword(req.body.password)
-
-    userRepository
-      .add(req.body, hash)
+    userRepository.getByEmail(req.body.email)
+      .then(user => {
+        if (user) {
+          res.status(400).send({message: "An account with that email already exists"});
+        } else {
+          var hash = hashedPassword(req.body.password);
+          return  userRepository.add(req.body, hash)
+        }
+      })
       .then(async(user) => {
           if (!user.isAdmin) {
             await volunteerRepository.add({userId: user.id})
