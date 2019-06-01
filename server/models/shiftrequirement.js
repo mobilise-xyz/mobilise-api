@@ -22,6 +22,16 @@ module.exports = (sequelize, DataTypes) => {
       as: "bookings",
       foreignKey: "shiftId"
     });
+
+    ShiftRequirement.belongsTo(models.Role, {
+      as: "role",
+      foreignKey: "roleName"
+    });
+
+    ShiftRequirement.belongsTo(models.Shift, {
+      as: "shift",
+      foreignKey: "shiftId"
+    });
   };
   return ShiftRequirement;
 };

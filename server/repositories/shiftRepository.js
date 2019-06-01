@@ -99,16 +99,19 @@ ShiftRepository.getAllWithBookings = function() {
       {
         model: ShiftRequirement,
         as: "requirements",
-        include: {
-          model: Booking,
-          as: "bookings",
-          required: false,
-          where: sequelize.where(
-            sequelize.col("requirements.roleName"),
-            "=",
-            sequelize.col("requirements->bookings.roleName")
-          )
-        }
+        include: [
+          {
+            model: Booking,
+            as: "bookings",
+            required: false,
+            where: sequelize.where(
+              sequelize.col("requirements.roleName"),
+              "=",
+              sequelize.col("requirements->bookings.roleName")
+            )
+          },
+          "role"
+        ]
       }
     ],
     order: [[sequelize.literal("date, start"), "asc"]]
