@@ -53,8 +53,6 @@ var ShiftRepository = Object.create(ShiftRepositoryInterface);
     type
   ) {
     var deferred = Q.defer();
-    var repeatedTypes = { weekly: 7, daily: 1 };
-    var increment = repeatedTypes[type];
     var repeatedId;
     var lastShift;
     var successful = true;
@@ -71,17 +69,56 @@ var ShiftRepository = Object.create(ShiftRepositoryInterface);
     var untilDate = moment(shift.untilDate, "YYYY-MM-DD");
     while (moment(startDate).isBefore(untilDate) && successful) {
       // Add the shift
-      shift.date = startDate;
+      shift.date = moment(startDate).format("YYYY-MM-DD");
+      console.log(shift.date);
       await ShiftRepository.add(shift, creatorId, rolesRequired, repeatedId)
         .then(shift => (lastShift = shift))
         .catch(err => {
           successful = false;
           deferred.reject(err);
         });
-      startDate = moment(startDate)
-        .add(increment, "d")
-        .toDate();
+      switch (type) {
+        case "daily":
+          startDate = moment(startDate)
+            .add(1, "d")
+            .toDate();
+          break;
+        case "weekly":
+          startDate = moment(startDate)
+            .add(1, "w")
+            .toDate();
+          break;
+        case "monthly":
+          startDate = moment(startDate)
+            .add(1, "M")
+            .toDate();
+          break;
+        case "annually":
+          startDate = moment(startDate)
+            .add(1, "years")
+            .toDate();
+          break;
+        case "weekdays":
+          do {
+            startDate = moment(startDate)
+              .add(1, "d")
+              .toDate();
+          } while (isWeekend(startDate));
+          break;
+        case "weekends":
+          do {
+            console.log(startDate + " before");
+            startDate = moment(startDate)
+              .add(1, "d")
+              .toDate();
+            console.log(startDate + " after");
+          } while (!isWeekend(startDate));
+          console.log("Last date is a weekend");
+          break;
+        default:
+      }
     }
+
     if (successful) {
       deferred.resolve({
         message: "Created recurring shift",
@@ -165,3 +202,6 @@ ShiftRepository.removeById = function(id) {
 };
 
 module.exports = ShiftRepository;
+function isWeekend(date) {
+  return date.getDay() % 6 == 0;
+}

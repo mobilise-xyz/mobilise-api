@@ -9,7 +9,7 @@ module.exports = {
         defaultValue: Sequelize.UUIDV4
       },
       type: {
-        type: Sequelize.ENUM("weekly", "daily"),
+        type: Sequelize.STRING,
         allowNull: false
       },
       createdAt: {
