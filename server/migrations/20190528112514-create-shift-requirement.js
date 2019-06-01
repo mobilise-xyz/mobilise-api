@@ -5,7 +5,7 @@ module.exports = {
       id: {
         allowNull: false,
         primaryKey: true,
-        type: DataTypes.UUID
+        type: Sequelize.UUID
       },
       shiftId: {
         allowNull: false,
