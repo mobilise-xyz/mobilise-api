@@ -1,6 +1,6 @@
 'use strict';
 module.exports = (sequelize, DataTypes) => {
-  const ShiftRequirement = sequelize.define('ShiftRequirements', {
+  const ShiftRequirement = sequelize.define('ShiftRequirement', {
     shiftId : {
       allowNull: false,
       type: DataTypes.UUID

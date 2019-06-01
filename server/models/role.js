@@ -10,8 +10,8 @@ module.exports = (sequelize, DataTypes) => {
   }, {});
   Role.associate = function(models) {
     Role.belongsToMany(models.Shift, {
-      as: 'shifts', 
       through: models.ShiftRequirement,
+      as: 'shifts', 
       foreignKey: 'roleName' }
    );
   };
