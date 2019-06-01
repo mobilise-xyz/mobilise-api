@@ -1,5 +1,6 @@
 const shiftRepository = require('../repositories').ShiftRepository;
 const roleRepository = require('../repositories').RoleRepository;
+const bookingRepository = require('../repositories').BookingRepository;
 
 var ShiftController = function(shiftRepository, roleRepository) {
   
@@ -47,7 +48,7 @@ var ShiftController = function(shiftRepository, roleRepository) {
       res.status(400).send({message: "Admin cannot book onto shift"});
       return;
     }
-    roleRepository.getByName(req.body.roleName)
+    bookingRepository.getById(req.params.id, req.user.id)
       .then(booking => {
         if (booking) {
           res.status(400).send({message: "Booking already exists for this shift and volunteer"});
@@ -66,7 +67,7 @@ var ShiftController = function(shiftRepository, roleRepository) {
         if (!shift) {
           res.status(400).send({message: "No shift with id: "+req.params.id});
         } else {
-          return shiftRepository.bookRole(req.params.id, req.user.id, req.body.roleName);
+          return bookingRepository.bookRole(req.params.id, req.user.id, req.body.roleName);
         }
       })
       .then(booking => {

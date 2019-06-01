@@ -4,9 +4,7 @@ var ShiftRepositoryInterface = {
     getAllWithRoles: function() {},
     getAll: function(attributes) {},
     getById: function(id){},
-    removeById: function(id) {},
-    bookRole: function(shiftId, volunteerId, roleName){},
-    getBookingById: function(shiftId, volunteerId){}
+    removeById: function(id) {}
 }
 
 module.exports = ShiftRepositoryInterface;
