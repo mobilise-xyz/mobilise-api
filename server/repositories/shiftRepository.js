@@ -90,12 +90,12 @@ var ShiftRepository = Object.create(ShiftRepositoryInterface);
           break;
         case "monthly":
           startDate = moment(startDate)
-            .add(1, "m")
+            .add(1, "M")
             .toDate();
           break;
         case "annually":
           startDate = moment(startDate)
-            .add(1, "y")
+            .add(1, "years")
             .toDate();
           break;
         case "weekdays":
