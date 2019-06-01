@@ -39,7 +39,7 @@ module.exports = (sequelize, DataTypes) => {
   Shift.associate = function(models) {
 
     Shift.belongsToMany(models.Role, {
-      through: models.ShiftRole,
+      through: models.ShiftRequirement,
       as: "roles",
       foreignKey: "shiftId"
     });
