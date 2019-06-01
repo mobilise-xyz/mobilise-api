@@ -1,35 +1,35 @@
-'use strict';
+"use strict";
 module.exports = {
   up: (queryInterface, Sequelize) => {
-    return queryInterface.createTable('Bookings', {
+    return queryInterface.createTable("Bookings", {
       shiftId: {
         allowNull: false,
         primaryKey: true,
         type: Sequelize.UUID,
         references: {
-          model: 'Shifts',
-          key: 'id'
+          model: "Shifts",
+          key: "id"
         },
-        onDelete: 'CASCADE'
+        onDelete: "CASCADE"
       },
       volunteerId: {
         allowNull: false,
         primaryKey: true,
         type: Sequelize.UUID,
         references: {
-          model: 'Volunteers',
-          key: 'userId'
+          model: "Volunteers",
+          key: "userId"
         },
-        onDelete: 'CASCADE'
+        onDelete: "CASCADE"
       },
       roleName: {
         allowNull: false,
         type: Sequelize.STRING,
         references: {
-          model: 'Roles',
-          key: 'name'
+          model: "Roles",
+          key: "name"
         },
-        onDelete: 'CASCADE'
+        onDelete: "CASCADE"
       },
       createdAt: {
         allowNull: false,
@@ -42,6 +42,6 @@ module.exports = {
     });
   },
   down: (queryInterface, Sequelize) => {
-    return queryInterface.dropTable('Bookings');
+    return queryInterface.dropTable("Bookings");
   }
 };

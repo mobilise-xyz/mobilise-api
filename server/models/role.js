@@ -8,7 +8,8 @@ module.exports = (sequelize, DataTypes) => {
         primaryKey: true,
         type: DataTypes.STRING
       },
-      involves: DataTypes.STRING
+      involves: DataTypes.STRING,
+      colour: DataTypes.STRING
     },
     {}
   );

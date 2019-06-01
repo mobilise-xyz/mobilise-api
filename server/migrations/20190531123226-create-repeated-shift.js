@@ -1,7 +1,7 @@
-'use strict';
+"use strict";
 module.exports = {
   up: (queryInterface, Sequelize) => {
-    return queryInterface.createTable('RepeatedShifts', {
+    return queryInterface.createTable("RepeatedShifts", {
       id: {
         allowNull: false,
         primaryKey: true,
@@ -9,7 +9,7 @@ module.exports = {
         defaultValue: Sequelize.UUIDV4
       },
       type: {
-        type: Sequelize.ENUM('weekly', 'daily'),
+        type: Sequelize.ENUM("weekly", "daily"),
         allowNull: false
       },
       createdAt: {
@@ -22,8 +22,8 @@ module.exports = {
       }
     });
   },
-  
+
   down: (queryInterface, Sequelize) => {
-    return queryInterface.dropTable('RepeatedShifts');
+    return queryInterface.dropTable("RepeatedShifts");
   }
 };
