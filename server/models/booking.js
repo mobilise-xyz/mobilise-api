@@ -1,19 +1,25 @@
-'use strict';
+"use strict";
 module.exports = (sequelize, DataTypes) => {
-  const Booking = sequelize.define('Booking', {
-    requirementId: {
-      allowNull: false,
-      primaryKey: true,
-      type: DataTypes.UUID
+  const Booking = sequelize.define(
+    "Booking",
+    {
+      shiftId: {
+        allowNull: false,
+        primaryKey: true,
+        type: DataTypes.UUID
+      },
+      volunteerId: {
+        allowNull: false,
+        primaryKey: true,
+        type: DataTypes.UUID
+      },
+      roleName: {
+        allowNull: false,
+        type: DataTypes.STRING
+      }
     },
-    volunteerId: {
-      allowNull: false,
-      primaryKey: true,
-      type: DataTypes.UUID
-    }
-  }, {});
-  Booking.associate = function(models) {
-    // associations can be defined here
-  };
+    {}
+  );
+  Booking.associate = function(models) {};
   return Booking;
 };
