@@ -110,9 +110,19 @@ var ShiftController = function(shiftRepository, roleRepository) {
         .catch(err => res.status(500).send(err));
     } else {
       // Check if valid request
-      if (!["weekly", "daily", "none"].includes(type)) {
+      if (
+        ![
+          "none",
+          "weekly",
+          "daily",
+          "weekdays",
+          "weekends",
+          "monthly",
+          "annually"
+        ].includes(type)
+      ) {
         res.status(400).send({
-          message: "Invalid repeatedType, must be weekly, daily or none."
+          message: "Invalid repeatedType: " + type
         });
         return;
       }
