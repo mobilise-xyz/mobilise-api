@@ -10,6 +10,15 @@ var RoleController = function(roleRepository) {
       res.status(401).send({ message: "Only admins can add roles" });
       return;
     }
+    // Check if valid hex string
+    if (req.body.colour) {
+      if (!/^#[0-9A-F]{6}$/i.test(req.body.colour)) {
+        res
+          .status(400)
+          .send({ message: req.body.colour + " is not a valid hex colour" });
+        return;
+      }
+    }
     // Check if already exists
     roleRepository
       .getByName(req.body.name)
