@@ -1,5 +1,7 @@
 const Shift = require("../models").Shift;
 const RepeatedShift = require("../models").RepeatedShift;
+const ShiftRequirement = require("../models").ShiftRequirement;
+const Booking = require("../models").Booking;
 const Q = require("q");
 const sequelize = require("sequelize");
 const moment = require("moment");
@@ -89,15 +91,31 @@ var ShiftRepository = Object.create(ShiftRepositoryInterface);
     return deferred.promise;
   });
 
-ShiftRepository.getAllWithRoles = function() {
+ShiftRepository.getAllWithBookings = function() {
   var deferred = Q.defer();
 
   Shift.findAll({
-    include: ["requirements"],
+    include: [
+      {
+        model: ShiftRequirement,
+        as: "requirements",
+        include: {
+          model: Booking,
+          as: "bookings",
+          required: false,
+          where: sequelize.where(
+            sequelize.col("requirements.roleName"),
+            "=",
+            sequelize.col("requirements->bookings.roleName")
+          )
+        }
+      }
+    ],
     order: [[sequelize.literal("date, start"), "asc"]]
   })
-
-    .then(shifts => deferred.resolve(shifts))
+    .then(shifts => {
+      deferred.resolve(shifts);
+    })
     .catch(err => deferred.reject(err));
 
   return deferred.promise;

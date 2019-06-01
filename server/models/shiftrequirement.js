@@ -1,18 +1,27 @@
-'use strict';
+"use strict";
 module.exports = (sequelize, DataTypes) => {
-  const ShiftRequirement = sequelize.define('ShiftRequirement', {
-    shiftId : {
-      allowNull: false,
-      type: DataTypes.UUID
+  const ShiftRequirement = sequelize.define(
+    "ShiftRequirement",
+    {
+      shiftId: {
+        allowNull: false,
+        type: DataTypes.UUID,
+        primaryKey: true
+      },
+      roleName: {
+        allowNull: false,
+        primaryKey: true,
+        type: DataTypes.STRING
+      },
+      numberRequired: DataTypes.INTEGER
     },
-    roleName: {
-      allowNull: false,
-      type: DataTypes.STRING
-    },
-    numberRequired: DataTypes.INTEGER
-  }, {});
+    {}
+  );
   ShiftRequirement.associate = function(models) {
-    // associations can be defined here
+    ShiftRequirement.hasMany(models.Booking, {
+      as: "bookings",
+      foreignKey: "shiftId"
+    });
   };
   return ShiftRequirement;
 };
