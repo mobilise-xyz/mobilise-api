@@ -1,6 +1,6 @@
 var VolunteerRepositoryInterface = {
-    add: function(volunteer) {},
-    getAll: function() {}
+  add: function(volunteer) {},
+  getAll: function() {}
 };
 
 module.exports = VolunteerRepositoryInterface;

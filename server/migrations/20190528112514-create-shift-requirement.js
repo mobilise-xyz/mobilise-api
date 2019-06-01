@@ -1,11 +1,11 @@
 'use strict';
 module.exports = {
   up: (queryInterface, Sequelize) => {
-    return queryInterface.createTable('ShiftRoles', {
+    return queryInterface.createTable('ShiftRequirements', {
       shiftId: {
         allowNull: false,
-        primaryKey: true,
         type: Sequelize.UUID,
+        primaryKey: true,
         references: {
           model: 'Shifts',
           key: 'id'
@@ -36,6 +36,6 @@ module.exports = {
     });
   },
   down: (queryInterface, Sequelize) => {
-    return queryInterface.dropTable('ShiftRoles');
+    return queryInterface.dropTable('ShiftRequirements');
   }
 };
