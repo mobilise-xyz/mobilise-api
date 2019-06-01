@@ -1,4 +1,5 @@
 const Shift = require("../models").Shift;
+const Role = require("../models").Role;
 const RepeatedShift = require("../models").RepeatedShift;
 const ShiftRequirement = require("../models").ShiftRequirement;
 const Booking = require("../models").Booking;
@@ -99,16 +100,25 @@ ShiftRepository.getAllWithBookings = function() {
       {
         model: ShiftRequirement,
         as: "requirements",
-        include: {
-          model: Booking,
-          as: "bookings",
-          required: false,
-          where: sequelize.where(
-            sequelize.col("requirements.roleName"),
-            "=",
-            sequelize.col("requirements->bookings.roleName")
-          )
-        }
+        attributes: ["numberRequired"],
+        include: [
+          {
+            model: Booking,
+            as: "bookings",
+            required: false,
+            where: sequelize.where(
+              sequelize.col("requirements.roleName"),
+              "=",
+              sequelize.col("requirements->bookings.roleName")
+            ),
+            attributes: ["volunteerId"]
+          },
+          {
+            model: Role,
+            as: "role",
+            attributes: ["name", "involves"]
+          }
+        ]
       }
     ],
     order: [[sequelize.literal("date, start"), "asc"]]
