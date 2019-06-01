@@ -49,6 +49,11 @@ module.exports = (sequelize, DataTypes) => {
       foreignKey: "repeatedId"
     });
 
+    Shift.hasMany(models.ShiftRequirement, {
+      as: "requirements",
+      foreignKey: "shiftId"
+    })
+
     Shift.belongsToMany(models.Volunteer, {
       through: models.Booking,
       as: "volunteers",

@@ -8,7 +8,9 @@ module.exports = (sequelize, DataTypes) => {
     },
     involves: DataTypes.STRING
   }, {});
+
   Role.associate = function(models) {
+    
     Role.belongsToMany(models.Shift, {
       through: models.ShiftRequirement,
       as: 'shifts', 

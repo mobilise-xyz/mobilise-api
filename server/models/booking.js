@@ -1,7 +1,7 @@
 'use strict';
 module.exports = (sequelize, DataTypes) => {
   const Booking = sequelize.define('Booking', {
-    shiftId: {
+    requirementId: {
       allowNull: false,
       primaryKey: true,
       type: DataTypes.UUID
@@ -10,10 +10,6 @@ module.exports = (sequelize, DataTypes) => {
       allowNull: false,
       primaryKey: true,
       type: DataTypes.UUID
-    },
-    roleName: {
-      allowNull: false,
-      type: DataTypes.STRING
     }
   }, {});
   Booking.associate = function(models) {

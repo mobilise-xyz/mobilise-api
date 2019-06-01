@@ -2,15 +2,10 @@
 module.exports = {
   up: (queryInterface, Sequelize) => {
     return queryInterface.createTable('ShiftRequirements', {
-      id: {
-        allowNull: false,
-        primaryKey: true,
-        type: Sequelize.UUID,
-        defaultValue: Sequelize.UUIDV4
-      },
       shiftId: {
         allowNull: false,
         type: Sequelize.UUID,
+        primaryKey: true,
         references: {
           model: 'Shifts',
           key: 'id'
@@ -20,6 +15,7 @@ module.exports = {
       roleName: {
         type: Sequelize.STRING,
         allowNull: false,
+        primaryKey: true,
         references: {
           model: 'Roles',
           key: 'name'
