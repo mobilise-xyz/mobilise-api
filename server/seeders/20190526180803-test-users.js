@@ -6,7 +6,7 @@ module.exports = {
       return queryInterface.bulkInsert('Users', [
         {
           id: '8fa1b3d0-80b6-11e9-bc42-526af7764f65',
-          firstName: 'Test',
+          firstName: 'Seeded',
           lastName: 'Volunteerson',
           email: 'testvolunteer@testing.com',
           password: bcrypt.hashSync('Volunteer123', bcrypt.genSaltSync(8), null),
@@ -17,7 +17,7 @@ module.exports = {
         },
         {
           id: '8fa1b90c-80b6-11e9-bc42-526af7764f64',
-          firstName: 'Test',
+          firstName: 'Seeded',
           lastName: 'Adminson',
           email: 'testadmin@testing.com',
           password: bcrypt.hashSync('Admin123', bcrypt.genSaltSync(8), null),
@@ -31,6 +31,6 @@ module.exports = {
   },
 
   down: (queryInterface, Sequelize) => {
-      return queryInterface.bulkDelete('Users', null, {});
+      return queryInterface.bulkDelete('Users', {firstName : 'Seeded'}, {});
   }
 };
