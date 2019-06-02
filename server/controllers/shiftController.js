@@ -70,18 +70,22 @@ var ShiftController = function(shiftRepository, roleRepository) {
             .send({ message: "No shift with id: " + req.params.id });
           return;
         }
-        if (!req.repeatedType || req.repeatedType == "none") {
-          return bookingRepository.add(
-            req.params.id,
-            req.user.id,
-            req.body.roleName
-          );
+        if (!req.body.repeatedType || req.body.repeatedType == "none") {
+          return bookingRepository.add(shift, req.user.id, req.body.roleName);
         }
 
-        if (shift.repeated.type != req.repeatedType) {
+        if (shift.repeated.type != req.body.repeatedType) {
           res.status(400).send({ message: "Repeated type invalid for shift" });
           return;
         }
+        // Book repeated shifts
+        return bookingRepository.addRepeated(
+          shift,
+          req.user.id,
+          req.body.roleName,
+          req.body.repeatedType,
+          req.body.untilDate
+        );
       })
       .then(booking => {
         res
