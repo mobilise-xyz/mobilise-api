@@ -99,6 +99,9 @@ BookingRepository.addRepeated = async function(
           }
 
           if (startDate.isSame(nextShiftDate)) {
+            // The bookings in the shift are only ones with the volunteer
+            // id so therefore if the length is not 0, then the volunteer
+            // has a booking for this shift. So skip over it.
             if (shifts[shiftIndex].bookings.length == 0) {
               bookings.push({
                 shiftId: shifts[shiftIndex].id,
