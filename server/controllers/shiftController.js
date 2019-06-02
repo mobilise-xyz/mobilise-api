@@ -1,6 +1,7 @@
 const shiftRepository = require("../repositories").ShiftRepository;
 const roleRepository = require("../repositories").RoleRepository;
 const bookingRepository = require("../repositories").BookingRepository;
+const isWeekend = require("../utils/date").isWeekend;
 
 const ORDERED_REPEATED_TYPES = [
   "none",
@@ -85,15 +86,17 @@ var ShiftController = function(shiftRepository, roleRepository) {
           return bookingRepository.add(shift, req.user.id, req.body.roleName);
         }
 
-        if (!repeatedTypeIsValid(req.body.repeatedType)) {
+        if (!repeatedTypeIsValid(req.body.repeatedType, shift.date)) {
           res.status(400).send({
-            message: "Invalid repeated type: " + req.body.repeatedType
+            message:
+              "Invalid repeated type (check starting day if weekends/weekdays): " +
+              req.body.repeatedType
           });
           return;
         }
 
         if (
-          !repeatedTypesCompatible(shift.repeatedType, req.body.repeatedType)
+          !repeatedTypesCompatible(shift.repeated.type, req.body.repeatedType)
         ) {
           res
             .status(400)
@@ -162,7 +165,20 @@ var ShiftController = function(shiftRepository, roleRepository) {
 
 module.exports = new ShiftController(shiftRepository, roleRepository);
 
-function repeatedTypeIsValid(type) {
+function repeatedTypeIsValid(type, startDate) {
+  switch (type) {
+    case "weekdays":
+      if (isWeekend(startDate)) {
+        return false;
+      }
+      break;
+    case "weekends":
+      if (!isWeekend(startDate)) {
+        return false;
+      }
+    default:
+      break;
+  }
   return ORDERED_REPEATED_TYPES.includes(type);
 }
 
@@ -170,6 +186,8 @@ function repeatedTypesCompatible(shiftType, bookingType) {
   if (shiftType == bookingType) {
     return true;
   }
+  console.log(shiftType + " is shiftType");
+  console.log(bookingType + " is bookingType");
   switch (shiftType) {
     case "weekdays":
       return !["daily", "weekends"].includes(bookingType);

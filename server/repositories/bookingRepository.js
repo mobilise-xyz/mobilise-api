@@ -4,6 +4,9 @@ const RepeatedShift = require("../models").RepeatedShift;
 const Op = require("../models").Sequelize.Op;
 const RepeatedBooking = require("../models").RepeatedBooking;
 const Q = require("q");
+const getNextDate = require("../utils/date").getNextDate;
+const sequelize = require("sequelize");
+const moment = require("moment");
 const BookingRepositoryInterface = require("./interfaces/bookingRepositoryInterface");
 
 var BookingRepository = Object.create(BookingRepositoryInterface);
@@ -52,20 +55,41 @@ BookingRepository.addRepeated = async function(
             date: {
               [Op.between]: [shift.date, untilDate]
             }
-          }
+          },
+          order: [[sequelize.literal("date, start"), "asc"]]
         }
       ]
     })
       .then(result => {
         var bookings = [];
-        result.shifts.forEach(shift => {
+        var shifts = result.shifts;
+        var startDate = moment(shift.date, "YYYY-MM-DD");
+        var lastDate = moment(untilDate, "YYYY-MM-DD");
+        var shiftIndex = 0;
+        while (
+          (moment(startDate).isBefore(lastDate) ||
+            moment(startDate).isSame(lastDate)) &&
+          shiftIndex != shifts.length
+        ) {
+          // Find the next shift for this repeated booking
+          while (moment(startDate).isBefore(shifts[shiftIndex].date)) {
+            // Increment with respect to the next
+            startDate = getNextDate(startDate, type);
+          }
+          if (!moment(startDate).isSame(shifts[shiftIndex].date)) {
+            console.log("This should've have happened");
+          }
+          // Shift must have same day
           bookings.push({
-            shiftId: shift.id,
+            shiftId: shifts[shiftIndex].id,
             repeatedId: repeatedId,
             roleName: roleName,
             volunteerId: volunteerId
           });
-        });
+          // Consider next shift
+          shiftIndex += 1;
+        }
+        console.log(bookings);
         return Booking.bulkCreate(bookings);
       })
       .then(bookings =>
