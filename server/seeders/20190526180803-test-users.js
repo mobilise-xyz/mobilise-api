@@ -1,12 +1,14 @@
 'use strict';
 var bcrypt = require('bcryptjs');
 
+var ids = ['8fa1b3d0-80b6-11e9-bc42-526af7764f65', '8fa1b90c-80b6-11e9-bc42-526af7764f64'];
+
 module.exports = {
   up: (queryInterface, Sequelize) => {
       return queryInterface.bulkInsert('Users', [
         {
-          id: '8fa1b3d0-80b6-11e9-bc42-526af7764f65',
-          firstName: 'Test',
+          id: ids[0],
+          firstName: 'Seeded',
           lastName: 'Volunteerson',
           email: 'testvolunteer@testing.com',
           password: bcrypt.hashSync('Volunteer123', bcrypt.genSaltSync(8), null),
@@ -16,8 +18,8 @@ module.exports = {
           updatedAt: '2019-06-06'
         },
         {
-          id: '8fa1b90c-80b6-11e9-bc42-526af7764f64',
-          firstName: 'Test',
+          id: ids[1],
+          firstName: 'Seeded',
           lastName: 'Adminson',
           email: 'testadmin@testing.com',
           password: bcrypt.hashSync('Admin123', bcrypt.genSaltSync(8), null),
@@ -31,6 +33,6 @@ module.exports = {
   },
 
   down: (queryInterface, Sequelize) => {
-      return queryInterface.bulkDelete('Users', null, {});
+      return queryInterface.bulkDelete('Users', {id: ids});
   }
 };
