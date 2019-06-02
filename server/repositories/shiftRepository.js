@@ -75,7 +75,11 @@ var ShiftRepository = Object.create(ShiftRepositoryInterface);
     var untilDate = moment(shift.untilDate, "YYYY-MM-DD");
     shift["creatorId"] = creatorId;
     shift["repeatedId"] = repeatedId;
-    while (moment(startDate).isBefore(untilDate) && successful) {
+    while (
+      (moment(startDate).isBefore(untilDate) ||
+        moment(startDate).isSame(untilDate)) &&
+      successful
+    ) {
       // Add the shift
       var newShift = JSON.parse(JSON.stringify(shift));
       newShift["date"] = moment(startDate).format("YYYY-MM-DD");
@@ -160,7 +164,7 @@ ShiftRepository.addAll = function(shifts, rolesRequired) {
   return deferred.promise;
 };
 
-ShiftRepository.getAllWithBookings = function() {
+ShiftRepository.getAllWithRequirements = function() {
   var deferred = Q.defer();
 
   Shift.findAll({
@@ -216,7 +220,7 @@ ShiftRepository.getAll = function(attributes) {
 ShiftRepository.getById = function(id) {
   var deferred = Q.defer();
 
-  Shift.findOne({ where: { id: id } })
+  Shift.findOne({ where: { id: id }, include: ["repeated"] })
     .then(shift => deferred.resolve(shift))
     .catch(err => deferred.reject(err));
 
