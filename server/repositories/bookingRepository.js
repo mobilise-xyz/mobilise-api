@@ -56,6 +56,16 @@ BookingRepository.addRepeated = async function(
               [Op.between]: [shift.date, untilDate]
             }
           },
+          include: [
+            {
+              model: Booking,
+              as: "bookings",
+              required: false,
+              where: {
+                volunteerId: volunteerId
+              }
+            }
+          ],
           order: [[sequelize.literal("date, start"), "asc"]]
         }
       ]
@@ -89,17 +99,19 @@ BookingRepository.addRepeated = async function(
           }
 
           if (startDate.isSame(nextShiftDate)) {
-            // Shift must have same day
-            bookings.push({
-              shiftId: shifts[shiftIndex].id,
-              repeatedId: repeatedId,
-              roleName: roleName,
-              volunteerId: volunteerId
-            });
+            if (shifts[shiftIndex].bookings.length == 0) {
+              bookings.push({
+                shiftId: shifts[shiftIndex].id,
+                repeatedId: repeatedId,
+                roleName: roleName,
+                volunteerId: volunteerId
+              });
+            }
           }
           // Consider next shift
           shiftIndex += 1;
         }
+        console.log(bookings);
         return Booking.bulkCreate(bookings);
       })
       .then(bookings =>
