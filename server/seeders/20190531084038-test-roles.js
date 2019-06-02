@@ -1,11 +1,13 @@
 'use strict';
 
+var roleName = 'Warehouse Assistant';
+
 module.exports = {
   up: (queryInterface, Sequelize) => {
     return queryInterface.bulkInsert('Roles', 
       [
         {
-          name: 'Warehouse Assistant',
+          name: roleName,
           involves: 'Heavy Lifting',
           createdAt: '2019-06-06',
           updatedAt: '2019-06-06'
@@ -14,6 +16,6 @@ module.exports = {
   },
 
   down: (queryInterface, Sequelize) => {
-    return queryInterface.bulkDelete('Roles', null, {});
+    return queryInterface.bulkDelete('Roles', {name: roleName});
   }
 };
