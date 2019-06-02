@@ -46,6 +46,7 @@ var ShiftRepository = Object.create(ShiftRepositoryInterface);
     .catch(err => deferred.reject(err));
   return deferred.promise;
 }),
+  //
   (ShiftRepository.addRepeated = async function(
     shift,
     creatorId,
@@ -54,7 +55,6 @@ var ShiftRepository = Object.create(ShiftRepositoryInterface);
   ) {
     var deferred = Q.defer();
     var repeatedId;
-    var lastShift;
     var successful = true;
     await RepeatedShift.create({
       type: type
@@ -65,18 +65,15 @@ var ShiftRepository = Object.create(ShiftRepositoryInterface);
         deferred.reject(err);
       });
     // Create repeated shift
+    var shifts = [];
     var startDate = moment(shift.date, "YYYY-MM-DD");
     var untilDate = moment(shift.untilDate, "YYYY-MM-DD");
+    shift["creatorId"] = creatorId;
+    shift["repeatedId"] = repeatedId;
     while (moment(startDate).isBefore(untilDate) && successful) {
       // Add the shift
-      shift.date = moment(startDate).format("YYYY-MM-DD");
-      console.log(shift.date);
-      await ShiftRepository.add(shift, creatorId, rolesRequired, repeatedId)
-        .then(shift => (lastShift = shift))
-        .catch(err => {
-          successful = false;
-          deferred.reject(err);
-        });
+      shift["date"] = moment(startDate).format("YYYY-MM-DD");
+      shifts.push(shift);
       switch (type) {
         case "daily":
           startDate = moment(startDate)
@@ -107,18 +104,22 @@ var ShiftRepository = Object.create(ShiftRepositoryInterface);
           break;
         case "weekends":
           do {
-            console.log(startDate + " before");
             startDate = moment(startDate)
               .add(1, "d")
               .toDate();
-            console.log(startDate + " after");
           } while (!isWeekend(startDate));
-          console.log("Last date is a weekend");
           break;
         default:
       }
     }
 
+    var lastShift;
+    await ShiftRepository.addAll(shifts, rolesRequired)
+      .then(shifts => (lastShift = shifts[shifts.length - 1]))
+      .catch(err => {
+        successful = false;
+        deferred.reject(err);
+      });
     if (successful) {
       deferred.resolve({
         message: "Created recurring shift",
@@ -128,6 +129,30 @@ var ShiftRepository = Object.create(ShiftRepositoryInterface);
 
     return deferred.promise;
   });
+
+ShiftRepository.addAll = function(shifts, rolesRequired) {
+  var deferred = Q.defer();
+  var allShifts;
+  Shift.bulkCreate(shifts)
+    .then(shifts => {
+      allShifts = shifts;
+      var allRolesRequired = [];
+      shifts.forEach(shift => {
+        rolesRequired.forEach(roleRequired => {
+          allRolesRequired.push({
+            shiftId: shift.id,
+            roleName: roleRequired.roleName,
+            numberRequired: roleRequired.number
+          });
+        });
+      });
+      return ShiftRequirement.bulkCreate(allRolesRequired);
+    })
+    .then(_ => deferred.resolve(allShifts))
+    .catch(err => deferred.reject(err));
+
+  return deferred.promise;
+};
 
 ShiftRepository.getAllWithBookings = function() {
   var deferred = Q.defer();
