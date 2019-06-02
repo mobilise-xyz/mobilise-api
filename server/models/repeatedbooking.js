@@ -21,7 +21,10 @@ module.exports = (sequelize, DataTypes) => {
     {}
   );
   RepeatedBooking.associate = function(models) {
-    // associations can be defined here
+    RepeatedBooking.hasMany(models.Booking, {
+      as: "bookings",
+      foreignKey: "repeatedId"
+    });
   };
   return RepeatedBooking;
 };
