@@ -2,9 +2,16 @@ var request = require('supertest');
 var app = require('../app');
 var chai = require('chai');
 
+const Role = require('../server/models').Role;
+
 var expect = chai.expect;
 
 describe('Add roles', function() {
+
+  after( function() {
+    Role.destroy({where: {name: 'Drivers mate'}})
+  })
+
   it('Does not allow unauthorised request to add role', function(done) {
     request(app)
       .post('/roles')
