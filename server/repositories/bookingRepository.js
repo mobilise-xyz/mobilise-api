@@ -76,17 +76,22 @@ BookingRepository.addRepeated = async function(
             // Increment with respect to the next
             startDate = getNextDate(startDate, type);
           }
-          if (!moment(startDate).isSame(shifts[shiftIndex].date)) {
-            deferred.reject({ message: "An error occured" });
-            return;
+          // If the booking increment is larger than shift increment
+          // then get the shift that is either after or the same as the
+          // booking
+          while (moment(startDate).isAfter(shifts[shiftIndex].date)) {
+            shiftIndex += 1;
           }
-          // Shift must have same day
-          bookings.push({
-            shiftId: shifts[shiftIndex].id,
-            repeatedId: repeatedId,
-            roleName: roleName,
-            volunteerId: volunteerId
-          });
+
+          if (moment(startDate).isSame(shifts[shiftIndex].date)) {
+            // Shift must have same day
+            bookings.push({
+              shiftId: shifts[shiftIndex].id,
+              repeatedId: repeatedId,
+              roleName: roleName,
+              volunteerId: volunteerId
+            });
+          }
           // Consider next shift
           shiftIndex += 1;
         }

@@ -2,6 +2,7 @@ const shiftRepository = require("../repositories").ShiftRepository;
 const roleRepository = require("../repositories").RoleRepository;
 const bookingRepository = require("../repositories").BookingRepository;
 const isWeekend = require("../utils/date").isWeekend;
+const moment = require("moment");
 
 const ORDERED_REPEATED_TYPES = [
   "none",
@@ -144,8 +145,9 @@ var ShiftController = function(shiftRepository, roleRepository) {
         })
         .catch(err => res.status(500).send(err));
     } else {
+      var startDate = moment(req.body.date, "YYYY-MM-DD").toDate();
       // Check if valid request
-      if (!repeatedTypeIsValid(type, req.body.date)) {
+      if (!repeatedTypeIsValid(type, startDate)) {
         res.status(400).send({
           message:
             "Invalid repeatedType (check starting day if weekends/weekdays): " +
