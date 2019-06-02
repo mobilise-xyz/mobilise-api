@@ -57,7 +57,8 @@ var ShiftRepository = Object.create(ShiftRepositoryInterface);
     var repeatedId;
     var successful = true;
     await RepeatedShift.create({
-      type: type
+      type: type,
+      untilDate: shift.untilDate
     })
       .then(result => (repeatedId = result.id))
       .catch(err => {

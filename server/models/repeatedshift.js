@@ -12,6 +12,10 @@ module.exports = (sequelize, DataTypes) => {
       type: {
         type: DataTypes.STRING,
         allowNull: false
+      },
+      untilDate: {
+        type: DataTypes.DATEONLY,
+        allowNull: false
       }
     },
     {}
