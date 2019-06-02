@@ -2,9 +2,15 @@ var request = require('supertest');
 var app = require('../app');
 var chai = require('chai');
 
+var User = require('../server/models').User;
+
 var expect = chai.expect;
 
 describe('Register Volunteer', function() {
+
+  after( function() {
+    User.destroy({where: {email: 'volunteer@testing.com'}})
+  })
 
   it('Can register a volunteer', function(done) {
     request(app)
@@ -38,6 +44,10 @@ describe('Register Volunteer', function() {
 })
 
 describe('Register Admin', function() {
+
+  after( function() {
+    User.destroy({where: {email: 'admin@testing.com'}})
+  })
 
   it('Can register an admin', function(done) {
     request(app)
