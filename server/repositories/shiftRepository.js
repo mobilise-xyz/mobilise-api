@@ -17,6 +17,7 @@ var ShiftRepository = Object.create(ShiftRepositoryInterface);
   repeatedId
 ) {
   var deferred = Q.defer();
+  var createdShift;
   if (!rolesRequired) {
     rolesRequired = [];
   }
@@ -31,17 +32,20 @@ var ShiftRepository = Object.create(ShiftRepositoryInterface);
     repeatedId: repeatedId
   })
     .then(async shift => {
+      createdShift = shift;
+      var shiftRequirements = [];
       // Add the roles to shift
-      var i;
-      for (i = 0; i < rolesRequired.length; i++) {
-        await shift.addRole(rolesRequired[i].role, {
-          through: { numberRequired: rolesRequired[i].number }
+      rolesRequired.forEach(roleRequired => {
+        shiftRequirements.push({
+          roleName: roleRequired.roleName,
+          shiftId: shift.id,
+          numberRequired: roleRequired.number
         });
-      }
-      return shift;
+      });
+      return ShiftRequirement.bulkCreate(shiftRequirements);
     })
-    .then(result => {
-      deferred.resolve(result);
+    .then(_ => {
+      deferred.resolve(createdShift);
     })
     .catch(err => deferred.reject(err));
   return deferred.promise;
@@ -136,17 +140,17 @@ ShiftRepository.addAll = function(shifts, rolesRequired) {
   Shift.bulkCreate(shifts)
     .then(shifts => {
       allShifts = shifts;
-      var allRolesRequired = [];
+      var shiftRequirements = [];
       shifts.forEach(shift => {
         rolesRequired.forEach(roleRequired => {
-          allRolesRequired.push({
+          shiftRequirements.push({
             shiftId: shift.id,
             roleName: roleRequired.roleName,
             numberRequired: roleRequired.number
           });
         });
       });
-      return ShiftRequirement.bulkCreate(allRolesRequired);
+      return ShiftRequirement.bulkCreate(shiftRequirements);
     })
     .then(_ => deferred.resolve(allShifts))
     .catch(err => deferred.reject(err));
