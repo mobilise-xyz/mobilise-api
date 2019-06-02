@@ -61,7 +61,8 @@ var ShiftRepository = Object.create(ShiftRepositoryInterface);
     var repeatedId;
     var successful = true;
     await RepeatedShift.create({
-      type: type
+      type: type,
+      untilDate: shift.untilDate
     })
       .then(result => (repeatedId = result.id))
       .catch(err => {
@@ -76,8 +77,9 @@ var ShiftRepository = Object.create(ShiftRepositoryInterface);
     shift["repeatedId"] = repeatedId;
     while (moment(startDate).isBefore(untilDate) && successful) {
       // Add the shift
-      shift["date"] = moment(startDate).format("YYYY-MM-DD");
-      shifts.push(shift);
+      var newShift = JSON.parse(JSON.stringify(shift));
+      newShift["date"] = moment(startDate).format("YYYY-MM-DD");
+      shifts.push(newShift);
       switch (type) {
         case "daily":
           startDate = moment(startDate)
@@ -185,7 +187,8 @@ ShiftRepository.getAllWithBookings = function() {
             attributes: ["name", "involves"]
           }
         ]
-      }
+      },
+      "repeated"
     ],
     order: [[sequelize.literal("date, start"), "asc"]]
   })

@@ -42,6 +42,7 @@ var ShiftController = function(shiftRepository, roleRepository) {
       res.status(400).send({ message: "Admin cannot book onto shift" });
       return;
     }
+
     bookingRepository
       .getById(req.params.id, req.user.id)
       .then(booking => {
@@ -67,7 +68,9 @@ var ShiftController = function(shiftRepository, roleRepository) {
           res
             .status(400)
             .send({ message: "No shift with id: " + req.params.id });
-        } else {
+          return;
+        }
+        if (!req.repeatedType || req.repeatedType == "none") {
           return bookingRepository.add(
             req.params.id,
             req.user.id,
