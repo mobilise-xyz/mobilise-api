@@ -16,10 +16,18 @@ module.exports = (sequelize, DataTypes) => {
       roleName: {
         allowNull: false,
         type: DataTypes.STRING
+      },
+      repeatedId: {
+        type: DataTypes.UUID
       }
     },
     {}
   );
-  Booking.associate = function(models) {};
+  Booking.associate = function(models) {
+    Booking.belongsTo(models.RepeatedBooking, {
+      as: "repeated",
+      foreignKey: "repeatedId"
+    });
+  };
   return Booking;
 };

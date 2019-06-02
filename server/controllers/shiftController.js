@@ -1,6 +1,18 @@
 const shiftRepository = require("../repositories").ShiftRepository;
 const roleRepository = require("../repositories").RoleRepository;
 const bookingRepository = require("../repositories").BookingRepository;
+const isWeekend = require("../utils/date").isWeekend;
+const moment = require("moment");
+
+const ORDERED_REPEATED_TYPES = [
+  "none",
+  "daily",
+  "weekdays",
+  "weekends",
+  "weekly",
+  "monthly",
+  "annually"
+];
 
 var ShiftController = function(shiftRepository, roleRepository) {
   this.shiftRepository = shiftRepository;
@@ -70,18 +82,34 @@ var ShiftController = function(shiftRepository, roleRepository) {
             .send({ message: "No shift with id: " + req.params.id });
           return;
         }
-        if (!req.repeatedType || req.repeatedType == "none") {
-          return bookingRepository.add(
-            req.params.id,
-            req.user.id,
-            req.body.roleName
-          );
-        }
 
-        if (shift.repeated.type != req.repeatedType) {
-          res.status(400).send({ message: "Repeated type invalid for shift" });
+        if (!req.body.repeatedType || req.body.repeatedType == "none") {
+          return bookingRepository.add(shift, req.user.id, req.body.roleName);
+        }
+        var startDate = moment(shift.date, "YYYY-MM-DD");
+
+        if (!repeatedTypeIsValid(req.body.repeatedType, startDate)) {
+          res.status(400).send({
+            message: "Invalid repeated type: " + req.body.repeatedType
+          });
           return;
         }
+        if (
+          !repeatedTypesCompatible(shift.repeated.type, req.body.repeatedType)
+        ) {
+          res
+            .status(400)
+            .send({ message: "Repeated type incompatible with shift" });
+          return;
+        }
+        // Book repeated shifts
+        return bookingRepository.addRepeated(
+          shift,
+          req.user.id,
+          req.body.roleName,
+          req.body.repeatedType,
+          req.body.untilDate
+        );
       })
       .then(booking => {
         res
@@ -117,20 +145,13 @@ var ShiftController = function(shiftRepository, roleRepository) {
         })
         .catch(err => res.status(500).send(err));
     } else {
+      var startDate = moment(req.body.date, "YYYY-MM-DD");
       // Check if valid request
-      if (
-        ![
-          "none",
-          "weekly",
-          "daily",
-          "weekdays",
-          "weekends",
-          "monthly",
-          "annually"
-        ].includes(type)
-      ) {
+      if (!repeatedTypeIsValid(type, startDate)) {
         res.status(400).send({
-          message: "Invalid repeatedType: " + type
+          message:
+            "Invalid repeatedType (check starting day if weekends/weekdays): " +
+            type
         });
         return;
       }
@@ -145,6 +166,40 @@ var ShiftController = function(shiftRepository, roleRepository) {
 };
 
 module.exports = new ShiftController(shiftRepository, roleRepository);
+
+function repeatedTypeIsValid(type, startDate) {
+  switch (type) {
+    case "weekdays":
+      if (isWeekend(startDate)) {
+        return false;
+      }
+      break;
+    case "weekends":
+      if (!isWeekend(startDate)) {
+        return false;
+      }
+    default:
+      break;
+  }
+  return ORDERED_REPEATED_TYPES.includes(type);
+}
+
+function repeatedTypesCompatible(shiftType, bookingType) {
+  if (shiftType == bookingType) {
+    return true;
+  }
+  switch (shiftType) {
+    case "weekdays":
+      return !["daily", "weekends"].includes(bookingType);
+    case "weekends":
+      return !["daily", "weekdays"].includes(bookingType);
+    default:
+      return (
+        ORDERED_REPEATED_TYPES.indexOf(shiftType) <=
+        ORDERED_REPEATED_TYPES.indexOf(bookingType)
+      );
+  }
+}
 
 async function checkRoles(req, roleRepository) {
   var errs = [];
