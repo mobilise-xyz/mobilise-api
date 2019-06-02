@@ -8,7 +8,7 @@ var ShiftController = function(shiftRepository, roleRepository) {
 
   this.list = function(req, res) {
     shiftRepository
-      .getAllWithBookings()
+      .getAllWithRequirements()
       .then(shifts => res.status(200).send(shifts))
       .catch(err => res.status(500).send(err));
   };
@@ -76,6 +76,11 @@ var ShiftController = function(shiftRepository, roleRepository) {
             req.user.id,
             req.body.roleName
           );
+        }
+
+        if (shift.repeated.type != req.repeatedType) {
+          res.status(400).send({ message: "Repeated type invalid for shift" });
+          return;
         }
       })
       .then(booking => {

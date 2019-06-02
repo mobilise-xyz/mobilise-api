@@ -156,7 +156,7 @@ ShiftRepository.addAll = function(shifts, rolesRequired) {
   return deferred.promise;
 };
 
-ShiftRepository.getAllWithBookings = function() {
+ShiftRepository.getAllWithRequirements = function() {
   var deferred = Q.defer();
 
   Shift.findAll({
@@ -212,7 +212,7 @@ ShiftRepository.getAll = function(attributes) {
 ShiftRepository.getById = function(id) {
   var deferred = Q.defer();
 
-  Shift.findOne({ where: { id: id } })
+  Shift.findOne({ where: { id: id }, include: ["repeated"] })
     .then(shift => deferred.resolve(shift))
     .catch(err => deferred.reject(err));
 
