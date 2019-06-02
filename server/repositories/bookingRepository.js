@@ -77,7 +77,8 @@ BookingRepository.addRepeated = async function(
             startDate = getNextDate(startDate, type);
           }
           if (!moment(startDate).isSame(shifts[shiftIndex].date)) {
-            console.log("This should've have happened");
+            deferred.reject({ message: "An error occured" });
+            return;
           }
           // Shift must have same day
           bookings.push({

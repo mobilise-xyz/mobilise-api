@@ -88,9 +88,7 @@ var ShiftController = function(shiftRepository, roleRepository) {
 
         if (!repeatedTypeIsValid(req.body.repeatedType, shift.date)) {
           res.status(400).send({
-            message:
-              "Invalid repeated type (check starting day if weekends/weekdays): " +
-              req.body.repeatedType
+            message: "Invalid repeated type: " + req.body.repeatedType
           });
           return;
         }
@@ -147,9 +145,11 @@ var ShiftController = function(shiftRepository, roleRepository) {
         .catch(err => res.status(500).send(err));
     } else {
       // Check if valid request
-      if (!repeatedTypeIsValid) {
+      if (!repeatedTypeIsValid(type, req.body.date)) {
         res.status(400).send({
-          message: "Invalid repeatedType: " + type
+          message:
+            "Invalid repeatedType (check starting day if weekends/weekdays): " +
+            type
         });
         return;
       }
