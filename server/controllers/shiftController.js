@@ -2,6 +2,16 @@ const shiftRepository = require("../repositories").ShiftRepository;
 const roleRepository = require("../repositories").RoleRepository;
 const bookingRepository = require("../repositories").BookingRepository;
 
+const ORDERED_REPEATED_TYPES = [
+  "none",
+  "daily",
+  "weekdays",
+  "weekends",
+  "weekly",
+  "monthly",
+  "annually"
+];
+
 var ShiftController = function(shiftRepository, roleRepository) {
   this.shiftRepository = shiftRepository;
   this.roleRepository = roleRepository;
@@ -70,12 +80,24 @@ var ShiftController = function(shiftRepository, roleRepository) {
             .send({ message: "No shift with id: " + req.params.id });
           return;
         }
+
         if (!req.body.repeatedType || req.body.repeatedType == "none") {
           return bookingRepository.add(shift, req.user.id, req.body.roleName);
         }
 
-        if (shift.repeated.type != req.body.repeatedType) {
-          res.status(400).send({ message: "Repeated type invalid for shift" });
+        if (!repeatedTypeIsValid(req.body.repeatedType)) {
+          res.status(400).send({
+            message: "Invalid repeated type: " + req.body.repeatedType
+          });
+          return;
+        }
+
+        if (
+          !repeatedTypesCompatible(shift.repeatedType, req.body.repeatedType)
+        ) {
+          res
+            .status(400)
+            .send({ message: "Repeated type incompatible with shift" });
           return;
         }
         // Book repeated shifts
@@ -122,17 +144,7 @@ var ShiftController = function(shiftRepository, roleRepository) {
         .catch(err => res.status(500).send(err));
     } else {
       // Check if valid request
-      if (
-        ![
-          "none",
-          "weekly",
-          "daily",
-          "weekdays",
-          "weekends",
-          "monthly",
-          "annually"
-        ].includes(type)
-      ) {
+      if (!repeatedTypeIsValid) {
         res.status(400).send({
           message: "Invalid repeatedType: " + type
         });
@@ -149,6 +161,27 @@ var ShiftController = function(shiftRepository, roleRepository) {
 };
 
 module.exports = new ShiftController(shiftRepository, roleRepository);
+
+function repeatedTypeIsValid(type) {
+  return ORDERED_REPEATED_TYPES.includes(type);
+}
+
+function repeatedTypesCompatible(shiftType, bookingType) {
+  if (shiftType == bookingType) {
+    return true;
+  }
+  switch (shiftType) {
+    case "weekdays":
+      return !["daily", "weekends"].includes(bookingType);
+    case "weekends":
+      return !["daily", "weekdays"].includes(bookingType);
+    default:
+      return (
+        ORDERED_REPEATED_TYPES.indexOf(shiftType) <=
+        ORDERED_REPEATED_TYPES.indexOf(bookingType)
+      );
+  }
+}
 
 async function checkRoles(req, roleRepository) {
   var errs = [];
