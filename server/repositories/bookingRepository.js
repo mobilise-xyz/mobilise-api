@@ -82,9 +82,10 @@ BookingRepository.addRepeated = async function(
           // booking
           while (
             shiftIndex != shifts.length - 1 &&
-            startDate.isAfter(moment(shifts[shiftIndex].date, "YYYY-MM-DD"))
+            startDate.isAfter(nextShiftDate)
           ) {
             shiftIndex += 1;
+            nextShiftDate = moment(shifts[shiftIndex].date, "YYYY-MM-DD");
           }
 
           if (startDate.isSame(nextShiftDate)) {
