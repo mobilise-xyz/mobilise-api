@@ -78,12 +78,9 @@ var ShiftRepository = Object.create(ShiftRepositoryInterface);
     var untilDate = moment(shift.untilDate, "YYYY-MM-DD");
     shift["creatorId"] = creatorId;
     shift["repeatedId"] = repeatedId;
-    while (
-      moment(startDate).isBefore(untilDate) ||
-      moment(startDate).isSame(untilDate)
-    ) {
+    while (startDate.isBefore(untilDate) || startDate.isSame(untilDate)) {
       var newShift = JSON.parse(JSON.stringify(shift));
-      newShift["date"] = moment(startDate).format("YYYY-MM-DD");
+      newShift["date"] = startDate.format("YYYY-MM-DD");
       shifts.push(newShift);
       startDate = getNextDate(startDate, type);
     }

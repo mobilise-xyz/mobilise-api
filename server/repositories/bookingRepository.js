@@ -67,23 +67,27 @@ BookingRepository.addRepeated = async function(
         var lastDate = moment(untilDate, "YYYY-MM-DD");
         var shiftIndex = 0;
         while (
-          (moment(startDate).isBefore(lastDate) ||
-            moment(startDate).isSame(lastDate)) &&
+          (startDate.isBefore(lastDate) || startDate.isSame(lastDate)) &&
           shiftIndex != shifts.length
         ) {
-          // Find the next shift for this repeated booking
-          while (moment(startDate).isBefore(shifts[shiftIndex].date)) {
+          // Find the next booking for this repeated shift
+          var nextShiftDate = moment(shifts[shiftIndex].date, "YYYY-MM-DD");
+
+          while (startDate.isBefore(nextShiftDate)) {
             // Increment with respect to the next
             startDate = getNextDate(startDate, type);
           }
           // If the booking increment is larger than shift increment
           // then get the shift that is either after or the same as the
           // booking
-          while (moment(startDate).isAfter(shifts[shiftIndex].date)) {
+          while (
+            shiftIndex != shifts.length - 1 &&
+            startDate.isAfter(moment(shifts[shiftIndex].date, "YYYY-MM-DD"))
+          ) {
             shiftIndex += 1;
           }
 
-          if (moment(startDate).isSame(shifts[shiftIndex].date)) {
+          if (startDate.isSame(nextShiftDate)) {
             // Shift must have same day
             bookings.push({
               shiftId: shifts[shiftIndex].id,
@@ -95,7 +99,6 @@ BookingRepository.addRepeated = async function(
           // Consider next shift
           shiftIndex += 1;
         }
-        console.log(bookings);
         return Booking.bulkCreate(bookings);
       })
       .then(bookings =>

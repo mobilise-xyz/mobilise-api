@@ -1,50 +1,35 @@
-const moment = require("moment");
-
 function getNextDate(date, type) {
-  console.log(date);
   switch (type) {
     case "daily":
-      date = moment(date)
-        .add(1, "d")
-        .toDate();
+      date.add(1, "d");
       break;
     case "weekly":
-      date = moment(date)
-        .add(1, "w")
-        .toDate();
+      date.add(1, "w");
       break;
     case "monthly":
-      date = moment(date)
-        .add(1, "M")
-        .toDate();
+      date.add(1, "M");
       break;
     case "annually":
-      date = moment(date)
-        .add(1, "years")
-        .toDate();
+      date.add(1, "years");
       break;
     case "weekdays":
       do {
-        date = moment(date)
-          .add(1, "d")
-          .toDate();
+        date.add(1, "d");
       } while (isWeekend(date));
       break;
     case "weekends":
       do {
-        date = moment(date)
-          .add(1, "d")
-          .toDate();
+        date.add(1, "d");
       } while (!isWeekend(date));
       break;
     default:
   }
-  console.log(date);
   return date;
 }
 
+// date is a moment
 function isWeekend(date) {
-  return date.getDay() % 6 == 0;
+  return date.toDate().getDay() % 6 == 0;
 }
 
 module.exports = { isWeekend, getNextDate };
