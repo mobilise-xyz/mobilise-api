@@ -1,5 +1,6 @@
 const volunteerRepository = require("../repositories").VolunteerRepository;
 const shiftRepository = require("../repositories").ShiftRepository;
+const bookingRepository = require("../repositories").BookingRepository;
 const Op = require("../models").Sequelize.Op;
 
 var VolunteerController = function(volunteerRepository, shiftRepository) {
@@ -72,13 +73,13 @@ var VolunteerController = function(volunteerRepository, shiftRepository) {
         if (!volunteer) {
           res.status(400).send({ message: "No volunteer with that id" });
         } else {
-          return volunteer.getShifts();
+          return bookingRepository.getByVolunteerId(volunteer.userId);
         }
       })
-      .then(shifts => {
+      .then(bookings => {
         var shiftIds = [];
-        shifts.forEach(shift => {
-          shiftIds.push(shift.id);
+        bookings.forEach(booking => {
+          shiftIds.push(booking.shiftId);
         });
         if (req.query.booked === "true") {
           return shiftRepository.getAllWithRequirements({
