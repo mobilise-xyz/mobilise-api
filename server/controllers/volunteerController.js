@@ -15,7 +15,8 @@ var VolunteerController = function(volunteerRepository) {
 
   this.listShiftsByVolunteerId = function(req, res) {
     
-    volunteerRepository.getById(req.params.id)
+    volunteerRepository
+      .getById(req.params.id)
       .then(volunteer => {
         if (!volunteer) {
           res.status(400).send({message: "No volunteer with that id"});
@@ -26,6 +27,27 @@ var VolunteerController = function(volunteerRepository) {
       .then(shifts => res.status(200).send(shifts))
       .catch(err => res.status(500).send(err));
 
+  }
+
+  this.updateAvailability = function(req, res) {
+
+    volunteerRepository
+      .getById(req.params.id)
+      .then(volunteer => {
+        if (!volunteer) {
+          res.status(400).send({message:  "No volunteer with that id"})
+        } else {
+
+          volunteerRepository
+            .updateAvailability(req.params.id, req.body.availability)
+            .then(result => res.status(201).send({
+              message: "Availability Updated Successfuly"
+            }))
+            .catch(error => res.status(400).send(error))
+
+        }
+      })
+      .catch(error => res.status(500).send(error))
   }
 
 }
