@@ -76,10 +76,10 @@ var VolunteerController = function(volunteerRepository, shiftRepository) {
         }
       })
       .then(shifts => {
-        var shiftIds = [];
-        shifts.forEach(shift => {
-          shiftIds.push(shift.id);
-        });
+        
+        // Obtain Shift Ids
+        var shiftIds = shifts.map(shift => shift.id);
+
         if (req.query.booked === "true") {
           return shiftRepository.getAllWithRequirements({
             id: { [Op.in]: shiftIds }
