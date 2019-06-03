@@ -5,8 +5,21 @@ const shiftRepository = require('../repositories').ShiftRepository;
 
 var Predictor = function(shiftRepository) {
 
-    this.shiftRepository = shiftRepository;
+  this.shiftRepository = shiftRepository;
 
+  this.computeShiftBookings = function() {
+
+    shiftRepository
+      .getAll([])
+      .then(shifts => {
+          shifts.foreach(shift => {
+              
+            var bookings = shift.getBookings();
+
+          })
+      })
+
+  }
 }
 
 module.exports = new Predicter(shiftRepository);
