@@ -6,7 +6,12 @@ module.exports = (sequelize, DataTypes) => {
       primaryKey: true,
       type: DataTypes.UUID
     },
-    roles: DataTypes.ARRAY(DataTypes.STRING)
+    roles: DataTypes.ARRAY(DataTypes.STRING),
+    availability: {
+      type: DataTypes.ARRAY(DataTypes.ARRAY(DataTypes.CHAR(1))),
+      allowNull: false,
+      defaultValue: Array(7).fill(['0', '0', '0'])
+    }
   }, {});
 
   Volunteer.associate = function(models) {
