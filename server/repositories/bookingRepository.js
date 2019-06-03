@@ -148,6 +148,20 @@ BookingRepository.getAllWithShifts = function() {
   return deferred.promise;
 };
 
+BookingRepository.getByVolunteerId = function(volunteerId) {
+  var deferred = Q.defer();
+
+  Booking.findAll({
+    where: {
+      volunteerId: volunteerId
+    }
+  })
+    .then(bookings => deferred.resolve(bookings))
+    .catch(err => deferred.reject(err));
+
+  return deferred.promise;
+};
+
 BookingRepository.getById = function(shiftId, volunteerId) {
   var deferred = Q.defer();
 
