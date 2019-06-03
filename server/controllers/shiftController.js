@@ -121,6 +121,38 @@ var ShiftController = function(shiftRepository, roleRepository) {
       });
   };
 
+  this.update = function(req, res) {
+    // Check if user is admin
+    if (!req.user.isAdmin) {
+      res.status(401).send({ message: "Only admin can edit a shift" });
+      return;
+    }
+    // Check shift exists
+    shiftRepository.getById(req.params.id);
+    then(async shift => {
+      if (!shift) {
+        res.status(400).send({ message: "Shift does not exist" });
+        return;
+      }
+      // Check the referenced roles
+      var { errs, rolesRequired } = await checkRoles(
+        req.body.rolesRequired,
+        roleRepository
+      );
+      if (errs.length > 0) {
+        res
+          .status(400)
+          .send({ "Could not modify shift due to invalid roles": errs });
+        return;
+      }
+      return shiftRepository.updateRoles(shift, rolesRequired);
+    })
+      .then(shift => {
+        res.status(200).send(shift);
+      })
+      .catch(err => res.status(500).send(err));
+  };
+
   this.create = async function(req, res) {
     // Check if user is admin
     if (!req.user.isAdmin) {
@@ -128,7 +160,10 @@ var ShiftController = function(shiftRepository, roleRepository) {
       return;
     }
     // Check the referenced roles
-    var { errs, rolesRequired } = await checkRoles(req, roleRepository);
+    var { errs, rolesRequired } = await checkRoles(
+      req.body.rolesRequired,
+      roleRepository
+    );
     if (errs.length > 0) {
       res
         .status(400)
@@ -201,9 +236,8 @@ function repeatedTypesCompatible(shiftType, bookingType) {
   }
 }
 
-async function checkRoles(req, roleRepository) {
+async function checkRoles(rolesRequired, roleRepository) {
   var errs = [];
-  var rolesRequired = req.body.rolesRequired;
   if (rolesRequired) {
     var i;
     for (i = 0; i < rolesRequired.length; i++) {

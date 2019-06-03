@@ -100,6 +100,28 @@ var ShiftRepository = Object.create(ShiftRepositoryInterface);
     return deferred.promise;
   });
 
+ShiftRepository.updateRoles = function(shift, rolesRequired) {
+  var deferred = Q.defer();
+  ShiftRequirement.destroy({
+    where: { shiftId: shift.id }
+  })
+    .then(_ => {
+      var shiftRequirements = [];
+      // Add the roles to shift
+      rolesRequired.forEach(roleRequired => {
+        shiftRequirements.push({
+          roleName: roleRequired.roleName,
+          shiftId: shift.id,
+          numberRequired: roleRequired.number
+        });
+      });
+      return ShiftRequirement.bulkCreate(shiftRequirements);
+    })
+    .then(_ => deferred.resolve(shift))
+    .catch(err => deferred.reject(err));
+  return deferred.promise;
+};
+
 ShiftRepository.addAll = function(shifts, rolesRequired) {
   var deferred = Q.defer();
   var allShifts;
