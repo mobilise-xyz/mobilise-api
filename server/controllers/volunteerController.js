@@ -62,6 +62,31 @@ var VolunteerController = function(volunteerRepository) {
       .catch(error => res.status(500).send(error))
   }
 
+  this.getAvailability = function(req, res) {
+
+    // Check bearer token id matches parameter id
+    if (req.user.id != req.params.id) {
+      res.status(400).send({message: "You can only update your own availability."})
+      return
+    }
+
+    volunteerRepository
+    .getById(req.params.id)
+    .then(volunteer => {
+      if (!volunteer) {
+        res.status(400).send({message:  "No volunteer with that id"})
+      } else {
+
+        volunteerRepository
+          .getAvailability(req.params.id)
+          .then(result => res.status(200).send(result))
+          .catch(error => res.status(400).send(error))
+
+      }
+    })
+    .catch(error => res.status(500).send(error))
+  }
+
 }
 
 module.exports = new VolunteerController(volunteerRepository);

@@ -53,4 +53,15 @@ VolunteerRepository.updateAvailability = function(id, availability) {
   return deferred.promise;
 }
 
+VolunteerRepository.getAvailability = function(id) {
+  var deferred = Q.defer();
+
+  Volunteer
+    .findOne({where: {userId: id}})
+    .then(volunteer => deferred.resolve(volunteer.availability))
+    .catch(error => deferred.reject(error))
+
+  return deferred.promise;
+}
+
 module.exports = VolunteerRepository;

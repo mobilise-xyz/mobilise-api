@@ -12,6 +12,6 @@ router.get('/:id/shifts', controller.listShiftsByVolunteerId);
 router.put('/:id/availability', controller.updateAvailability);
 
 /* Get availability for a volunteer */
-// router.get('/:id/availability', controller.getAvailability);
+router.get('/:id/availability', controller.getAvailability);
 
 module.exports = router;
