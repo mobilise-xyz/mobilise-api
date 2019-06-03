@@ -8,7 +8,7 @@ var Predictor = function(shiftRepository) {
   this.shiftRepository = shiftRepository;
 
   this.computeShiftBookings = function() {
-    
+
     shiftRepository
       .getAll([])
       .then(shifts => {
@@ -37,4 +37,4 @@ var Predictor = function(shiftRepository) {
   }
 }
 
-module.exports = new Predicter(shiftRepository);
+module.exports = new Predictor(shiftRepository);
