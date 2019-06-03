@@ -11,8 +11,8 @@ router.get("/", controller.list);
 /* Delete shift by ID */
 router.delete("/:id", controller.deleteById);
 
-/* Update the shift */
-router.put("/:id", controller.update);
+/* Update the shift roles */
+router.put("/:id/rolesRequired", controller.updateRoles);
 
 /* Book a shift */
 router.post("/:id/book", controller.book);
