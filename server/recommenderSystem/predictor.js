@@ -8,7 +8,7 @@ var Predictor = function(shiftRepository) {
   this.shiftRepository = shiftRepository;
 
   this.computeShiftBookings = function() {
-
+    
     shiftRepository
       .getAll([])
       .then(shifts => {
@@ -17,7 +17,7 @@ var Predictor = function(shiftRepository) {
             // Obtain the shift requirements
             var requirements = shift.getRequirements();
 
-            // Construct Map of requirement to number required
+            // Construct Map of role name to number required
             var requirementsMap = new Map();
             requirements.foreach(requirement => {
               requirementsMap.set(requirement.roleName, requirement.numberRequired);
