@@ -38,5 +38,5 @@ VolunteerRepository.getById = function(id) {
 
   return deferred.promise;
 }
-
+ 
 module.exports = VolunteerRepository;

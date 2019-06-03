@@ -14,9 +14,14 @@ const ORDERED_REPEATED_TYPES = [
   "Annually"
 ];
 
-var ShiftController = function(shiftRepository, roleRepository) {
+var ShiftController = function(
+  shiftRepository,
+  roleRepository,
+  bookingRepository
+) {
   this.shiftRepository = shiftRepository;
   this.roleRepository = roleRepository;
+  this.bookingRepository = bookingRepository;
 
   this.list = function(req, res) {
     shiftRepository
@@ -165,7 +170,11 @@ var ShiftController = function(shiftRepository, roleRepository) {
   };
 };
 
-module.exports = new ShiftController(shiftRepository, roleRepository);
+module.exports = new ShiftController(
+  shiftRepository,
+  roleRepository,
+  bookingRepository
+);
 
 function repeatedTypeIsValid(type, startDate) {
   switch (type) {
