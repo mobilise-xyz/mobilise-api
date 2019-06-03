@@ -14,8 +14,16 @@ var Predictor = function(shiftRepository) {
       .then(shifts => {
           shifts.foreach(shift => {
             
+            // Obtain the shift requirements
             var requirements = shift.getRequirements();
 
+            // Construct Map of requirement to number required
+            var requirementsMap = new Map();
+            requirements.foreach(requirement => {
+              requirementsMap.set(requirement.roleName, requirement.numberRequired);
+            })
+
+            // Obtain the bookings made for the shift
             var bookings = shift.getBookings();
 
           })
