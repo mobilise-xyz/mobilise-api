@@ -39,4 +39,18 @@ VolunteerRepository.getById = function(id) {
   return deferred.promise;
 }
 
+VolunteerRepository.updateAvailability = function(id, availability) {
+  var deferred = Q.defer();
+
+  Volunteer
+    .update(
+      {availability: availability},
+      {where: {userId: id}}
+    )
+    .then(result => deferred.resolve(result))
+    .catch(error => deferred.reject(error))
+
+  return deferred.promise;
+}
+
 module.exports = VolunteerRepository;
