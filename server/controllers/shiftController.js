@@ -5,13 +5,13 @@ const isWeekend = require("../utils/date").isWeekend;
 const moment = require("moment");
 
 const ORDERED_REPEATED_TYPES = [
-  "none",
-  "daily",
-  "weekdays",
-  "weekends",
-  "weekly",
-  "monthly",
-  "annually"
+  "Never",
+  "Daily",
+  "Week Days",
+  "Weekends",
+  "Weekly",
+  "Monthly",
+  "Annually"
 ];
 
 var ShiftController = function(shiftRepository, roleRepository) {
@@ -83,7 +83,7 @@ var ShiftController = function(shiftRepository, roleRepository) {
           return;
         }
 
-        if (!req.body.repeatedType || req.body.repeatedType == "none") {
+        if (!req.body.repeatedType || req.body.repeatedType == "Never") {
           return bookingRepository.add(shift, req.user.id, req.body.roleName);
         }
         var startDate = moment(shift.date, "YYYY-MM-DD");
@@ -137,7 +137,7 @@ var ShiftController = function(shiftRepository, roleRepository) {
     }
     var type = req.body.repeatedType;
 
-    if (!type || type == "none") {
+    if (!type || type == "Never") {
       shiftRepository
         .add(req.body, req.user.id, rolesRequired)
         .then(result => {
@@ -150,7 +150,7 @@ var ShiftController = function(shiftRepository, roleRepository) {
       if (!repeatedTypeIsValid(type, startDate)) {
         res.status(400).send({
           message:
-            "Invalid repeatedType (check starting day if weekends/weekdays): " +
+            "Invalid repeatedType (check starting day if Weekends/Week Days): " +
             type
         });
         return;
@@ -169,12 +169,12 @@ module.exports = new ShiftController(shiftRepository, roleRepository);
 
 function repeatedTypeIsValid(type, startDate) {
   switch (type) {
-    case "weekdays":
+    case "Week Days":
       if (isWeekend(startDate)) {
         return false;
       }
       break;
-    case "weekends":
+    case "Weekends":
       if (!isWeekend(startDate)) {
         return false;
       }
@@ -189,10 +189,10 @@ function repeatedTypesCompatible(shiftType, bookingType) {
     return true;
   }
   switch (shiftType) {
-    case "weekdays":
-      return !["daily", "weekends"].includes(bookingType);
-    case "weekends":
-      return !["daily", "weekdays"].includes(bookingType);
+    case "Week Days":
+      return !["Daily", "Weekends"].includes(bookingType);
+    case "Weekends":
+      return !["Daily", "Week Days"].includes(bookingType);
     default:
       return (
         ORDERED_REPEATED_TYPES.indexOf(shiftType) <=
