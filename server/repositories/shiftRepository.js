@@ -124,10 +124,11 @@ ShiftRepository.addAll = function(shifts, rolesRequired) {
   return deferred.promise;
 };
 
-ShiftRepository.getAllWithRequirements = function() {
+ShiftRepository.getAllWithRequirements = function(whereTrue) {
   var deferred = Q.defer();
-
+  console.log(whereTrue);
   Shift.findAll({
+    where: whereTrue,
     include: [
       {
         model: ShiftRequirement,
