@@ -8,4 +8,10 @@ router.get("/", controller.list);
 /* Get all shifts for a volunteer */
 router.get("/:id/shifts", controller.listShiftsByVolunteerId);
 
+/* Update availability for a volunteer */
+router.put('/:id/availability', controller.updateAvailability);
+
+/* Get availability for a volunteer */
+// router.get('/:id/availability', controller.getAvailability);
+
 module.exports = router;
