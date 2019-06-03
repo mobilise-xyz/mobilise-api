@@ -13,7 +13,7 @@ const ShiftRepositoryInterface = require("./interfaces/shiftRepositoryInterface"
 
 var ShiftRepository = Object.create(ShiftRepositoryInterface);
 
-(ShiftRepository.add = async function(
+ShiftRepository.add = async function(
   shift,
   creatorId,
   rolesRequired,
@@ -52,53 +52,54 @@ var ShiftRepository = Object.create(ShiftRepositoryInterface);
     })
     .catch(err => deferred.reject(err));
   return deferred.promise;
-}),
-  (ShiftRepository.addRepeated = async function(
-    shift,
-    creatorId,
-    rolesRequired,
-    type
-  ) {
-    var deferred = Q.defer();
-    var repeatedId;
-    var successful = true;
-    await RepeatedShift.create({
-      type: type,
-      untilDate: shift.untilDate
-    })
-      .then(result => (repeatedId = result.id))
-      .catch(err => {
-        successful = false;
-        deferred.reject(err);
-      });
-    if (!successful) {
-      return deferred.promise;
-    }
-    // Create repeated shift
-    var shifts = [];
-    var startDate = moment(shift.date, "YYYY-MM-DD");
-    var untilDate = moment(shift.untilDate, "YYYY-MM-DD");
-    shift["creatorId"] = creatorId;
-    shift["repeatedId"] = repeatedId;
-    while (startDate.isBefore(untilDate) || startDate.isSame(untilDate)) {
-      var newShift = JSON.parse(JSON.stringify(shift));
-      newShift["date"] = startDate.format("YYYY-MM-DD");
-      shifts.push(newShift);
-      startDate = getNextDate(startDate, type);
-    }
-    ShiftRepository.addAll(shifts, rolesRequired)
-      .then(shifts =>
-        deferred.resolve({
-          message: "Created recurring shift",
-          lastShift: shifts[shifts.length - 1]
-        })
-      )
-      .catch(err => {
-        deferred.reject(err);
-      });
+},
 
+ShiftRepository.addRepeated = async function(
+  shift,
+  creatorId,
+  rolesRequired,
+  type
+) {
+  var deferred = Q.defer();
+  var repeatedId;
+  var successful = true;
+  await RepeatedShift.create({
+    type: type,
+    untilDate: shift.untilDate
+  })
+    .then(result => (repeatedId = result.id))
+    .catch(err => {
+      successful = false;
+      deferred.reject(err);
+    });
+  if (!successful) {
     return deferred.promise;
-  });
+  }
+  // Create repeated shift
+  var shifts = [];
+  var startDate = moment(shift.date, "YYYY-MM-DD");
+  var untilDate = moment(shift.untilDate, "YYYY-MM-DD");
+  shift["creatorId"] = creatorId;
+  shift["repeatedId"] = repeatedId;
+  while (startDate.isBefore(untilDate) || startDate.isSame(untilDate)) {
+    var newShift = JSON.parse(JSON.stringify(shift));
+    newShift["date"] = startDate.format("YYYY-MM-DD");
+    shifts.push(newShift);
+    startDate = getNextDate(startDate, type);
+  }
+  ShiftRepository.addAll(shifts, rolesRequired)
+    .then(shifts =>
+      deferred.resolve({
+        message: "Created recurring shift",
+        lastShift: shifts[shifts.length - 1]
+      })
+    )
+    .catch(err => {
+      deferred.reject(err);
+    });
+
+  return deferred.promise;
+};
 
 ShiftRepository.addAll = function(shifts, rolesRequired) {
   var deferred = Q.defer();
