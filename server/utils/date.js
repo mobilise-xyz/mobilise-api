@@ -1,23 +1,23 @@
 function getNextDate(date, type) {
   switch (type) {
-    case "daily":
+    case "Daily":
       date.add(1, "d");
       break;
-    case "weekly":
+    case "Weekly":
       date.add(1, "w");
       break;
-    case "monthly":
+    case "Monthly":
       date.add(1, "M");
       break;
-    case "annually":
+    case "Annually":
       date.add(1, "years");
       break;
-    case "weekdays":
+    case "Week Days":
       do {
         date.add(1, "d");
       } while (isWeekend(date));
       break;
-    case "weekends":
+    case "Weekends":
       do {
         date.add(1, "d");
       } while (!isWeekend(date));
