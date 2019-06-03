@@ -26,6 +26,11 @@ var Predictor = function(shiftRepository) {
             // Obtain the bookings made for the shift
             var bookings = shift.getBookings();
 
+            // Loop through the bookings and update requirementsMap
+            bookings.foreach(booking => {
+              requirementsMap.set(booking.roleName, requirementsMap.get(booking.roleName) - 1);
+            })
+
           })
       })
 
