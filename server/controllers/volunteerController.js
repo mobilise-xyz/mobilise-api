@@ -93,6 +93,10 @@ var VolunteerController = function(volunteerRepository, shiftRepository) {
       .then(shifts => res.status(200).send(shifts))
       .catch(err => res.status(500).send(err));
   };
+
+  this.listRecommendedShifts = function(req, res) {
+    
+  }
 };
 
 module.exports = new VolunteerController(volunteerRepository, shiftRepository);

@@ -8,6 +8,9 @@ router.get("/", controller.list);
 /* Get all shifts for a volunteer */
 router.get("/:id/shifts", controller.listShiftsByVolunteerId);
 
+/* Get all recommended shifts for a volunteer */
+router.get("/:id/recommended", controller.listRecommendedShifts);
+
 /* Update availability for a volunteer */
 router.put("/:id/availability", controller.updateAvailability);
 
