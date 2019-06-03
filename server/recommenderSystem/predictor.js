@@ -13,7 +13,9 @@ var Predictor = function(shiftRepository) {
       .getAll([])
       .then(shifts => {
           shifts.foreach(shift => {
-              
+            
+            var requirements = shift.getRequirements();
+
             var bookings = shift.getBookings();
 
           })
