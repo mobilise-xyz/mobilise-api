@@ -1,5 +1,7 @@
 const Shift = require("../models").Shift;
 const Role = require("../models").Role;
+const Admin = require("../models").Admin;
+const User = require("../models").User;
 const RepeatedShift = require("../models").RepeatedShift;
 const ShiftRequirement = require("../models").ShiftRequirement;
 const Booking = require("../models").Booking;
@@ -146,7 +148,18 @@ ShiftRepository.getAllWithRequirements = function() {
           {
             model: Role,
             as: "role",
-            attributes: ["name", "involves"]
+            attributes: ["name", "involves", "colour"]
+          }
+        ]
+      },
+      {
+        model: Admin,
+        as: "creator",
+        include: [
+          {
+            model: User,
+            as: "user",
+            attributes: ["firstName", "lastName", "email"]
           }
         ]
       },

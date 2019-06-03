@@ -70,6 +70,11 @@ module.exports = (sequelize, DataTypes) => {
       as: "bookings",
       foreignKey: "shiftId"
     });
+
+    Shift.belongsTo(models.Admin, {
+      as: "creator",
+      foreignKey: "creatorId"
+    });
   };
   return Shift;
 };
