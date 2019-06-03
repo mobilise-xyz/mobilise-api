@@ -14,6 +14,12 @@ var VolunteerController = function(volunteerRepository) {
   }
 
   this.listShiftsByVolunteerId = function(req, res) {
+
+    // Check bearer token id matches parameter id
+    if (req.user.id != req.params.id) {
+      res.status(400).send({message: "You can only update your own availability."})
+      return
+    }
     
     volunteerRepository
       .getById(req.params.id)
@@ -30,6 +36,12 @@ var VolunteerController = function(volunteerRepository) {
   }
 
   this.updateAvailability = function(req, res) {
+
+    // Check bearer token id matches parameter id
+    if (req.user.id != req.params.id) {
+      res.status(400).send({message: "You can only update your own availability."})
+      return
+    }
 
     volunteerRepository
       .getById(req.params.id)
