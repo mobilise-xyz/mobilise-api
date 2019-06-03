@@ -1,22 +1,26 @@
-'use strict';
+"use strict";
 module.exports = (sequelize, DataTypes) => {
-  const Volunteer = sequelize.define('Volunteer', {
-    userId : {
-      allowNull: false,
-      primaryKey: true,
-      type: DataTypes.UUID
+  const Volunteer = sequelize.define(
+    "Volunteer",
+    {
+      userId: {
+        allowNull: false,
+        primaryKey: true,
+        type: DataTypes.UUID
+      },
+      roles: DataTypes.ARRAY(DataTypes.STRING)
     },
-    roles: DataTypes.ARRAY(DataTypes.STRING)
-  }, {});
+    {}
+  );
 
   Volunteer.associate = function(models) {
     Volunteer.belongsTo(models.User, {
       as: "user",
       foreignKey: {
-        name: 'userId',
+        name: "userId",
         allowNull: false
       },
-      onDelete: 'CASCADE'
+      onDelete: "CASCADE"
     });
 
     Volunteer.hasMany(models.Booking, {

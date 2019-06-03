@@ -20,17 +20,19 @@ var VolunteerController = function(volunteerRepository, shiftRepository) {
         if (!volunteer) {
           res.status(400).send({ message: "No volunteer with that id" });
         } else {
-          return shiftRepository.getAllWithRequirements();
+          return volunteer.getShifts();
         }
       })
       .then(shifts => {
-        if (req.query.booked == "true") {
-          return shifts;
-        } else {
-          var shiftIds = [];
-          shifts.forEach(shift => {
-            shiftIds.push(shift.id);
+        var shiftIds = [];
+        shifts.forEach(shift => {
+          shiftIds.push(shift.id);
+        });
+        if (req.query.booked === "true") {
+          return shiftRepository.getAllWithRequirements({
+            id: { [Op.in]: shiftIds }
           });
+        } else {
           return shiftRepository.getAllWithRequirements({
             id: { [Op.notIn]: shiftIds }
           });
