@@ -3,7 +3,7 @@ const sequelize = require("sequelize");
 
 const shiftRepository = require('../repositories').ShiftRepository;
 
-var Predicter = function(shiftRepository) {
+var Predictor = function(shiftRepository) {
 
     this.shiftRepository = shiftRepository;
 
