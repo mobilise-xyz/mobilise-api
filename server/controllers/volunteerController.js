@@ -1,5 +1,6 @@
 const volunteerRepository = require("../repositories").VolunteerRepository;
 const shiftRepository = require("../repositories").ShiftRepository;
+const recommendedShiftRepository = require("../repositories").RecommendedShiftRepository;
 const Op = require("../models").Sequelize.Op;
 
 var VolunteerController = function(volunteerRepository, shiftRepository) {
@@ -76,7 +77,6 @@ var VolunteerController = function(volunteerRepository, shiftRepository) {
         }
       })
       .then(shifts => {
-        
         // Obtain Shift Ids
         var shiftIds = shifts.map(shift => shift.id);
 
@@ -95,8 +95,15 @@ var VolunteerController = function(volunteerRepository, shiftRepository) {
   };
 
   this.listRecommendedShifts = function(req, res) {
-    
-  }
+    recommendedShiftRepository
+      .getAll()
+      .then(shifts => {
+        res.status(200).send(shifts);
+      })
+      .catch(err => {
+        res.status(500).send(err);
+      });
+  };
 };
 
 module.exports = new VolunteerController(volunteerRepository, shiftRepository);
