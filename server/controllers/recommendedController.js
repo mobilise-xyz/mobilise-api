@@ -6,9 +6,7 @@ var RecommendedController = function(Predictor) {
 
   this.getRecommendedShifts = function(req, res) {
 
-    var map = Predictor.computeCurrentShiftRequirementsMap();
-
-    res.status(200).send(map);
+    res.send(200);
   }
 }
 
