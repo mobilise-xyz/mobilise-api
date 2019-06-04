@@ -1,4 +1,5 @@
 const Shift = require('../models').Shift;
+const RecommendedShift = require('../models').RecommendedShift;
 const sequelize = require("sequelize");
 
 const shiftRepository = require('../repositories').ShiftRepository;
@@ -10,7 +11,7 @@ var Predictor = function(shiftRepository) {
   this.computeRecommendedShifts = function() {
 
     // Remove old entries in Recommended Shifts Table
-    
+
 
     shiftRepository
       .getAllWithRequirements()
