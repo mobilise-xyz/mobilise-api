@@ -7,7 +7,10 @@ var Predictor = function(shiftRepository) {
 
   this.shiftRepository = shiftRepository;
 
-  this.computeShiftBookings = function() {
+  this.computeCurrentShiftRequirementsMap = function() {
+
+    // Initialise map from shift ids to current requirements
+    var map = new Map();
 
     shiftRepository
       .getAll([])
@@ -31,8 +34,13 @@ var Predictor = function(shiftRepository) {
               requirementsMap.set(booking.roleName, requirementsMap.get(booking.roleName) - 1);
             })
 
+            // Add entry for shift in map
+            map.set(shift.id, requirementsMap);
+
           })
-      })
+      });
+
+      return map;
 
   }
 }
