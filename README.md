@@ -1,4 +1,5 @@
 [![CircleCI](https://circleci.com/gh/sonjoonho/mobilise-api.svg?style=svg&circle-token=4a5b4b343e565a15ae131f2598751cdbe4552492)](https://circleci.com/gh/sonjoonho/mobilise-api)
+[![FOSSA Status](https://app.fossa.io/api/projects/git%2Bgithub.com%2Fsonjoonho%2Fmobilise-api.svg?type=shield)](https://app.fossa.io/projects/git%2Bgithub.com%2Fsonjoonho%2Fmobilise-api?ref=badge_shield)
 
 # Mobilise [API]
 
@@ -38,3 +39,7 @@ yarn test
 - Tigeriam Cross
 
 Students of Imperial College London.
+
+
+## License
+[![FOSSA Status](https://app.fossa.io/api/projects/git%2Bgithub.com%2Fsonjoonho%2Fmobilise-api.svg?type=large)](https://app.fossa.io/projects/git%2Bgithub.com%2Fsonjoonho%2Fmobilise-api?ref=badge_large)
