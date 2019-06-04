@@ -8,6 +8,10 @@ var RecommendedController = function(Predictor) {
 
     res.send(200);
   }
+
+  this.computeRecommendedShifts = function(req, res) {
+    
+  }
 }
 
 module.exports = new RecommendedController(Predictor);
