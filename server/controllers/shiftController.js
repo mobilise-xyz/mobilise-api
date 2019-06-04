@@ -4,15 +4,15 @@ const bookingRepository = require("../repositories").BookingRepository;
 const isWeekend = require("../utils/date").isWeekend;
 const moment = require("moment");
 
-const ORDERED_REPEATED_TYPES = [
-  "Never",
-  "Daily",
-  "Week Days",
-  "Weekends",
-  "Weekly",
-  "Monthly",
-  "Annually"
-];
+const REPEATED_TYPES = {
+  "Never" : ["Never"],
+  "Daily": ["Never", "Daily", "Weekly", "Weekends", "Weekdays", "Monthly", "Annually"],
+  "Weekdays": ["Never", "Weekly", "Weekdays"],
+  "Weekends": ["Never", "Weekly", "Weekends"],
+  "Weekly": ["Never", "Weekly"],
+  "Monthly": ["Never", "Monthly", "Annually"],
+  "Annually": ["Never", "Annually"]
+};
 
 var ShiftController = function(
   shiftRepository,
@@ -36,7 +36,7 @@ var ShiftController = function(
       .then(shifts => {
         var titles = [];
         shifts.forEach(shift => {
-          if (titles.indexOf(shift.title) == -1) {
+          if (titles.indexOf(shift.title) === -1) {
             titles.push(shift.title);
           }
         });
@@ -88,7 +88,7 @@ var ShiftController = function(
           return;
         }
 
-        if (!req.body.repeatedType || req.body.repeatedType == "Never") {
+        if (!req.body.repeatedType || req.body.repeatedType === "Never") {
           return bookingRepository.add(shift, req.user.id, req.body.roleName);
         }
         var startDate = moment(shift.date, "YYYY-MM-DD");
@@ -178,7 +178,7 @@ var ShiftController = function(
     }
     var type = req.body.repeatedType;
 
-    if (!type || type == "Never") {
+    if (!type || type === "Never") {
       shiftRepository
         .add(req.body, req.user.id, rolesRequired)
         .then(result => {
@@ -214,36 +214,21 @@ module.exports = new ShiftController(
 
 function repeatedTypeIsValid(type, startDate) {
   switch (type) {
-    case "Week Days":
-      if (isWeekend(startDate)) {
-        return false;
-      }
-      break;
+    case "Weekdays":
+      return !isWeekend(startDate);
     case "Weekends":
-      if (!isWeekend(startDate)) {
-        return false;
-      }
+      return isWeekend(startDate);
     default:
       break;
   }
-  return ORDERED_REPEATED_TYPES.includes(type);
+  return REPEATED_TYPES.hasOwnProperty(type);
 }
 
 function repeatedTypesCompatible(shiftType, bookingType) {
-  if (shiftType == bookingType) {
+  if (shiftType === bookingType) {
     return true;
   }
-  switch (shiftType) {
-    case "Week Days":
-      return !["Daily", "Weekends"].includes(bookingType);
-    case "Weekends":
-      return !["Daily", "Week Days"].includes(bookingType);
-    default:
-      return (
-        ORDERED_REPEATED_TYPES.indexOf(shiftType) <=
-        ORDERED_REPEATED_TYPES.indexOf(bookingType)
-      );
-  }
+  return REPEATED_TYPES[shiftType].includes(bookingType);
 }
 
 async function checkRoles(rolesRequired, roleRepository) {
