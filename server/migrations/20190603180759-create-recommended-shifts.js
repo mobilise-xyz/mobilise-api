@@ -12,6 +12,10 @@ module.exports = {
         },
         onDelete: "CASCADE"
       },
+      roleName: {
+        allowNull: false,
+        type: Sequelize.STRING
+      },
       expectedShortage: {
         allowNull: false,
         type: Sequelize.FLOAT
