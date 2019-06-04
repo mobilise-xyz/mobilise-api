@@ -7,10 +7,10 @@ var Predictor = function(shiftRepository) {
 
   this.shiftRepository = shiftRepository;
 
-  this.computeCurrentShiftRequirementsMap = function() {
+  this.updateRecommendedShifts = function() {
 
-    // Initialise map from shift ids to current requirements
-    var map = new Map();
+    // Remove old entries in Recommended Shifts Table
+    
 
     shiftRepository
       .getAllWithRequirements()
@@ -34,13 +34,10 @@ var Predictor = function(shiftRepository) {
             requirementsMap.set(booking.roleName, requirementsMap.get(booking.roleName) - 1);
           })
 
-          // Add entry for shift in map
-          map.set(shift.id, requirementsMap);
+          // Add entry in Recommended Shifts Table
 
         })
       });
-
-      return map;
 
   }
 }
