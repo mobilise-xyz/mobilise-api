@@ -8,7 +8,11 @@ module.exports = (sequelize, DataTypes) => {
         allowNull: false,
         primaryKey: true
       },
-      roleName: DataTypes.STRING,
+      roleName: {
+        type: DataTypes.STRING,
+        allowNull: false,
+        primaryKey: true
+      },
       expectedShortage: DataTypes.FLOAT
     },
     {}

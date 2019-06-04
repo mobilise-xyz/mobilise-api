@@ -1,7 +1,9 @@
 const volunteerRepository = require("../repositories").VolunteerRepository;
 const shiftRepository = require("../repositories").ShiftRepository;
-const recommendedShiftRepository = require("../repositories").RecommendedShiftRepository;
+const recommendedShiftRepository = require("../repositories")
+  .RecommendedShiftRepository;
 const Op = require("../models").Sequelize.Op;
+const Predictor = require("../recommenderSystem").Predictor;
 
 var VolunteerController = function(volunteerRepository, shiftRepository) {
   this.volunteerRepository = volunteerRepository;
@@ -95,8 +97,10 @@ var VolunteerController = function(volunteerRepository, shiftRepository) {
   };
 
   this.listRecommendedShifts = function(req, res) {
-    recommendedShiftRepository
-      .getAll()
+    Predictor.computeRecommendedShifts()
+      .then(_ => {
+        return recommendedShiftRepository.getAll();
+      })
       .then(shifts => {
         res.status(200).send(shifts);
       })

@@ -9,7 +9,10 @@ var RecommendedShiftRepository = Object.create(
 RecommendedShiftRepository.destroy = function() {
   var deferred = Q.defer();
 
-  RecommendedShift.destroy()
+  RecommendedShift.destroy({
+    where: {},
+    truncate: true
+  })
     .then(result => deferred.resolve(result))
     .catch(error => deferred.reject(error));
 
@@ -33,7 +36,8 @@ RecommendedShiftRepository.add = function(shiftId, roleName, expectedShortage) {
 RecommendedShiftRepository.getAll = function() {
   var deferred = Q.defer();
   RecommendedShift.findAll({
-    include: ["shift"]
+    include: ["shift"],
+    order: [["expectedShortage", "desc"]]
   })
     .then(shifts => {
       deferred.resolve(shifts);
@@ -41,6 +45,16 @@ RecommendedShiftRepository.getAll = function() {
     .catch(err => {
       deferred.reject(err);
     });
+  return deferred.promise;
+};
+
+RecommendedShiftRepository.addAll = function(recommendations) {
+  var deferred = Q.defer();
+
+  RecommendedShift.bulkCreate(recommendations)
+    .then(result => deferred.resolve(result))
+    .catch(error => deferred.reject(error));
+
   return deferred.promise;
 };
 

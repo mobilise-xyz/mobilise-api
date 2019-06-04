@@ -14,7 +14,13 @@ module.exports = {
       },
       roleName: {
         allowNull: false,
-        type: Sequelize.STRING
+        type: Sequelize.STRING,
+        primaryKey: true,
+        references: {
+          model: "Roles",
+          key: "name"
+        },
+        onDelete: "CASCADE"
       },
       expectedShortage: {
         allowNull: false,

@@ -114,7 +114,6 @@ BookingRepository.addRepeated = async function(
           // Consider next shift
           shiftIndex += 1;
         }
-        console.log(bookings);
         return Booking.bulkCreate(bookings);
       })
       .then(bookings =>
