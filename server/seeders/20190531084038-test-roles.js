@@ -1,6 +1,6 @@
 'use strict';
 
-var roleName = 'Warehouse Assistant';
+var roleName = 'Seeded Role';
 
 module.exports = {
   up: (queryInterface, Sequelize) => {
@@ -8,7 +8,7 @@ module.exports = {
       [
         {
           name: roleName,
-          involves: 'Heavy Lifting',
+          involves: 'Testing',
           createdAt: '2019-06-06',
           updatedAt: '2019-06-06'
         }
