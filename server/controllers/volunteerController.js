@@ -81,7 +81,7 @@ var VolunteerController = function(volunteerRepository, shiftRepository) {
         bookings.forEach(booking => {
           shiftIds.push(booking.shiftId);
         });
-        if (req.query.booked === "true") {
+        if (req.query.booked) {
           return shiftRepository.getAllWithRequirements({
             id: { [Op.in]: shiftIds }
           });
