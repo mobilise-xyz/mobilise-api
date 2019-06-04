@@ -10,7 +10,7 @@ var RecommendedController = function(Predictor) {
   }
 
   this.computeRecommendedShifts = function(req, res) {
-    
+    Predictor.computeRecommendedShifts();
   }
 }
 

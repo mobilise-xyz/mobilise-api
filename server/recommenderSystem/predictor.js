@@ -7,7 +7,7 @@ var Predictor = function(shiftRepository) {
 
   this.shiftRepository = shiftRepository;
 
-  this.updateRecommendedShifts = function() {
+  this.computeRecommendedShifts = function() {
 
     // Remove old entries in Recommended Shifts Table
     
