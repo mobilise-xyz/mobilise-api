@@ -4,6 +4,7 @@ const UserRepository = require('./userRepository');
 const VolunteerRepository = require('./volunteerRepository');
 const AdminRepository = require('./adminRepository');
 const BookingRepository = require('./bookingRepository');
+const RecommendedShiftRepository = require('./recommendedShiftRepository');
 
 module.exports = {
   ShiftRepository,
@@ -11,5 +12,6 @@ module.exports = {
   UserRepository,
   VolunteerRepository,
   AdminRepository,
-  BookingRepository
+  BookingRepository,
+  RecommendedShiftRepository
 };
