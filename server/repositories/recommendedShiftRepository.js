@@ -1,6 +1,8 @@
 const RecommendedShift = require("../models").RecommendedShift;
 const RecommendedShiftRepositoryInterface = require("./interfaces/recommendedShiftRepositoryInterface");
+const shiftRepository = require("./shiftRepository");
 const Q = require("q");
+const sequelize = require('sequelize');
 
 var RecommendedShiftRepository = Object.create(
   RecommendedShiftRepositoryInterface
@@ -35,16 +37,34 @@ RecommendedShiftRepository.add = function(shiftId, roleName, expectedShortage) {
 
 RecommendedShiftRepository.getAll = function() {
   var deferred = Q.defer();
-  RecommendedShift.findAll({
-    include: ["shift"],
-    order: [["expectedShortage", "desc"]]
-  })
+
+  RecommendedShift
+    .findAll({
+      group: ["shiftId"],
+      attributes: [
+        "shiftId",
+        [
+          sequelize.fn(
+            'json_agg', 
+            sequelize.fn(
+              'json_build_object',
+              'name',
+              sequelize.col('roleName'),
+              'expectedShortage',
+              sequelize.col('expectedShortage')
+            )
+          ),
+          'roles'
+        ],
+        [sequelize.fn('max', sequelize.col('expectedShortage')), 'maxExpectedShortage']
+      ],
+      order: [[sequelize.fn('max', sequelize.col('expectedShortage')), 'desc']]
+    })
     .then(shifts => {
       deferred.resolve(shifts);
     })
-    .catch(err => {
-      deferred.reject(err);
-    });
+    .catch(err => deferred.reject(err));
+
   return deferred.promise;
 };
 
@@ -59,3 +79,14 @@ RecommendedShiftRepository.addAll = function(recommendations) {
 };
 
 module.exports = RecommendedShiftRepository;
+
+
+/**
+   RecommendedShift
+    .findAll({
+      include: ["shift"],
+      order: [["expectedShortage", "desc"]]
+    })
+    .then(shifts => deferred.resolve(shifts))
+    .catch(err => deferred.reject(err));
+ */
