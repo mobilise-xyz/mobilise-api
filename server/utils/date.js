@@ -29,7 +29,7 @@ function getNextDate(date, type) {
 
 // date is a moment
 function isWeekend(date) {
-  return date.toDate().getDay() % 6 == 0;
+  return date.toDate().getDay() % 6 === 0;
 }
 
 module.exports = { isWeekend, getNextDate };
