@@ -9,5 +9,5 @@ module.exports = {
   AuthController,
   RoleController,
   UserController,
-  VolunteerController,
+  VolunteerController
 };

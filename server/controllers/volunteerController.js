@@ -2,6 +2,11 @@ const volunteerRepository = require("../repositories").VolunteerRepository;
 const shiftRepository = require("../repositories").ShiftRepository;
 const bookingRepository = require("../repositories").BookingRepository;
 const Op = require("../models").Sequelize.Op;
+const Predictor = require("../recommenderSystem").Predictor;
+const volunteerIsAvailableForShift = require("../utils/availability")
+  .volunteerIsAvailableForShift;
+
+const EXPECTED_SHORTAGE_THRESHOLD = 6;
 
 var VolunteerController = function(volunteerRepository, shiftRepository) {
   this.volunteerRepository = volunteerRepository;
@@ -67,29 +72,52 @@ var VolunteerController = function(volunteerRepository, shiftRepository) {
   };
 
   this.listShiftsByVolunteerId = function(req, res) {
+    var volunteer;
     volunteerRepository
       .getById(req.params.id)
-      .then(volunteer => {
-        if (!volunteer) {
+      .then(vol => {
+        if (!vol) {
           res.status(400).send({ message: "No volunteer with that id" });
         } else {
-          return bookingRepository.getByVolunteerId(volunteer.userId);
+          volunteer = vol;
+          return bookingRepository.getByVolunteerId(vol.userId);
         }
       })
       .then(bookings => {
-        var shiftIds = [];
-        bookings.forEach(booking => {
-          shiftIds.push(booking.shiftId);
-        });
+        var shiftIds = bookings.map(booking => booking.shiftId);
+        
         if (req.query.booked) {
           return shiftRepository.getAllWithRequirements({
             id: { [Op.in]: shiftIds }
           });
-        } else {
-          return shiftRepository.getAllWithRequirements({
-            id: { [Op.notIn]: shiftIds }
-          });
         }
+        
+        return Predictor.computeExpectedShortages()
+          .then(_ => {
+
+            return shiftRepository
+              .getAllWithRequirements({
+                id: { [Op.notIn]: shiftIds }
+              })
+              .then(shifts => {
+                var result = [];
+                shifts.forEach(s => {
+                  var shift = s.toJSON();
+                  if (volunteerIsAvailableForShift(volunteer, shift) > 0.5) {
+                    for (var i = 0; i < shift.requirements.length; i++) {
+                      var requirement = shift.requirements[i];
+                      if (requirement.expectedShortage > EXPECTED_SHORTAGE_THRESHOLD) {
+                        requirement.recommended = true;
+                      }
+                      shift.requirements[i] = requirement;
+                    }
+                  }
+                  result.push(shift);
+                });
+                return result;
+              });
+
+          })
       })
       .then(shifts => res.status(200).send(shifts))
       .catch(err => res.status(500).send(err));
