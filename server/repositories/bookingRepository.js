@@ -11,7 +11,7 @@ const BookingRepositoryInterface = require("./interfaces/bookingRepositoryInterf
 
 var BookingRepository = Object.create(BookingRepositoryInterface);
 
-BookingRepository.add = function(shift, volunteerId, roleName) {
+BookingRepository.add = function (shift, volunteerId, roleName) {
   var deferred = Q.defer();
   Booking.create({
     shiftId: shift.id,
@@ -24,7 +24,7 @@ BookingRepository.add = function(shift, volunteerId, roleName) {
   return deferred.promise;
 };
 
-BookingRepository.addRepeated = async function(
+BookingRepository.addRepeated = async function (
   shift,
   volunteerId,
   roleName,
@@ -46,7 +46,7 @@ BookingRepository.addRepeated = async function(
   if (succesful) {
     // Create repeated booking
     RepeatedShift.findOne({
-      where: { id: shift.repeatedId },
+      where: {id: shift.repeatedId},
       include: [
         {
           model: Shift,
@@ -78,8 +78,8 @@ BookingRepository.addRepeated = async function(
         var shiftIndex = 0;
         while (
           (startDate.isBefore(lastDate) || startDate.isSame(lastDate)) &&
-          shiftIndex != shifts.length
-        ) {
+          shiftIndex !== shifts.length
+          ) {
           // Find the next booking for this repeated shift
           var nextShiftDate = moment(shifts[shiftIndex].date, "YYYY-MM-DD");
 
@@ -91,9 +91,9 @@ BookingRepository.addRepeated = async function(
           // then get the shift that is either after or the same as the
           // booking
           while (
-            shiftIndex != shifts.length - 1 &&
+            shiftIndex !== shifts.length - 1 &&
             startDate.isAfter(nextShiftDate)
-          ) {
+            ) {
             shiftIndex += 1;
             nextShiftDate = moment(shifts[shiftIndex].date, "YYYY-MM-DD");
           }
@@ -102,7 +102,7 @@ BookingRepository.addRepeated = async function(
             // The bookings in the shift are only ones with the volunteer
             // id so therefore if the length is not 0, then the volunteer
             // has a booking for this shift. So skip over it.
-            if (shifts[shiftIndex].bookings.length == 0) {
+            if (shifts[shiftIndex].bookings.length === 0) {
               bookings.push({
                 shiftId: shifts[shiftIndex].id,
                 repeatedId: repeatedId,
@@ -127,7 +127,7 @@ BookingRepository.addRepeated = async function(
   return deferred.promise;
 };
 
-BookingRepository.getAll = function() {
+BookingRepository.getAll = function () {
   var deferred = Q.defer();
 
   Booking.findAll()
@@ -137,17 +137,31 @@ BookingRepository.getAll = function() {
   return deferred.promise;
 };
 
-BookingRepository.getAllWithShifts = function() {
+BookingRepository.getAllWithShifts = function () {
   var deferred = Q.defer();
 
-  Booking.findAll({ include: ["shift"] })
+  Booking.findAll({include: ["shift"]})
     .then(bookings => deferred.resolve(bookings))
     .catch(err => deferred.reject(err));
 
   return deferred.promise;
 };
 
-BookingRepository.getById = function(shiftId, volunteerId) {
+BookingRepository.getByVolunteerId = function (volunteerId) {
+  var deferred = Q.defer();
+
+  Booking.findAll({
+    where: {
+      volunteerId: volunteerId
+    }
+  })
+    .then(bookings => deferred.resolve(bookings))
+    .catch(err => deferred.reject(err));
+
+  return deferred.promise;
+};
+
+BookingRepository.getById = function (shiftId, volunteerId) {
   var deferred = Q.defer();
 
   Booking.findOne({

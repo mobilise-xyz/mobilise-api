@@ -4,6 +4,12 @@ var chai = require('chai');
 
 var expect = chai.expect;
 
+const adminEmail = 'seededadmin@testing.com';
+const adminPassword = 'Admin123';
+
+const volunteerEmail = 'seededvolunteer@testing.com';
+const volunteerPassword = 'Volunteer123';
+
 describe('Retrieving users', function() {
   it('Unauthorised user cannot retrieve a user by id', function(done) {
     request(app)
@@ -17,8 +23,8 @@ describe('Retrieving users', function() {
       .post('/auth/login')
       .send(
           {
-          email: 'testadmin@testing.com',
-          password: 'Admin123'
+          email: adminEmail,
+          password: adminPassword
           }
       )
       .set('Accept', 'application/json')

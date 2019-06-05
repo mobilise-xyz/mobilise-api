@@ -4,6 +4,9 @@ var chai = require('chai');
 
 var expect = chai.expect;
 
+const seededEmail = 'seededvolunteer@testing.com'
+const seededPassword = 'Volunteer123'
+
 describe('Login user', function() {
 
   it('Approves correct credentials', function(done) {
@@ -11,8 +14,8 @@ describe('Login user', function() {
       .post('/auth/login')
       .send(
         {
-          email: 'testvolunteer@testing.com',
-          password: 'Volunteer123'
+          email: seededEmail,
+          password: seededPassword
         }
         )
       .set('Accept', 'application/json')
@@ -21,7 +24,8 @@ describe('Login user', function() {
         if (error) {
           done(error);
         }
-
+        
+        // Ensure that we return the JSON Web Token back
         expect(response.body).to.have.property('token');
         done();
       })
@@ -33,7 +37,7 @@ describe('Login user', function() {
       .send(
         {
           email: 'incorrectvolunteer@testing.com',
-          password: 'Volunteer123'
+          password: seededPassword
         }
         )
       .set('Accept', 'application/json')
@@ -45,7 +49,7 @@ describe('Login user', function() {
       .post('/auth/login')
       .send(
         {
-          email: 'volunteer@testing.com',
+          email: seededEmail,
           password: 'Invalid123'
         }
         )

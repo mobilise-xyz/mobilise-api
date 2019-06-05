@@ -6,7 +6,7 @@ const RoleRepositoryInterface = require("./interfaces/roleRepositoryInterface");
 var RoleRepository = Object.create(RoleRepositoryInterface);
 
 RoleRepository.add = function(role) {
-  var deferred = Q.defer();
+  const deferred = Q.defer();
 
   Role.create({
     name: role.name,

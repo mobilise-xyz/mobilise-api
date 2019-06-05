@@ -4,6 +4,12 @@ var chai = require("chai");
 
 var expect = chai.expect;
 
+const adminEmail = 'seededadmin@testing.com';
+const adminPassword = 'Admin123';
+
+const volunteerEmail = 'seededvolunteer@testing.com';
+const volunteerPassword = 'Volunteer123';
+
 describe("Add shifts", function() {
   it("Does not allow unauthorised request to add shift", function(done) {
     request(app)
@@ -26,8 +32,8 @@ describe("Add shifts", function() {
     request(app)
       .post("/auth/login")
       .send({
-        email: "testvolunteer@testing.com",
-        password: "Volunteer123"
+        email: volunteerEmail,
+        password: volunteerPassword
       })
       .set("Accept", "application/json")
       .expect(200)
@@ -55,8 +61,8 @@ describe("Add shifts", function() {
     request(app)
       .post("/auth/login")
       .send({
-        email: "testadmin@testing.com",
-        password: "Admin123"
+        email: adminEmail,
+        password: adminPassword
       })
       .set("Accept", "application/json")
       .expect(200)
@@ -93,8 +99,8 @@ describe("Retrieve Shifts", function() {
     request(app)
       .post("/auth/login")
       .send({
-        email: "testvolunteer@testing.com",
-        password: "Volunteer123"
+        email: volunteerEmail,
+        password: volunteerPassword
       })
       .set("Accept", "application/json")
       .expect(200)
@@ -122,8 +128,8 @@ describe("Retrieve Shift Titles", function() {
     request(app)
       .post("/auth/login")
       .send({
-        email: "testvolunteer@testing.com",
-        password: "Volunteer123"
+        email: volunteerEmail,
+        password: volunteerPassword
       })
       .set("Accept", "application/json")
       .expect(200)
