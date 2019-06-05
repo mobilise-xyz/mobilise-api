@@ -2,6 +2,7 @@ const volunteerRepository = require("../repositories").VolunteerRepository;
 const shiftRepository = require("../repositories").ShiftRepository;
 const recommendedShiftRepository = require("../repositories")
   .RecommendedShiftRepository;
+const bookingRepository = require("../repositories").BookingRepository;
 const Op = require("../models").Sequelize.Op;
 const Predictor = require("../recommenderSystem").Predictor;
 
@@ -75,22 +76,22 @@ var VolunteerController = function(volunteerRepository, shiftRepository) {
         if (!volunteer) {
           res.status(400).send({ message: "No volunteer with that id" });
         } else {
-          return volunteer.getShifts();
+          return bookingRepository.getByVolunteerId(volunteer.userId);
         }
       })
-      .then(shifts => {
-        // Obtain Shift Ids
-        var shiftIds = shifts.map(shift => shift.id);
-
-        if (req.query.booked === "true") {
+      .then(bookings => {
+        var shiftIds = [];
+        bookings.forEach(booking => {
+          shiftIds.push(booking.shiftId);
+        });
+        if (req.query.booked) {
           return shiftRepository.getAllWithRequirements({
-            id: { [Op.in]: shiftIds }
-          });
-        } else {
-          return shiftRepository.getAllWithRequirements({
-            id: { [Op.notIn]: shiftIds }
+            id: {[Op.in]: shiftIds}
           });
         }
+        return shiftRepository.getAllWithRequirements({
+          id: {[Op.notIn]: shiftIds}
+        });
       })
       .then(shifts => res.status(200).send(shifts))
       .catch(err => res.status(500).send(err));

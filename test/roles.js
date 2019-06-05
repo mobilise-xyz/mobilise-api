@@ -6,10 +6,19 @@ const Role = require('../server/models').Role;
 
 var expect = chai.expect;
 
+const adminEmail = 'seededadmin@testing.com';
+const adminPassword = 'Admin123';
+
+const volunteerEmail = 'seededvolunteer@testing.com';
+const volunteerPassword = 'Volunteer123';
+
+const roleName = "Test Role";
+const roleInvolves = "Testing";
+
 describe('Add roles', function() {
 
   after( function() {
-    Role.destroy({where: {name: 'Drivers mate'}})
+    Role.destroy({where: {name: "Driver's mate"}})
   })
 
   it('Does not allow unauthorised request to add role', function(done) {
@@ -17,8 +26,8 @@ describe('Add roles', function() {
       .post('/roles')
       .send(
         {
-          name: 'Drivers mate',
-          involves: 'Some heavy lifting',
+          name: roleName,
+          involves: roleInvolves,
         }
       )
       .set('Accept', 'application/json')
@@ -31,8 +40,8 @@ describe('Add roles', function() {
       .post('/auth/login')
       .send(
         {
-          email: 'testvolunteer@testing.com',
-          password: 'Volunteer123'
+          email: volunteerEmail,
+          password: volunteerPassword
         }
       )
       .set('Accept', 'application/json')
@@ -43,8 +52,8 @@ describe('Add roles', function() {
           .post('/roles')
           .send(
             {
-              name: 'Drivers mate',
-              involves: 'Some heavy lifting',
+              name: roleName,
+              involves: roleInvolves,
             }
           )
           .set('Accept', 'application/json')
@@ -59,8 +68,8 @@ describe('Add roles', function() {
       .post('/auth/login')
       .send(
         {
-          email: 'testadmin@testing.com',
-          password: 'Admin123'
+          email: adminEmail,
+          password: adminPassword
         }
       )
       .set('Accept', 'application/json')
@@ -71,8 +80,8 @@ describe('Add roles', function() {
           .post('/roles')
           .send(
             {
-              name: 'Drivers mate',
-              involves: 'Some heavy lifting',
+              name: roleName,
+              involves: roleInvolves,
             }
           )
           .set('Accept', 'application/json')
@@ -97,8 +106,8 @@ describe('Retrieve roles', function() {
       .post('/auth/login')
       .send(
         {
-          email: 'testvolunteer@testing.com',
-          password: 'Volunteer123'
+          email: volunteerEmail,
+          password: volunteerPassword
         }
       )
       .set('Accept', 'application/json')

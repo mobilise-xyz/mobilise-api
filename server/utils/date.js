@@ -12,7 +12,7 @@ function getNextDate(date, type) {
     case "Annually":
       date.add(1, "years");
       break;
-    case "Week Days":
+    case "Weekdays":
       do {
         date.add(1, "d");
       } while (isWeekend(date));
@@ -29,7 +29,7 @@ function getNextDate(date, type) {
 
 // date is a moment
 function isWeekend(date) {
-  return date.toDate().getDay() % 6 == 0;
+  return date.toDate().getDay() % 6 === 0;
 }
 
 module.exports = { isWeekend, getNextDate };
