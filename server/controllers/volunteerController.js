@@ -19,6 +19,63 @@ var VolunteerController = function(volunteerRepository, shiftRepository) {
       .catch(err => res.status(500).send(err));
   };
 
+  this.getStats = function(req, res) {
+    
+    // Check bearer token id matches parameter id
+    if (req.user.id != req.params.id) {
+      res
+        .status(400)
+        .send({ message: "You can only view your own stats." });
+      return;
+    }
+
+    res.status(200).send({
+      contributions: {
+        shiftsCompleted: 10,
+        hours: 10, 
+        challengesCompleted: 5
+      },
+      hallOfFame: {
+        fastResponder: {
+          name: "Mark Wheelhouse",
+          number: 3
+        },
+        mostHours: {
+          name: "Joon-Ho Son",
+          number: 50
+        },
+        onTheRise: {
+          name: "Jane Doe",
+          number: 4
+        },
+
+      },
+      myActivity: [
+        {
+          title: "Title",
+          description: "Description"
+        },
+        {
+          title: "Title",
+          description: "Description"
+        },
+        {
+          title: "Title",
+          description: "Description"
+        },
+        {
+          title: "Title",
+          description: "Description"
+        },
+        {
+          title: "Title",
+          description: "Description"
+        }
+      ]
+    })
+
+  }
+
   this.updateAvailability = function(req, res) {
     // Check bearer token id matches parameter id
     if (req.user.id != req.params.id) {
