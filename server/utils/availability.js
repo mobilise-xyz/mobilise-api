@@ -20,5 +20,4 @@ function getSlotForTime(time) {
   return 1;
 }
 
-
 module.exports = {volunteerIsAvailableForShift};
