@@ -1,7 +1,5 @@
 const volunteerRepository = require("../repositories").VolunteerRepository;
 const shiftRepository = require("../repositories").ShiftRepository;
-const recommendedShiftRepository = require("../repositories")
-  .RecommendedShiftRepository;
 const bookingRepository = require("../repositories").BookingRepository;
 const Op = require("../models").Sequelize.Op;
 const Predictor = require("../recommenderSystem").Predictor;
@@ -89,25 +87,16 @@ var VolunteerController = function(volunteerRepository, shiftRepository) {
             id: {[Op.in]: shiftIds}
           });
         }
-        return shiftRepository.getAllWithRequirements({
-          id: {[Op.notIn]: shiftIds}
-        });
+        console.log('Got here boi');
+        return Predictor.computeExpectedShortages()
+          .then(res => {
+            return shiftRepository.getAllWithRequirements({
+              id: {[Op.notIn]: shiftIds}
+            }); 
+          })
       })
       .then(shifts => res.status(200).send(shifts))
       .catch(err => res.status(500).send(err));
-  };
-
-  this.listRecommendedShifts = function(req, res) {
-    Predictor.computeRecommendedShifts()
-      .then(_ => {
-        return recommendedShiftRepository.getAll();
-      })
-      .then(shifts => {
-        res.status(200).send(shifts);
-      })
-      .catch(err => {
-        res.status(500).send(err);
-      });
   };
 };
 
