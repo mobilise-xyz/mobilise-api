@@ -33,17 +33,17 @@ BookingRepository.addRepeated = async function (
 ) {
   var deferred = Q.defer();
   var repeatedId;
-  var succesful = true;
+  var successful = true;
   await RepeatedBooking.create({
     type: type,
     untilDate: untilDate
   })
     .then(result => (repeatedId = result.id))
     .catch(err => {
-      succesful = false;
+      successful = false;
       deferred.reject(err);
     });
-  if (succesful) {
+  if (successful) {
     // Create repeated booking
     RepeatedShift.findOne({
       where: {id: shift.repeatedId},
