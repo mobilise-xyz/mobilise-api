@@ -25,9 +25,6 @@ module.exports = {
       numberRequired: {
         type: Sequelize.INTEGER
       },
-      expectedShortage: {
-        type: Sequelize.INTEGER
-      },
       createdAt: {
         allowNull: false,
         type: Sequelize.DATE
