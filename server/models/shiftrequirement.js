@@ -13,7 +13,8 @@ module.exports = (sequelize, DataTypes) => {
         primaryKey: true,
         type: DataTypes.STRING
       },
-      numberRequired: DataTypes.INTEGER
+      numberRequired: DataTypes.INTEGER,
+      expectedShortage: DataTypes.INTEGER
     },
     {}
   );
