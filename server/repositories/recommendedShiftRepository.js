@@ -1,6 +1,5 @@
 const RecommendedShift = require("../models").RecommendedShift;
 const RecommendedShiftRepositoryInterface = require("./interfaces/recommendedShiftRepositoryInterface");
-const shiftRepository = require("./shiftRepository");
 const Q = require("q");
 const sequelize = require('sequelize');
 
@@ -60,10 +59,8 @@ RecommendedShiftRepository.getAll = function() {
       ],
       order: [[sequelize.fn('max', sequelize.col('expectedShortage')), 'desc']]
     })
-    .then(shifts => {
-      deferred.resolve(shifts);
-    })
-    .catch(err => deferred.reject(err));
+    .then(result => deferred.resolve(result))
+    .catch(error => deferred.reject(error));
 
   return deferred.promise;
 };
