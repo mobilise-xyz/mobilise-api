@@ -79,14 +79,3 @@ RecommendedShiftRepository.addAll = function(recommendations) {
 };
 
 module.exports = RecommendedShiftRepository;
-
-
-/**
-   RecommendedShift
-    .findAll({
-      include: ["shift"],
-      order: [["expectedShortage", "desc"]]
-    })
-    .then(shifts => deferred.resolve(shifts))
-    .catch(err => deferred.reject(err));
- */
