@@ -1,45 +1,71 @@
 const Q = require("q");
-
 const shiftRepository = require("../repositories").ShiftRepository;
-const recommendedShiftRepository = require("../repositories")
-  .RecommendedShiftRepository;
+const ShiftRequirement = require('../models').ShiftRequirement;
+const Op = require("../models").Sequelize.Op;
 
-var Predictor = function(shiftRepository, recommendedShiftRepository) {
+var Predictor = function(shiftRepository) {
   this.shiftRepository = shiftRepository;
-  this.recommendedShiftRepository = recommendedShiftRepository;
 
-  this.computeRecommendedShifts = function() {
+  this.computeExpectedShortages = function(whereTrue) {
     var deferred = Q.defer();
-    // Remove old entries in Recommended Shifts Table
-    var recommendations = [];
-    recommendedShiftRepository
-      .destroy()
-      .then(_ => {
-        return shiftRepository.getAllWithRequirements();
-      })
-      .then(shifts => {
+
+    var updatedShiftRequirements = [];
+
+    shiftRepository
+      .getAllWithRequirements(whereTrue)
+      .then(async shifts => {
+
+        // var shiftRequirementKeys = [];
+
         shifts.forEach(shift => {
+
           // Obtain the shift requirements
           var requirements = shift.requirements;
-          // Construct Map of role name to number required
+
           requirements.forEach(requirement => {
-            // Obtain the bookings made for the shift
+
+            // Store shift id and role name in a list
+            // shiftRequirementKeys.push({
+            //   shiftId: shift.id,
+            //   roleName: requirement.role.name
+            // })
+
+            // Obtain the bookings made for specific role requirement
             var bookings = requirement.bookings;
-            recommendations.push({
+
+            // Add updated shift requirement to list
+            updatedShiftRequirements.push({
               shiftId: shift.id,
               roleName: requirement.role.name,
+              numberRequired: requirement.numberRequired,
               expectedShortage: requirement.numberRequired - bookings.length
             });
-          });
+
+          })
+
         });
-        return recommendedShiftRepository.addAll(recommendations);
+
+        console.log('Got here 1');
+
+        await updatedShiftRequirements.forEach(shiftRequirement => {
+          // Add updated records
+          ShiftRequirement.update(
+            { expectedShortage: shiftRequirement.expectedShortage },
+            { where: {
+                shiftId: shiftRequirement.shiftId,
+                roleName: shiftRequirement.roleName
+            } }
+          );
+        });
+
+        console.log('Finally');
+
       })
-      .then(result => {
-        deferred.resolve(result);
-      })
-      .catch(err => deferred.reject(err));
+      .then(result => deferred.resolve(result))
+      .catch(error => deferred.reject(error));
+
     return deferred.promise;
-  };
+  }
 };
 
-module.exports = new Predictor(shiftRepository, recommendedShiftRepository);
+module.exports = new Predictor(shiftRepository);
