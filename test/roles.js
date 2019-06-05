@@ -18,7 +18,7 @@ const roleInvolves = "Testing";
 describe('Add roles', function() {
 
   after( function() {
-    Role.destroy({where: {name: "Driver's mate"}})
+    Role.destroy({where: {name: roleName}})
   })
 
   it('Does not allow unauthorised request to add role', function(done) {
