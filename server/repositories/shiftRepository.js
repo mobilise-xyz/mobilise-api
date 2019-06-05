@@ -157,7 +157,7 @@ ShiftRepository.getAllWithRequirements = function(whereTrue) {
       {
         model: ShiftRequirement,
         as: "requirements",
-        attributes: ["numberRequired"],
+        attributes: ["numberRequired", "expectedShortage"],
         include: [
           {
             model: Booking,
