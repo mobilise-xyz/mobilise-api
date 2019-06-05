@@ -8,6 +8,9 @@ router.get("/", controller.list);
 /* Get all shifts for a volunteer */
 router.get("/:id/shifts", controller.listShiftsByVolunteerId);
 
+/* Get stats for a volunteer */
+router.get("/:id/stats", controller.getStats);
+
 /* Update availability for a volunteer */
 router.put("/:id/availability", controller.updateAvailability);
 
