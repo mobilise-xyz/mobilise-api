@@ -6,26 +6,20 @@ const Op = require("../models").Sequelize.Op;
 var Predictor = function(shiftRepository) {
   this.shiftRepository = shiftRepository;
 
-  this.computeExpectedShortages = function(whereTrue) {
+  this.computeExpectedShortages = async function(whereTrue) {
     var deferred = Q.defer();
 
     var updatedShiftRequirements = [];
 
-    shiftRepository
+    await shiftRepository
       .getAllWithRequirements(whereTrue)
-      .then(shifts => {
-        // var shiftRequirementKeys = [];
+      .then(async shifts => {
 
-        shifts.forEach(shift => {
+        await shifts.forEach(shift => {
           // Obtain the shift requirements
           var requirements = shift.requirements;
 
           requirements.forEach(requirement => {
-            // Store shift id and role name in a list
-            // shiftRequirementKeys.push({
-            //   shiftId: shift.id,
-            //   roleName: requirement.role.name
-            // })
 
             // Obtain the bookings made for specific role requirement
             var bookings = requirement.bookings;
@@ -40,8 +34,15 @@ var Predictor = function(shiftRepository) {
           });
         });
 
-        updatedShiftRequirements.forEach(async shiftRequirement => {
-          // Add updated records
+        return updatedShiftRequirements;
+      })
+      .then(async updatedShiftRequirements => {
+
+        var i;
+        for(i = 0; i < updatedShiftRequirements.length; i++) {
+
+          var shiftRequirement = updatedShiftRequirements[i];
+
           await ShiftRequirement.update(
             { expectedShortage: shiftRequirement.expectedShortage },
             {
@@ -51,7 +52,8 @@ var Predictor = function(shiftRepository) {
               }
             }
           );
-        });
+
+        }
       })
       .then(result => deferred.resolve(result))
       .catch(error => deferred.reject(error));
