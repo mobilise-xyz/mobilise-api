@@ -12,7 +12,7 @@ function getNextDate(date, type) {
     case "Annually":
       date.add(1, "years");
       break;
-    case "Week Days":
+    case "Weekdays":
       do {
         date.add(1, "d");
       } while (isWeekend(date));
