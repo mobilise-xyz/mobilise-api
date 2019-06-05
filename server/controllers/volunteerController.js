@@ -34,22 +34,22 @@ var VolunteerController = function(volunteerRepository, shiftRepository) {
         shiftsCompleted: 10,
         hours: 10, 
         challengesCompleted: 5
-      },
-      hallOfFame: {
-        fastResponder: {
-          name: "Mark Wheelhouse",
-          number: 3
-        },
-        mostHours: {
-          name: "Joon-Ho Son",
-          number: 50
-        },
-        onTheRise: {
-          name: "Jane Doe",
-          number: 4
-        },
+      }
+    })
 
-      },
+  },
+
+  this.getActivity = function(req, res) {
+
+    // Check bearer token id matches parameter id
+    if (req.user.id != req.params.id) {
+      res
+        .status(400)
+        .send({ message: "You can only view your own stats." });
+      return;
+    }
+
+    res.status(200).send({
       myActivity: [
         {
           title: "Title",
@@ -72,9 +72,31 @@ var VolunteerController = function(volunteerRepository, shiftRepository) {
           description: "Description"
         }
       ]
+    });
+
+  },
+
+  this.getHallOfFame = function(req, res) {
+
+    res.status(200).send({
+      hallOfFame: {
+        fastResponder: {
+          name: "Mark Wheelhouse",
+          number: 3
+        },
+        mostHours: {
+          name: "Joon-Ho Son",
+          number: 50
+        },
+        onTheRise: {
+          name: "Jane Doe",
+          number: 4
+        },
+
+      }
     })
 
-  }
+  },
 
   this.updateAvailability = function(req, res) {
     // Check bearer token id matches parameter id

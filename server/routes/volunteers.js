@@ -11,6 +11,12 @@ router.get("/:id/shifts", controller.listShiftsByVolunteerId);
 /* Get stats for a volunteer */
 router.get("/:id/stats", controller.getStats);
 
+/* Get activity for a volunteer */
+router.get("/:id/activity", controller.getActivity);
+
+/* Get hall of fame of volunteers */
+router.get("/hall-of-fame", controller.getHallOfFame);
+
 /* Update availability for a volunteer */
 router.put("/:id/availability", controller.updateAvailability);
 
