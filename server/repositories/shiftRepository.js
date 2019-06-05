@@ -42,7 +42,8 @@ var ShiftRepository = Object.create(ShiftRepositoryInterface);
         shiftRequirements.push({
           roleName: roleRequired.roleName,
           shiftId: shift.id,
-          numberRequired: roleRequired.number
+          numberRequired: roleRequired.number,
+          expectedShortage: roleRequired.number
         });
       });
       return ShiftRequirement.bulkCreate(shiftRequirements);
@@ -112,7 +113,8 @@ ShiftRepository.updateRoles = function(shift, rolesRequired) {
         shiftRequirements.push({
           roleName: roleRequired.roleName,
           shiftId: shift.id,
-          numberRequired: roleRequired.number
+          numberRequired: roleRequired.number,
+          expectedShortage: roleRequired.number
         });
       });
       return ShiftRequirement.bulkCreate(shiftRequirements);
@@ -134,7 +136,8 @@ ShiftRepository.addAll = function(shifts, rolesRequired) {
           shiftRequirements.push({
             shiftId: shift.id,
             roleName: roleRequired.roleName,
-            numberRequired: roleRequired.number
+            numberRequired: roleRequired.number,
+            expectedShortage: roleRequired.number
           });
         });
       });
@@ -208,10 +211,6 @@ ShiftRepository.getAll = function(attributes) {
     .catch(err => deferred.reject(err));
 
   return deferred.promise;
-};
-
-ShiftRepository.getAllRecommended = function() {
-  
 };
 
 ShiftRepository.getById = function(id) {
