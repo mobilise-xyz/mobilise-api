@@ -1,10 +1,10 @@
 var request = require('supertest');
-var app = require('../app');
+var app = require('../../app');
 var chai = require('chai');
 
 var expect = chai.expect;
 
-const Seeded = require('../server/utils/seeded');
+const Seeded = require('../../server/utils/seeded');
 
 describe('Login user', function() {
 

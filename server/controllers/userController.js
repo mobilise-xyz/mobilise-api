@@ -27,15 +27,7 @@ var UserController = function(userRepository) {
 
   }
 
-  this.getContactPreferences = function(req, res) {
-
-    // Check bearer token id matches parameter id
-    if (req.user.id != req.params.id) {
-      res
-        .status(401)
-        .send({ message: "You can only view your own contact preferences." });
-      return;
-    }
+  this.getContactPreferences = function(req, res) { 
 
     res.status(200).send({
       email: true,
