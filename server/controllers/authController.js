@@ -2,7 +2,7 @@ const userRepository = require('../repositories').UserRepository;
 const volunteerRepository = require('../repositories').VolunteerRepository;
 const adminRepository = require('../repositories').AdminRepository;
 
-const UserContactPreferences = require('../models').UserContactPreferences;
+const UserContactPreference = require('../models').UserContactPreference;
 
 var bcrypt = require('bcryptjs');
 var config = require('../config/config.js');
@@ -38,7 +38,7 @@ var AuthController = function(userRepository, volunteerRepository, adminReposito
       .then(async(user) => {
 
         // Create entry for user's contact preferences
-        await UserContactPreferences.create({ userId: user.id })
+        await UserContactPreference.create({ userId: user.id })
 
         return user
       })

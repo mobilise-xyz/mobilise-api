@@ -1,7 +1,7 @@
 'use strict';
 
 module.exports = (sequelize, DataTypes) => {
-  const UserContactPreferences = sequelize.define('UserContactPreferences', {
+  const UserContactPreference = sequelize.define('UserContactPreference', {
     userId: {
       type: DataTypes.UUID,
       allowNull: false,
@@ -19,14 +19,14 @@ module.exports = (sequelize, DataTypes) => {
     }
   }, {});
 
-  UserContactPreferences.associate = function(models) {
+  UserContactPreference.associate = function(models) {
     
-    UserContactPreferences.belongsTo(models.User, {
+    UserContactPreference.belongsTo(models.User, {
       as: "user",
       foreignKey: "userId"
     })
 
   };
   
-  return UserContactPreferences;
+  return UserContactPreference;
 };
