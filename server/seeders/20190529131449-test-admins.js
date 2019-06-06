@@ -6,14 +6,14 @@ module.exports = {
   up: (queryInterface, Sequelize) => {
     return queryInterface.bulkInsert('Admins', [
       {
-        userId: Seeded.admin.UUID,
-        createdAt: Seeded.admin.createdAt,
-        updatedAt: Seeded.admin.updatedAt
+        userId: Seeded.admins[0].UUID,
+        createdAt: Seeded.admins[0].createdAt,
+        updatedAt: Seeded.admins[0].updatedAt
       }
   ], {});
   },
 
   down: (queryInterface, Sequelize) => {
-    return queryInterface.bulkDelete('Admins', {userId : Seeded.admin.UUID});
+    return queryInterface.bulkDelete('Admins', {userId : Seeded.admins[0].UUID});
   }
 };

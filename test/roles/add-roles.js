@@ -1,8 +1,8 @@
 var request = require('supertest');
-var app = require('../app');
-const Role = require('../server/models').Role;
+var app = require('../../app');
+const Role = require('../../server/models').Role;
 
-const Seeded = require('../server/utils/seeded');
+const Seeded = require('../../server/utils/seeded');
 
 const test = {
   role: {
@@ -36,8 +36,8 @@ describe('Add roles', function() {
       .post('/auth/login')
       .send(
         {
-          email: Seeded.volunteer.email,
-          password: Seeded.volunteer.password
+          email: Seeded.volunteers[0].email,
+          password: Seeded.volunteers[0].password
         }
       )
       .set('Accept', 'application/json')
@@ -64,8 +64,8 @@ describe('Add roles', function() {
       .post('/auth/login')
       .send(
         {
-          email: Seeded.admin.email,
-          password: Seeded.admin.password
+          email: Seeded.admins[0].email,
+          password: Seeded.admins[0].password
         }
       )
       .set('Accept', 'application/json')
@@ -92,8 +92,8 @@ describe('Add roles', function() {
       .post('/auth/login')
       .send(
         {
-          email: Seeded.admin.email,
-          password: Seeded.admin.password
+          email: Seeded.admins[0].email,
+          password: Seeded.admins[0].password
         }
       )
       .set('Accept', 'application/json')
@@ -104,8 +104,8 @@ describe('Add roles', function() {
           .post('/roles')
           .send(
             {
-              name: Seeded.role.name,
-              involves: Seeded.role.involves,
+              name: Seeded.roles[0].name,
+              involves: Seeded.roles[0].involves,
             }
           )
           .set('Accept', 'application/json')
@@ -115,35 +115,3 @@ describe('Add roles', function() {
   })
 
 });
-
-
-describe('Retrieve roles', function() {
-  it('Does not allow unauthorised requests to get roles', function(done) {
-    request(app)
-      .get('/roles')
-      .set('Accept', 'application/json')
-      .expect(401, done);
-  });
-
-  it('Allows authorised request to get roles', function(done) {
-    // Acquire bearer token
-    request(app)
-      .post('/auth/login')
-      .send(
-        {
-          email: Seeded.volunteer.email,
-          password: Seeded.volunteer.password
-        }
-      )
-      .set('Accept', 'application/json')
-      .expect(200)
-      .then(response => {
-        // Use bearer token to get roles
-        request(app)
-        .get('/roles')
-        .set('Authorization', 'Bearer '+response.body.token)
-        .set('Accept', 'application/json')
-        .expect(200, done);
-      });
-  });
-})

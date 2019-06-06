@@ -1,7 +1,7 @@
 var request = require("supertest");
-var app = require("../app");
+var app = require("../../app");
 
-const Seeded = require('../server/utils/seeded');
+const Seeded = require('../../server/utils/seeded');
 
 const test = {
   shift: {
@@ -37,8 +37,8 @@ describe("Add shifts", function() {
     request(app)
       .post("/auth/login")
       .send({
-        email: Seeded.volunteer.email,
-        password: Seeded.volunteer.password
+        email: Seeded.volunteers[0].email,
+        password: Seeded.volunteers[0].password
       })
       .set("Accept", "application/json")
       .expect(200)
@@ -66,8 +66,8 @@ describe("Add shifts", function() {
     request(app)
       .post("/auth/login")
       .send({
-        email: Seeded.admin.email,
-        password: Seeded.admin.password
+        email: Seeded.admins[0].email,
+        password: Seeded.admins[0].password
       })
       .set("Accept", "application/json")
       .expect(200)
@@ -87,64 +87,6 @@ describe("Add shifts", function() {
           .set("Authorization", "Bearer " + response.body.token)
           .set("Accept", "application/json")
           .expect(201, done);
-      });
-  });
-});
-
-describe("Retrieve Shifts", function() {
-  it("Does not allow unauthorised requests to get shifts", function(done) {
-    request(app)
-      .get("/shifts")
-      .set("Accept", "application/json")
-      .expect(401, done);
-  });
-
-  it("Allows authorised request to get shifts", function(done) {
-    // Acquire bearer token
-    request(app)
-      .post("/auth/login")
-      .send({
-        email: Seeded.volunteer.email,
-        password: Seeded.volunteer.password
-      })
-      .set("Accept", "application/json")
-      .expect(200)
-      .then(response => {
-        // Use bearer token to get shifts
-        request(app)
-          .get("/shifts")
-          .set("Authorization", "Bearer " + response.body.token)
-          .set("Accept", "application/json")
-          .expect(200, done);
-      });
-  });
-});
-
-describe("Retrieve Shift Titles", function() {
-  it("Does not allow unauthorised requests to get shift titles", function(done) {
-    request(app)
-      .get("/shifts/titles")
-      .set("Accept", "application/json")
-      .expect(401, done);
-  });
-
-  it("Allows authorised request to get shift titles", function(done) {
-    // Acquire bearer token
-    request(app)
-      .post("/auth/login")
-      .send({
-        email: Seeded.volunteer.email,
-        password: Seeded.volunteer.password
-      })
-      .set("Accept", "application/json")
-      .expect(200)
-      .then(response => {
-        // Use bearer token to get shifts
-        request(app)
-          .get("/shifts/titles")
-          .set("Authorization", "Bearer " + response.body.token)
-          .set("Accept", "application/json")
-          .expect(200, done);
       });
   });
 });

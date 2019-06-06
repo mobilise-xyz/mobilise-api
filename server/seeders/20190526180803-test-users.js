@@ -7,32 +7,49 @@ module.exports = {
   up: (queryInterface, Sequelize) => {
       return queryInterface.bulkInsert('Users', [
         {
-          id: Seeded.volunteer.UUID,
-          firstName: Seeded.volunteer.firstName,
-          lastName: Seeded.volunteer.lastName,
-          email: Seeded.volunteer.email,
-          password: bcrypt.hashSync(Seeded.volunteer.password, bcrypt.genSaltSync(8), null),
-          isAdmin: Seeded.volunteer.isAdmin,
-          dob: Seeded.volunteer.dob,
-          createdAt: Seeded.volunteer.createdAt,
-          updatedAt: Seeded.volunteer.updatedAt
+          id: Seeded.volunteers[0].UUID,
+          firstName: Seeded.volunteers[0].firstName,
+          lastName: Seeded.volunteers[0].lastName,
+          email: Seeded.volunteers[0].email,
+          password: bcrypt.hashSync(Seeded.volunteers[0].password, bcrypt.genSaltSync(8), null),
+          isAdmin: Seeded.volunteers[0].isAdmin,
+          dob: Seeded.volunteers[0].dob,
+          createdAt: Seeded.volunteers[0].createdAt,
+          updatedAt: Seeded.volunteers[0].updatedAt
         },
         {
-          id: Seeded.admin.UUID,
-          firstName: Seeded.admin.firstName,
-          lastName: Seeded.admin.lastName,
-          email: Seeded.admin.email,
-          password: bcrypt.hashSync(Seeded.admin.password, bcrypt.genSaltSync(8), null),
-          isAdmin: Seeded.admin.isAdmin,
-          dob: Seeded.admin.dob,
-          createdAt: Seeded.admin.createdAt,
-          updatedAt: Seeded.admin.updatedAt
+          id: Seeded.volunteers[1].UUID,
+          firstName: Seeded.volunteers[1].firstName,
+          lastName: Seeded.volunteers[1].lastName,
+          email: Seeded.volunteers[1].email,
+          password: bcrypt.hashSync(Seeded.volunteers[1].password, bcrypt.genSaltSync(8), null),
+          isAdmin: Seeded.volunteers[1].isAdmin,
+          dob: Seeded.volunteers[1].dob,
+          createdAt: Seeded.volunteers[1].createdAt,
+          updatedAt: Seeded.volunteers[1].updatedAt
+        },
+        {
+          id: Seeded.admins[0].UUID,
+          firstName: Seeded.admins[0].firstName,
+          lastName: Seeded.admins[0].lastName,
+          email: Seeded.admins[0].email,
+          password: bcrypt.hashSync(Seeded.admins[0].password, bcrypt.genSaltSync(8), null),
+          isAdmin: Seeded.admins[0].isAdmin,
+          dob: Seeded.admins[0].dob,
+          createdAt: Seeded.admins[0].createdAt,
+          updatedAt: Seeded.admins[0].updatedAt
         }
     ], {});
     
   },
 
   down: (queryInterface, Sequelize) => {
-      return queryInterface.bulkDelete('Users', {id: [Seeded.volunteer.UUID, Seeded.admin.UUID]});
+      return queryInterface.bulkDelete('Users', {
+        id: [
+          Seeded.volunteers[0].UUID,
+          Seeded.volunteers[1].UUID, 
+          Seeded.admins[0].UUID
+        ]
+      });
   }
 };
