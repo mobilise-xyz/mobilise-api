@@ -9,6 +9,7 @@ module.exports = {
         {
           name: Seeded.role.name,
           involves: Seeded.role.involves,
+          colour: Seeded.role.colour,
           createdAt: Seeded.role.createdAt,
           updatedAt: Seeded.role.updatedAt
         }

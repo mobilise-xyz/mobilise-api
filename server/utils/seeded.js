@@ -30,6 +30,7 @@ module.exports = {
   role: {
     name: 'Seeded Role',
     involves: 'Testing',
+    colour: '#2C72DC',
     createdAt: '2019-06-06',
     updatedAt: '2019-06-06'
   }
