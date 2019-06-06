@@ -3,10 +3,21 @@ module.exports = {
   // Seeded admin details
   admins: [
     {
-      email: 'seededadmin@testing.com',
+      email: 'seededadmin1@testing.com',
       password: 'Admin123',
       UUID: '8fa1b90c-80b6-11e9-bc42-526af7764f00',
-      firstName: 'Seeded',
+      firstName: 'Seeded Admin 1',
+      lastName: 'Adminson',
+      isAdmin: true,
+      dob: '1997-11-25',
+      createdAt: '2019-06-06',
+      updatedAt: '2019-06-06'
+    },
+    {
+      email: 'seededadmin2@testing.com',
+      password: 'Admin123',
+      UUID: '8fa1b90c-80b6-11e9-bc42-526af7764f01',
+      firstName: 'Seeded Admin 2',
       lastName: 'Adminson',
       isAdmin: true,
       dob: '1997-11-25',
