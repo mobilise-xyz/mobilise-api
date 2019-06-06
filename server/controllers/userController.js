@@ -27,15 +27,7 @@ var UserController = function(userRepository) {
 
   }
 
-  this.getContactPreferences = function(req, res) {
-
-    // Check request validity
-    // 1) Request made by admin 
-    // 2) Request made by volunteer for their own info
-    if (!req.user.isAdmin && (req.user.id != req.params.id)) {
-      res.status(401).send({ message: "Unauthorised request" });
-      return;
-    } 
+  this.getContactPreferences = function(req, res) { 
 
     res.status(200).send({
       email: true,

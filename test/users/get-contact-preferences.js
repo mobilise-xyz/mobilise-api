@@ -12,26 +12,6 @@ describe('Getting contact information', function() {
       .expect(401, done);
   });
 
-  it('Does not allow volunteer to retrieve contact preferences of another volunteer by id', function(done) {
-    request(app)
-      .post('/auth/login')
-      .send(
-          {
-          email: Seeded.volunteers[0].email,
-          password: Seeded.volunteers[0].password
-          }
-      )
-      .set('Accept', 'application/json')
-      .expect(200)
-      .then((response) => {
-          request(app)
-          .get(`/users/${Seeded.volunteers[1].UUID}/contact-preferences`)
-          .set('Authorization', 'Bearer '+response.body.token)
-          .set('Accept', 'application/json')
-          .expect(401, done);
-      })
-  });
-
   it('Allows a volunteer to retrieve their own contact preferences', function(done) {
     request(app)
       .post('/auth/login')
@@ -86,6 +66,26 @@ describe('Getting contact information', function() {
       .then((response) => {
           request(app)
           .get(`/users/${Seeded.volunteers[0].UUID}/contact-preferences`)
+          .set('Authorization', 'Bearer '+response.body.token)
+          .set('Accept', 'application/json')
+          .expect(200, done);
+      })
+  });
+
+  it('Allows a volunteer to retrieve contact preferences of an admin', function(done) {
+    request(app)
+      .post('/auth/login')
+      .send(
+          {
+          email: Seeded.volunteers[0].email,
+          password: Seeded.volunteers[0].password
+          }
+      )
+      .set('Accept', 'application/json')
+      .expect(200)
+      .then((response) => {
+          request(app)
+          .get(`/users/${Seeded.admins[0].UUID}/contact-preferences`)
           .set('Authorization', 'Bearer '+response.body.token)
           .set('Accept', 'application/json')
           .expect(200, done);
