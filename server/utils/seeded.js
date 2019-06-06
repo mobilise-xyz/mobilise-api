@@ -11,7 +11,8 @@ module.exports = {
       isAdmin: true,
       dob: '1997-11-25',
       createdAt: '2019-06-06',
-      updatedAt: '2019-06-06'
+      updatedAt: '2019-06-06',
+      telephone: '07979797979'
     },
     {
       email: 'seededadmin2@testing.com',
@@ -22,7 +23,8 @@ module.exports = {
       isAdmin: true,
       dob: '1997-11-25',
       createdAt: '2019-06-06',
-      updatedAt: '2019-06-06'
+      updatedAt: '2019-06-06',
+      telephone: '07979797979'
     }
   ],
 
@@ -37,7 +39,8 @@ module.exports = {
       isAdmin: false,
       dob: '1997-11-25',
       createdAt: '2019-06-06',
-      updatedAt: '2019-06-06'
+      updatedAt: '2019-06-06',
+      telephone: '07979797979'
     },
     {
       email: 'seededvolunteer2@testing.com',
@@ -48,7 +51,8 @@ module.exports = {
       isAdmin: false,
       dob: '1997-11-25',
       createdAt: '2019-06-06',
-      updatedAt: '2019-06-06'
+      updatedAt: '2019-06-06',
+      telephone: '07979797979'
     }
   ],
 
