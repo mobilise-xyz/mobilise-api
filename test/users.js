@@ -1,19 +1,12 @@
 var request = require('supertest');
 var app = require('../app');
-var chai = require('chai');
 
-var expect = chai.expect;
-
-const adminEmail = 'seededadmin@testing.com';
-const adminPassword = 'Admin123';
-
-const volunteerEmail = 'seededvolunteer@testing.com';
-const volunteerPassword = 'Volunteer123';
+const Seeded = require('../server/utils/seeded');
 
 describe('Retrieving users', function() {
   it('Unauthorised user cannot retrieve a user by id', function(done) {
     request(app)
-      .get('/users/8fa1b3d0-80b6-11e9-bc42-526af7764f65')
+      .get(`/users/${Seeded.volunteer.UUID}`)
       .set('Accept', 'application/json')
       .expect(401, done);
   });
@@ -23,15 +16,15 @@ describe('Retrieving users', function() {
       .post('/auth/login')
       .send(
           {
-          email: adminEmail,
-          password: adminPassword
+          email: Seeded.admin.email,
+          password: Seeded.admin.password
           }
       )
       .set('Accept', 'application/json')
       .expect(200)
       .then((response) => {
           request(app)
-          .get('/users/8fa1b3d0-80b6-11e9-bc42-526af7764f65')
+          .get(`/users/${Seeded.volunteer.UUID}`)
           .set('Authorization', 'Bearer '+response.body.token)
           .set('Accept', 'application/json')
           .expect(200, done);
