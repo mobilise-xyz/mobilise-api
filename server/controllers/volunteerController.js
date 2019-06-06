@@ -26,6 +26,41 @@ var VolunteerController = function(volunteerRepository, shiftRepository) {
       .catch(err => res.status(500).send(err));
   };
 
+  this.getContactPreferences = function(req, res) {
+
+    // Check bearer token id matches parameter id
+    if (req.user.id != req.params.id) {
+      res
+        .status(401)
+        .send({ message: "You can only view your own contact preferences." });
+      return;
+    }
+
+    res.status(200).send({
+      email: true,
+      text: true 
+    })
+
+  };
+
+  this.updateContactPreferences = function(req, res) {
+
+    // Check bearer token id matches parameter id
+    if (req.user.id != req.params.id) {
+      res
+        .status(401)
+        .send({ message: "You can only update your own contact preferences." });
+      return;
+    }
+
+    res.status(200).send({
+      message: "Updated contact preferences",
+      email: req.body.email,
+      text: req.body.text 
+    })
+
+  };
+
   this.getStats = function(req, res) {
     
     // Check bearer token id matches parameter id
