@@ -68,7 +68,14 @@ module.exports = {
     {
       name: 'Warehouse Assistant',
       involves: 'Organising and Sorting Food',
-      colour: '#2C72DC',
+      colour: '#F08080',
+      createdAt: '2019-06-06',
+      updatedAt: '2019-06-06'
+    },
+    {
+      name: 'Floral Designer',
+      involves: 'Showcasing flowers',
+      colour: '#BCE7FD',
       createdAt: '2019-06-06',
       updatedAt: '2019-06-06'
     }
@@ -107,7 +114,13 @@ module.exports = {
       address: 'Royal Chelsea Hospital, Chelsea',
       creatorId: '8fa1b90c-80b6-11e9-bc42-526af7764f01',
       createdAt: '2019-06-06',
-      updatedAt: '2019-06-06'
+      updatedAt: '2019-06-06',
+      rolesRequired: [
+        {
+          roleName: 'Floral Designer',
+          number: 20
+        }
+      ]
     }
   ]
 }
