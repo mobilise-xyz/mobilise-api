@@ -6,8 +6,8 @@ module.exports = {
       email: 'seededadmin1@testing.com',
       password: 'Admin123',
       UUID: '8fa1b90c-80b6-11e9-bc42-526af7764f00',
-      firstName: 'Seeded Admin 1',
-      lastName: 'Adminson',
+      firstName: 'Jane',
+      lastName: 'Doe',
       isAdmin: true,
       dob: '1997-11-25',
       createdAt: '2019-06-06',
@@ -18,8 +18,8 @@ module.exports = {
       email: 'seededadmin2@testing.com',
       password: 'Admin123',
       UUID: '8fa1b90c-80b6-11e9-bc42-526af7764f01',
-      firstName: 'Seeded Admin 2',
-      lastName: 'Adminson',
+      firstName: 'Jane',
+      lastName: 'Doe',
       isAdmin: true,
       dob: '1997-11-25',
       createdAt: '2019-06-06',
@@ -34,8 +34,8 @@ module.exports = {
       email: 'seededvolunteer1@testing.com',
       password: 'Volunteer123',
       UUID: '8fa1b3d0-80b6-11e9-bc42-526af7764f50',
-      firstName: 'Seeded Volunteer 1',
-      lastName: 'Volunteerson',
+      firstName: 'Dave',
+      lastName: 'Hughes',
       isAdmin: false,
       dob: '1997-11-25',
       createdAt: '2019-06-06',
@@ -46,8 +46,8 @@ module.exports = {
       email: 'seededvolunteer2@testing.com',
       password: 'Volunteer123',
       UUID: '8fa1b3d0-80b6-11e9-bc42-526af7764f51',
-      firstName: 'Seeded Volunteer 2',
-      lastName: 'Volunteerson',
+      firstName: 'Dave',
+      lastName: 'Hughes',
       isAdmin: false,
       dob: '1997-11-25',
       createdAt: '2019-06-06',
@@ -59,8 +59,15 @@ module.exports = {
   // Seeded role details
   roles: [
     {
-      name: 'Seeded Role',
-      involves: 'Testing',
+      name: `Driver's Mate`,
+      involves: 'Heavy Lifting',
+      colour: '#2C72DC',
+      createdAt: '2019-06-06',
+      updatedAt: '2019-06-06'
+    },
+    {
+      name: 'Warehouse Assistant',
+      involves: 'Organising and Sorting Food',
       colour: '#2C72DC',
       createdAt: '2019-06-06',
       updatedAt: '2019-06-06'
@@ -69,31 +76,38 @@ module.exports = {
 
   shifts: [
     {
-      title: 'Seeded Shift 1',
-      description: 'Description',
+      UUID: 'f2e8f0a3-16fc-465e-b80c-9aa573f6dc00',
+      title: 'Food Pickup',
+      description: 'Collect food from Food Bank',
       date: '2019-07-08',
       start: '16:00',
       stop: '18:00',
-      repeatedType: 'Never',
-      address: 'SW72AZ'
+      address: 'Food Bank, Acton',
+      creatorId: '8fa1b90c-80b6-11e9-bc42-526af7764f01',
+      createdAt: '2019-06-06',
+      updatedAt: '2019-06-06',
+      rolesRequired: [
+        {
+          roleName: `Driver's Mate`,
+          number: 10
+        },
+        {
+          roleName: 'Warehouse Assistant',
+          number: 5
+        }
+      ]
     },
     {
-      title: 'Seeded Shift 2',
-      description: 'Description',
+      UUID: 'f2e8f0a3-16fc-465e-b80c-9aa573f6dc01',
+      title: 'Chelsea Flower Show',
+      description: 'Volunteer for a better tomorrow',
       date: '2019-07-10',
       start: '16:00',
       stop: '18:00',
-      repeatedType: 'Never',
-      address: 'SW72AZ'
-    },
-    {
-      title: 'Seeded Shift 3',
-      description: 'Description',
-      date: '2019-07-10',
-      start: '10:00',
-      stop: '11:00',
-      repeatedType: 'Never',
-      address: 'SW72AZ'
+      address: 'Royal Chelsea Hospital, Chelsea',
+      creatorId: '8fa1b90c-80b6-11e9-bc42-526af7764f01',
+      createdAt: '2019-06-06',
+      updatedAt: '2019-06-06'
     }
   ]
 }
