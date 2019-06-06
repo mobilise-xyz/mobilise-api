@@ -14,7 +14,8 @@ UserRepository.add = function(user, hash) {
         email: user.email,
         password: hash,
         isAdmin: user.isAdmin,
-        dob: user.dob
+        dob: user.dob,
+        telephone: user.telephone
     })
     .then(user => deferred.resolve(user))
     .catch(error => deferred.reject(error));
