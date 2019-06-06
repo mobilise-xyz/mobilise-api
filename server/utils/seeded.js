@@ -5,7 +5,7 @@ module.exports = {
     {
       email: 'seededadmin@testing.com',
       password: 'Admin123',
-      UUID: '8fa1b90c-80b6-11e9-bc42-526af7764f64',
+      UUID: '8fa1b90c-80b6-11e9-bc42-526af7764f00',
       firstName: 'Seeded',
       lastName: 'Adminson',
       isAdmin: true,
@@ -18,10 +18,21 @@ module.exports = {
   // Seeded volunteer details
   volunteers: [
     {
-      email: 'seededvolunteer@testing.com',
+      email: 'seededvolunteer1@testing.com',
       password: 'Volunteer123',
-      UUID: '8fa1b3d0-80b6-11e9-bc42-526af7764f65',
-      firstName: 'Seeded',
+      UUID: '8fa1b3d0-80b6-11e9-bc42-526af7764f50',
+      firstName: 'Seeded Volunteer 1',
+      lastName: 'Volunteerson',
+      isAdmin: false,
+      dob: '1997-11-25',
+      createdAt: '2019-06-06',
+      updatedAt: '2019-06-06'
+    },
+    {
+      email: 'seededvolunteer2@testing.com',
+      password: 'Volunteer123',
+      UUID: '8fa1b3d0-80b6-11e9-bc42-526af7764f51',
+      firstName: 'Seeded Volunteer 2',
       lastName: 'Volunteerson',
       isAdmin: false,
       dob: '1997-11-25',
