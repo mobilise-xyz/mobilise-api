@@ -6,6 +6,8 @@ const Seeded = require('../utils/seeded');
 module.exports = {
   up: (queryInterface, Sequelize) => {
       return queryInterface.bulkInsert('Users', [
+
+        // Volunteers
         {
           id: Seeded.volunteers[0].UUID,
           firstName: Seeded.volunteers[0].firstName,
@@ -28,6 +30,8 @@ module.exports = {
           createdAt: Seeded.volunteers[1].createdAt,
           updatedAt: Seeded.volunteers[1].updatedAt
         },
+
+        // Admins
         {
           id: Seeded.admins[0].UUID,
           firstName: Seeded.admins[0].firstName,
@@ -38,6 +42,17 @@ module.exports = {
           dob: Seeded.admins[0].dob,
           createdAt: Seeded.admins[0].createdAt,
           updatedAt: Seeded.admins[0].updatedAt
+        },
+        {
+          id: Seeded.admins[1].UUID,
+          firstName: Seeded.admins[1].firstName,
+          lastName: Seeded.admins[1].lastName,
+          email: Seeded.admins[1].email,
+          password: bcrypt.hashSync(Seeded.admins[1].password, bcrypt.genSaltSync(8), null),
+          isAdmin: Seeded.admins[1].isAdmin,
+          dob: Seeded.admins[1].dob,
+          createdAt: Seeded.admins[1].createdAt,
+          updatedAt: Seeded.admins[1].updatedAt
         }
     ], {});
     
@@ -48,7 +63,8 @@ module.exports = {
         id: [
           Seeded.volunteers[0].UUID,
           Seeded.volunteers[1].UUID, 
-          Seeded.admins[0].UUID
+          Seeded.admins[0].UUID,
+          Seeded.admins[1].UUID
         ]
       });
   }
