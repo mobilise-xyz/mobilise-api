@@ -36,8 +36,8 @@ describe('Add roles', function() {
       .post('/auth/login')
       .send(
         {
-          email: Seeded.volunteer.email,
-          password: Seeded.volunteer.password
+          email: Seeded.volunteers[0].email,
+          password: Seeded.volunteers[0].password
         }
       )
       .set('Accept', 'application/json')
@@ -64,8 +64,8 @@ describe('Add roles', function() {
       .post('/auth/login')
       .send(
         {
-          email: Seeded.admin.email,
-          password: Seeded.admin.password
+          email: Seeded.admins[0].email,
+          password: Seeded.admins[0].password
         }
       )
       .set('Accept', 'application/json')
@@ -92,8 +92,8 @@ describe('Add roles', function() {
       .post('/auth/login')
       .send(
         {
-          email: Seeded.admin.email,
-          password: Seeded.admin.password
+          email: Seeded.admins[0].email,
+          password: Seeded.admins[0].password
         }
       )
       .set('Accept', 'application/json')
@@ -104,8 +104,8 @@ describe('Add roles', function() {
           .post('/roles')
           .send(
             {
-              name: Seeded.role.name,
-              involves: Seeded.role.involves,
+              name: Seeded.roles[0].name,
+              involves: Seeded.roles[0].involves,
             }
           )
           .set('Accept', 'application/json')
@@ -131,8 +131,8 @@ describe('Retrieve roles', function() {
       .post('/auth/login')
       .send(
         {
-          email: Seeded.volunteer.email,
-          password: Seeded.volunteer.password
+          email: Seeded.volunteers[0].email,
+          password: Seeded.volunteers[0].password
         }
       )
       .set('Accept', 'application/json')
@@ -151,9 +151,9 @@ describe('Retrieve roles', function() {
 
     after(function() {
       Role.create({
-        name: Seeded.role.name,
-        involves: Seeded.role.involves,
-        colour: Seeded.role.colour
+        name: Seeded.roles[0].name,
+        involves: Seeded.roles[0].involves,
+        colour: Seeded.roles[0].colour
       })
     })
 
@@ -161,7 +161,7 @@ describe('Retrieve roles', function() {
       request(app)
         .delete('/roles')
         .send({
-          name: Seeded.role.name
+          name: Seeded.roles[0].name
         })
         .set('Accept', 'application/json')
         .expect(401, done);
@@ -173,8 +173,8 @@ describe('Retrieve roles', function() {
         .post('/auth/login')
         .send(
           {
-            email: Seeded.volunteer.email,
-            password: Seeded.volunteer.password
+            email: Seeded.volunteers[0].email,
+            password: Seeded.volunteers[0].password
           }
         )
         .set('Accept', 'application/json')
@@ -185,7 +185,7 @@ describe('Retrieve roles', function() {
             .delete('/roles')
             .send(
               {
-                name: Seeded.role.name,
+                name: Seeded.roles[0].name,
               }
             )
             .set('Accept', 'application/json')
@@ -200,8 +200,8 @@ describe('Retrieve roles', function() {
         .post('/auth/login')
         .send(
           {
-            email: Seeded.admin.email,
-            password: Seeded.admin.password
+            email: Seeded.admins[0].email,
+            password: Seeded.admins[0].password
           }
         )
         .set('Accept', 'application/json')
@@ -212,7 +212,7 @@ describe('Retrieve roles', function() {
             .delete('/roles')
             .send(
               {
-                name: Seeded.role.name,
+                name: Seeded.roles[0].name,
               }
             )
             .set('Accept', 'application/json')

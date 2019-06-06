@@ -37,8 +37,8 @@ describe("Add shifts", function() {
     request(app)
       .post("/auth/login")
       .send({
-        email: Seeded.volunteer.email,
-        password: Seeded.volunteer.password
+        email: Seeded.volunteers[0].email,
+        password: Seeded.volunteers[0].password
       })
       .set("Accept", "application/json")
       .expect(200)
@@ -66,8 +66,8 @@ describe("Add shifts", function() {
     request(app)
       .post("/auth/login")
       .send({
-        email: Seeded.admin.email,
-        password: Seeded.admin.password
+        email: Seeded.admins[0].email,
+        password: Seeded.admins[0].password
       })
       .set("Accept", "application/json")
       .expect(200)
@@ -104,8 +104,8 @@ describe("Retrieve Shifts", function() {
     request(app)
       .post("/auth/login")
       .send({
-        email: Seeded.volunteer.email,
-        password: Seeded.volunteer.password
+        email: Seeded.volunteers[0].email,
+        password: Seeded.volunteers[0].password
       })
       .set("Accept", "application/json")
       .expect(200)
@@ -133,8 +133,8 @@ describe("Retrieve Shift Titles", function() {
     request(app)
       .post("/auth/login")
       .send({
-        email: Seeded.volunteer.email,
-        password: Seeded.volunteer.password
+        email: Seeded.volunteers[0].email,
+        password: Seeded.volunteers[0].password
       })
       .set("Accept", "application/json")
       .expect(200)

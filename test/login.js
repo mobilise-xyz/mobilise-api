@@ -8,13 +8,13 @@ const Seeded = require('../server/utils/seeded');
 
 describe('Login user', function() {
 
-  it('Approves correct credentials for volunteer', function(done) {
+  it('Approves correct credentials for volunteers[0]', function(done) {
     request(app)
       .post('/auth/login')
       .send(
         {
-          email: Seeded.volunteer.email,
-          password: Seeded.volunteer.password
+          email: Seeded.volunteers[0].email,
+          password: Seeded.volunteers[0].password
         }
         )
       .set('Accept', 'application/json')
@@ -32,13 +32,13 @@ describe('Login user', function() {
       })
   });
 
-  it('Approves correct credentials for admin', function(done) {
+  it('Approves correct credentials for admins[0]', function(done) {
     request(app)
       .post('/auth/login')
       .send(
         {
-          email: Seeded.admin.email,
-          password: Seeded.admin.password
+          email: Seeded.admins[0].email,
+          password: Seeded.admins[0].password
         }
         )
       .set('Accept', 'application/json')
@@ -62,19 +62,19 @@ describe('Login user', function() {
       .send(
         {
           email: 'incorrectvolunteer@testing.com',
-          password: Seeded.volunteer.password
+          password: Seeded.volunteers[0].password
         }
         )
       .set('Accept', 'application/json')
       .expect(400, done);
   });
 
-  it('Rejects invalid password for volunteer', function(done) {
+  it('Rejects invalid password for volunteers[0]', function(done) {
     request(app)
       .post('/auth/login')
       .send(
         {
-          email: Seeded.volunteer.email,
+          email: Seeded.volunteers[0].email,
           password: 'Invalid123'
         }
         )
@@ -82,12 +82,12 @@ describe('Login user', function() {
       .expect(400, done);
   });
 
-  it('Rejects invalid password for admin', function(done) {
+  it('Rejects invalid password for admins[0]', function(done) {
     request(app)
       .post('/auth/login')
       .send(
         {
-          email: Seeded.admin.email,
+          email: Seeded.admins[0].email,
           password: 'Invalid123'
         }
         )
