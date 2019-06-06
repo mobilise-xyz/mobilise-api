@@ -11,7 +11,8 @@ module.exports = {
       isAdmin: true,
       dob: '1997-11-25',
       createdAt: '2019-06-06',
-      updatedAt: '2019-06-06'
+      updatedAt: '2019-06-06',
+      telephone: '07979797979'
     },
     {
       email: 'seededadmin2@testing.com',
@@ -22,7 +23,8 @@ module.exports = {
       isAdmin: true,
       dob: '1997-11-25',
       createdAt: '2019-06-06',
-      updatedAt: '2019-06-06'
+      updatedAt: '2019-06-06',
+      telephone: '07979797979'
     }
   ],
 
@@ -37,7 +39,8 @@ module.exports = {
       isAdmin: false,
       dob: '1997-11-25',
       createdAt: '2019-06-06',
-      updatedAt: '2019-06-06'
+      updatedAt: '2019-06-06',
+      telephone: '07979797979'
     },
     {
       email: 'seededvolunteer2@testing.com',
@@ -48,7 +51,8 @@ module.exports = {
       isAdmin: false,
       dob: '1997-11-25',
       createdAt: '2019-06-06',
-      updatedAt: '2019-06-06'
+      updatedAt: '2019-06-06',
+      telephone: '07979797979'
     }
   ],
 
@@ -60,6 +64,36 @@ module.exports = {
       colour: '#2C72DC',
       createdAt: '2019-06-06',
       updatedAt: '2019-06-06'
+    }
+  ],
+
+  shifts: [
+    {
+      title: 'Seeded Shift 1',
+      description: 'Description',
+      date: '2019-07-08',
+      start: '16:00',
+      stop: '18:00',
+      repeatedType: 'Never',
+      address: 'SW72AZ'
+    },
+    {
+      title: 'Seeded Shift 2',
+      description: 'Description',
+      date: '2019-07-10',
+      start: '16:00',
+      stop: '18:00',
+      repeatedType: 'Never',
+      address: 'SW72AZ'
+    },
+    {
+      title: 'Seeded Shift 3',
+      description: 'Description',
+      date: '2019-07-10',
+      start: '10:00',
+      stop: '11:00',
+      repeatedType: 'Never',
+      address: 'SW72AZ'
     }
   ]
 }

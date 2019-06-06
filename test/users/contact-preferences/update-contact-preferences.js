@@ -22,44 +22,38 @@ describe('Updating contact information', function() {
   it('Does not allow a volunteer to update contact preferences of another volunteer', function(done) {
     request(app)
       .post('/auth/login')
-      .send(
-          {
-          email: Seeded.volunteers[0].email,
-          password: Seeded.volunteers[0].password
-          }
-      )
+      .send({
+        email: Seeded.volunteers[0].email,
+        password: Seeded.volunteers[0].password
+      })
       .set('Accept', 'application/json')
       .expect(200)
       .then((response) => {
-          request(app)
-          .put(`/users/${Seeded.volunteers[1].UUID}/contact-preferences`)
-          .send({
-              email: test.contactPreference.email,
-              text: test.contactPreference.text
-          })
-          .set('Authorization', 'Bearer '+response.body.token)
-          .set('Accept', 'application/json')
-          .expect(401, done);
+        request(app)
+        .put(`/users/${Seeded.volunteers[1].UUID}/contact-preferences`)
+        .send({
+            contactPreference: test.contactPreference
+        })
+        .set('Authorization', 'Bearer '+response.body.token)
+        .set('Accept', 'application/json')
+        .expect(401, done);
       })
   });
 
   it('Does not allow a volunteer to update contact preferences of an admin', function(done) {
     request(app)
       .post('/auth/login')
-      .send(
-          {
-          email: Seeded.volunteers[0].email,
-          password: Seeded.volunteers[0].password
-          }
-      )
+      .send({
+        email: Seeded.volunteers[0].email,
+        password: Seeded.volunteers[0].password
+      })
       .set('Accept', 'application/json')
       .expect(200)
       .then((response) => {
           request(app)
           .put(`/users/${Seeded.admins[0].UUID}/contact-preferences`)
           .send({
-              email: test.contactPreference.email,
-              text: test.contactPreference.text
+              contactPreference: test.contactPreference
           })
           .set('Authorization', 'Bearer '+response.body.token)
           .set('Accept', 'application/json')
@@ -67,23 +61,20 @@ describe('Updating contact information', function() {
       })
   });
 
-  it('Does not allow an admin to update contact preferences of an admin', function(done) {
+  it('Does not allow an admin to update contact preferences of another admin', function(done) {
     request(app)
       .post('/auth/login')
-      .send(
-          {
-          email: Seeded.admins[0].email,
-          password: Seeded.admins[0].password
-          }
-      )
+      .send({
+        email: Seeded.admins[0].email,
+        password: Seeded.admins[0].password
+      })
       .set('Accept', 'application/json')
       .expect(200)
       .then((response) => {
           request(app)
           .put(`/users/${Seeded.admins[1].UUID}/contact-preferences`)
           .send({
-              email: test.contactPreference.email,
-              text: test.contactPreference.text
+            contactPreference: test.contactPreference
           })
           .set('Authorization', 'Bearer '+response.body.token)
           .set('Accept', 'application/json')
@@ -94,20 +85,17 @@ describe('Updating contact information', function() {
   it('Does not allow an admin to update contact preferences of a volunteer', function(done) {
     request(app)
       .post('/auth/login')
-      .send(
-          {
-          email: Seeded.admins[0].email,
-          password: Seeded.admins[0].password
-          }
-      )
+      .send({
+        email: Seeded.admins[0].email,
+        password: Seeded.admins[0].password
+      })
       .set('Accept', 'application/json')
       .expect(200)
       .then((response) => {
           request(app)
           .put(`/users/${Seeded.volunteers[0].UUID}/contact-preferences`)
           .send({
-              email: test.contactPreference.email,
-              text: test.contactPreference.text
+            contactPreference: test.contactPreference
           })
           .set('Authorization', 'Bearer '+response.body.token)
           .set('Accept', 'application/json')
@@ -118,20 +106,17 @@ describe('Updating contact information', function() {
   it('Allows a volunteer to update their own contact preferences', function(done) {
     request(app)
       .post('/auth/login')
-      .send(
-          {
-          email: Seeded.volunteers[0].email,
-          password: Seeded.volunteers[0].password
-          }
-      )
+      .send({
+        email: Seeded.volunteers[0].email,
+        password: Seeded.volunteers[0].password
+      })
       .set('Accept', 'application/json')
       .expect(200)
       .then((response) => {
           request(app)
           .put(`/users/${Seeded.volunteers[0].UUID}/contact-preferences`)
           .send({
-              email: test.contactPreference.email,
-              text: test.contactPreference.text
+            contactPreference: test.contactPreference
           })
           .set('Authorization', 'Bearer '+response.body.token)
           .set('Accept', 'application/json')
@@ -142,20 +127,17 @@ describe('Updating contact information', function() {
   it('Allows an admin to update their own contact preferences', function(done) {
     request(app)
       .post('/auth/login')
-      .send(
-          {
-          email: Seeded.admins[0].email,
-          password: Seeded.admins[0].password
-          }
-      )
+      .send({
+        email: Seeded.admins[0].email,
+        password: Seeded.admins[0].password
+      })
       .set('Accept', 'application/json')
       .expect(200)
       .then((response) => {
           request(app)
           .put(`/users/${Seeded.admins[0].UUID}/contact-preferences`)
           .send({
-              email: test.contactPreference.email,
-              text: test.contactPreference.text
+            contactPreference: test.contactPreference
           })
           .set('Authorization', 'Bearer '+response.body.token)
           .set('Accept', 'application/json')

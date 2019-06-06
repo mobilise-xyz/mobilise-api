@@ -13,7 +13,8 @@ const test = {
     firstName: 'Volun',
     lastName: 'Teer',
     dob: '1998-11-25',
-    isAdmin: false
+    isAdmin: false,
+    telephone: '07979797979'
   },
 
   admin: {
@@ -22,7 +23,8 @@ const test = {
     firstName: 'Ad',
     lastName: 'Min',
     dob: '1998-11-25',
-    isAdmin: true
+    isAdmin: true,
+    telephone: '07979797979'
   }
 }
 
@@ -41,7 +43,8 @@ describe('Register Volunteer', function() {
           lastName: test.volunteer.lastName,
           email: test.volunteer.email,
           password: test.volunteer.password,
-          dob: test.volunteer.dob
+          dob: test.volunteer.dob,
+          telephone: test.volunteer.telephone
         }
       )
       .set('Accept', 'application/json')
@@ -79,7 +82,8 @@ describe('Register Admin', function() {
           email: test.admin.email,
           password: test.admin.password,
           dob: test.admin.dob,
-          isAdmin: test.admin.isAdmin
+          isAdmin: test.admin.isAdmin,
+          telephone: test.admin.telephone
         }
       )
       .set('Accept', 'application/json')

@@ -1,6 +1,8 @@
+const userContactPreferenceRepository = require('../repositories').UserContactPreferenceRepository;
 const userRepository = require('../repositories').UserRepository;
 const volunteerRepository = require('../repositories').VolunteerRepository;
-const adminRepository = require('../repositories').AdminRepository
+const adminRepository = require('../repositories').AdminRepository;
+
 var bcrypt = require('bcryptjs');
 var config = require('../config/config.js');
 var jwt = require('jsonwebtoken');
@@ -22,12 +24,28 @@ var AuthController = function(userRepository, volunteerRepository, adminReposito
         }
       })
       .then(async(user) => {
+
+          // Add user to volunteer or admin table
           if (!user.isAdmin) {
-            await volunteerRepository.add({userId: user.id})
+            await volunteerRepository.add({ userId: user.id })
           } else {
-            await adminRepository.add({userId: user.id})
+            await adminRepository.add({ userId: user.id })
           }
+          
           return user
+      })
+      .then(async(user) => {
+
+        // Create entry for user's contact preferences
+        await userContactPreferenceRepository.add(
+          user.id,
+          {
+            email: false,
+            text: false
+          }
+        )
+
+        return user
       })
       .then(user => res.status(201).send(
           {
