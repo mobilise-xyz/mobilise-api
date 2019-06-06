@@ -124,6 +124,14 @@ ShiftRepository.updateRoles = function(shift, rolesRequired) {
   return deferred.promise;
 };
 
+ShiftRepository.update = function(shift, body) {
+  var deferred = Q.defer();
+  Shift.update(body, { where: { id: shift.id } })
+    .then(result => deferred.resolve(result))
+    .catch(error => deferred.reject(error));
+  return deferred.promise;
+};
+
 ShiftRepository.addAll = function(shifts, rolesRequired) {
   var deferred = Q.defer();
   var allShifts;

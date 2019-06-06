@@ -5,13 +5,21 @@ const isWeekend = require("../utils/date").isWeekend;
 const moment = require("moment");
 
 const REPEATED_TYPES = {
-  "Never" : ["Never"],
-  "Daily": ["Never", "Daily", "Weekly", "Weekends", "Weekdays", "Monthly", "Annually"],
-  "Weekdays": ["Never", "Weekly", "Weekdays"],
-  "Weekends": ["Never", "Weekly", "Weekends"],
-  "Weekly": ["Never", "Weekly"],
-  "Monthly": ["Never", "Monthly", "Annually"],
-  "Annually": ["Never", "Annually"]
+  Never: ["Never"],
+  Daily: [
+    "Never",
+    "Daily",
+    "Weekly",
+    "Weekends",
+    "Weekdays",
+    "Monthly",
+    "Annually"
+  ],
+  Weekdays: ["Never", "Weekly", "Weekdays"],
+  Weekends: ["Never", "Weekly", "Weekends"],
+  Weekly: ["Never", "Weekly"],
+  Monthly: ["Never", "Monthly", "Annually"],
+  Annually: ["Never", "Annually"]
 };
 
 var ShiftController = function(
@@ -124,6 +132,28 @@ var ShiftController = function(
       .catch(err => {
         res.status(500).send(err);
       });
+  };
+
+  this.update = function(req, res) {
+    // Check if user is admin
+    if (!req.user.isAdmin) {
+      res.status(401).send({ message: "Only admin can edit a shift" });
+      return;
+    }
+    // Check shift exists
+    shiftRepository
+      .getById(req.params.id)
+      .then(async shift => {
+        if (!shift) {
+          res.status(400).send({ message: "Shift does not exist" });
+          return;
+        }
+        return shiftRepository.update(shift, req.body);
+      })
+      .then(shift => {
+        res.status(200).send({ message: "Shift updated" });
+      })
+      .catch(err => res.status(500).send(err));
   };
 
   this.updateRoles = function(req, res) {
