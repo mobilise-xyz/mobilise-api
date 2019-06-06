@@ -1,3 +1,18 @@
+const roles = [
+  {
+    name: `Driver's Mate`,
+    involves: 'Heavy Lifting',
+  },
+  {
+    name: 'Warehouse Assistant',
+    involves: 'Organising and Sorting Food',
+  },
+  {
+    name: 'Floral Designer',
+    involves: 'Showcasing flowers',
+  }
+];
+
 module.exports = {
     
   // Seeded admin details
@@ -59,22 +74,22 @@ module.exports = {
   // Seeded role details
   roles: [
     {
-      name: `Driver's Mate`,
-      involves: 'Heavy Lifting',
+      name: roles[0].name,
+      involves: roles[0].involves,
       colour: '#2C72DC',
       createdAt: '2019-06-06',
       updatedAt: '2019-06-06'
     },
     {
-      name: 'Warehouse Assistant',
-      involves: 'Organising and Sorting Food',
+      name: roles[1].name,
+      involves: roles[1].involves,
       colour: '#F08080',
       createdAt: '2019-06-06',
       updatedAt: '2019-06-06'
     },
     {
-      name: 'Floral Designer',
-      involves: 'Showcasing flowers',
+      name: roles[2].name,
+      involves: roles[2].involves,
       colour: '#BCE7FD',
       createdAt: '2019-06-06',
       updatedAt: '2019-06-06'
@@ -95,11 +110,11 @@ module.exports = {
       updatedAt: '2019-06-06',
       rolesRequired: [
         {
-          roleName: `Driver's Mate`,
+          roleName: roles[0].name,
           number: 10
         },
         {
-          roleName: 'Warehouse Assistant',
+          roleName: roles[1].name,
           number: 5
         }
       ]
@@ -117,7 +132,7 @@ module.exports = {
       updatedAt: '2019-06-06',
       rolesRequired: [
         {
-          roleName: 'Floral Designer',
+          roleName: roles[2].name,
           number: 20
         }
       ]
