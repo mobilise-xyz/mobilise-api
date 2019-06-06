@@ -8,6 +8,6 @@ module.exports = {
   },
 
   down: (queryInterface, Sequelize) => {
-    queryInterface.removeColumn("ShiftRequirements", "expectedShortage");
+    return queryInterface.removeColumn("ShiftRequirements", "expectedShortage");
   }
 };
