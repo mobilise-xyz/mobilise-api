@@ -1,4 +1,5 @@
 const userRepository = require('../repositories').UserRepository;
+const userContactPreferenceRepository = require('../repositories').UserContactPreferenceRepository;
 
 var UserController = function(userRepository) {
 
@@ -17,22 +18,42 @@ var UserController = function(userRepository) {
     userRepository
       .getById(req.params.id)
       .then(user => {
+
+        if (!user) {
+
+          res.status(400).send({ message: "No user with that id" });
+
+        } else {
+
           res.status(200).send({
-              id: user.id,
-              firstName: user.firstName,
-              lastName: user.lastName
+            id: user.id,
+            firstName: user.firstName,
+            lastName: user.lastName
           });
+
+        }
       })
-      .catch(err => res.status(500).send(err));
+      .catch(error => res.status(500).send(error));
 
   }
 
   this.getContactPreferences = function(req, res) { 
 
-    res.status(200).send({
-      email: true,
-      text: true 
-    })
+    userContactPreferenceRepository
+      .getById(req.params.id)
+      .then(result => {
+        
+        if (!result) {
+
+          res.status(400).send({ message: "No user with that id" });
+
+        } else {
+
+          res.status(200).send(result);
+
+        }
+      })
+      .catch(error => res.status(500).send(error))
 
   };
 
