@@ -23,10 +23,4 @@ router.put("/:id/availability", controller.updateAvailability);
 /* Get availability for a volunteer */
 router.get("/:id/availability", controller.getAvailability);
 
-/* Get contact preferences for a volunteer */
-router.get("/:id/contact-preferences", controller.getContactPreferences);
-
-/* Update contact preferences for a volunteer */
-router.put("/:id/contact-preferences", controller.updateContactPreferences);
-
 module.exports = router;
