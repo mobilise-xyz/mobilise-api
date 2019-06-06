@@ -67,11 +67,21 @@ var UserController = function(userRepository) {
       return;
     }
 
-    res.status(200).send({
-      message: "Updated contact preferences",
-      email: req.body.email,
-      text: req.body.text 
-    })
+    userContactPreferenceRepository
+      .update(req.params.id, req.body.contactPreference)
+      .then(result => {
+
+        if (!result) {
+
+          res.status(400).send({ message: "No user with that id" });
+
+        } else {
+
+          res.status(200).send(result);
+
+        }
+      })
+      .catch(error => res.status(500).send(error))
 
   };
 }
