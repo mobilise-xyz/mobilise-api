@@ -40,7 +40,7 @@ var VolunteerController = function(volunteerRepository, shiftRepository) {
       contributions: {
         shiftsCompleted: 10,
         hours: 10, 
-        challengesCompleted: 5
+        challengesCompleted: 2
       }
     })
 
@@ -59,24 +59,12 @@ var VolunteerController = function(volunteerRepository, shiftRepository) {
     res.status(200).send({
       myActivity: [
         {
-          title: "Title",
-          description: "Description"
+          title: "Achievement! Completed First Shift",
+          description: "You completed your first shift with City Harvest London"
         },
         {
-          title: "Title",
-          description: "Description"
-        },
-        {
-          title: "Title",
-          description: "Description"
-        },
-        {
-          title: "Title",
-          description: "Description"
-        },
-        {
-          title: "Title",
-          description: "Description"
+          title: "Made your first booking",
+          description: "You completed your first pick-up at Tesco"
         }
       ]
     });
