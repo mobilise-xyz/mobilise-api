@@ -1,8 +1,8 @@
 var request = require('supertest');
-var app = require('../app');
+var app = require('../../app');
 var chai = require('chai');
 
-var User = require('../server/models').User;
+var User = require('../../server/models').User;
 
 var expect = chai.expect;
 

@@ -1,7 +1,7 @@
 var request = require('supertest');
-var app = require('../../app');
+var app = require('../../../app');
 
-const Seeded = require('../../server/utils/seeded');
+const Seeded = require('../../../server/utils/seeded');
 
 test = {
   contactPreference: {
