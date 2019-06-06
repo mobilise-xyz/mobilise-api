@@ -6,10 +6,30 @@ var User = require('../server/models').User;
 
 var expect = chai.expect;
 
+const test = {
+  volunteer: {
+    email: 'testvolunteer@testing.com',
+    password: 'Volunteer123',
+    firstName: 'Volun',
+    lastName: 'Teer',
+    dob: '1998-11-25',
+    isAdmin: false
+  },
+
+  admin: {
+    email: 'testadmin@testing.com',
+    password: 'Admin123',
+    firstName: 'Ad',
+    lastName: 'Min',
+    dob: '1998-11-25',
+    isAdmin: true
+  }
+}
+
 describe('Register Volunteer', function() {
 
   after( function() {
-    User.destroy({where: {email: 'volunteer@testing.com'}})
+    User.destroy({where: {email: test.volunteer.email}})
   })
 
   it('Can register a volunteer', function(done) {
@@ -17,11 +37,11 @@ describe('Register Volunteer', function() {
       .post('/auth/register')
       .send(
         {
-          firstName: 'Volun',
-          lastName: 'Teer',
-          email: 'volunteer@testing.com',
-          password: 'Volunteer123',
-          dob: '1998-11-25'
+          firstName: test.volunteer.firstName,
+          lastName: test.volunteer.lastName,
+          email: test.volunteer.email,
+          password: test.volunteer.password,
+          dob: test.volunteer.dob
         }
       )
       .set('Accept', 'application/json')
@@ -31,11 +51,11 @@ describe('Register Volunteer', function() {
           done(error);
         }
 
-        expect(response.body.email).to.equal('volunteer@testing.com');
-        expect(response.body.firstName).to.equal('Volun');
-        expect(response.body.lastName).to.equal('Teer');
-        expect(response.body.dob).to.equal('1998-11-25');
-        expect(response.body.isAdmin).to.equal(false);
+        expect(response.body.email).to.equal(test.volunteer.email);
+        expect(response.body.firstName).to.equal(test.volunteer.firstName);
+        expect(response.body.lastName).to.equal(test.volunteer.lastName);
+        expect(response.body.dob).to.equal(test.volunteer.dob);
+        expect(response.body.isAdmin).to.equal(test.volunteer.isAdmin);
         
         done();
       })
@@ -46,7 +66,7 @@ describe('Register Volunteer', function() {
 describe('Register Admin', function() {
 
   after( function() {
-    User.destroy({where: {email: 'admin@testing.com'}})
+    User.destroy({where: {email: test.admin.email}})
   })
 
   it('Can register an admin', function(done) {
@@ -54,12 +74,12 @@ describe('Register Admin', function() {
       .post('/auth/register')
       .send(
         {
-          firstName: 'Ad',
-          lastName: 'Min',
-          email: 'admin@testing.com',
-          password: 'Admin123',
-          dob: '1998-11-25',
-          isAdmin: true
+          firstName: test.admin.firstName,
+          lastName: test.admin.lastName,
+          email: test.admin.email,
+          password: test.admin.password,
+          dob: test.admin.dob,
+          isAdmin: test.admin.isAdmin
         }
       )
       .set('Accept', 'application/json')
@@ -69,11 +89,11 @@ describe('Register Admin', function() {
           done(error);
         }
 
-        expect(response.body.email).to.equal('admin@testing.com');
-        expect(response.body.firstName).to.equal('Ad');
-        expect(response.body.lastName).to.equal('Min');
-        expect(response.body.dob).to.equal('1998-11-25');
-        expect(response.body.isAdmin).to.equal(true);
+        expect(response.body.email).to.equal(test.admin.email);
+        expect(response.body.firstName).to.equal(test.admin.firstName);
+        expect(response.body.lastName).to.equal(test.admin.lastName);
+        expect(response.body.dob).to.equal(test.admin.dob);
+        expect(response.body.isAdmin).to.equal(test.admin.isAdmin);
         
         done();
       })

@@ -4,18 +4,17 @@ var chai = require('chai');
 
 var expect = chai.expect;
 
-const seededEmail = 'seededvolunteer@testing.com'
-const seededPassword = 'Volunteer123'
+const Seeded = require('../server/utils/seeded');
 
 describe('Login user', function() {
 
-  it('Approves correct credentials', function(done) {
+  it('Approves correct credentials for volunteer', function(done) {
     request(app)
       .post('/auth/login')
       .send(
         {
-          email: seededEmail,
-          password: seededPassword
+          email: Seeded.volunteer.email,
+          password: Seeded.volunteer.password
         }
         )
       .set('Accept', 'application/json')
@@ -27,6 +26,32 @@ describe('Login user', function() {
         
         // Ensure that we return the JSON Web Token back
         expect(response.body).to.have.property('token');
+        expect(response.body).to.have.property('uid');
+        expect(response.body.isAdmin).to.equal(false);
+        done();
+      })
+  });
+
+  it('Approves correct credentials for admin', function(done) {
+    request(app)
+      .post('/auth/login')
+      .send(
+        {
+          email: Seeded.admin.email,
+          password: Seeded.admin.password
+        }
+        )
+      .set('Accept', 'application/json')
+      .expect(200)
+      .end(function(error, response) {
+        if (error) {
+          done(error);
+        }
+        
+        // Ensure that we return the JSON Web Token back
+        expect(response.body).to.have.property('token');
+        expect(response.body).to.have.property('uid');
+        expect(response.body.isAdmin).to.equal(true);
         done();
       })
   });
@@ -37,19 +62,32 @@ describe('Login user', function() {
       .send(
         {
           email: 'incorrectvolunteer@testing.com',
-          password: seededPassword
+          password: Seeded.volunteer.password
         }
         )
       .set('Accept', 'application/json')
       .expect(400, done);
   });
 
-  it('Rejects invalid password', function(done) {
+  it('Rejects invalid password for volunteer', function(done) {
     request(app)
       .post('/auth/login')
       .send(
         {
-          email: seededEmail,
+          email: Seeded.volunteer.email,
+          password: 'Invalid123'
+        }
+        )
+      .set('Accept', 'application/json')
+      .expect(400, done);
+  });
+
+  it('Rejects invalid password for admin', function(done) {
+    request(app)
+      .post('/auth/login')
+      .send(
+        {
+          email: Seeded.admin.email,
           password: 'Invalid123'
         }
         )

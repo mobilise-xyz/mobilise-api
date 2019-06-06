@@ -1,21 +1,21 @@
 'use strict';
 
-var roleName = 'Seeded Role';
+const Seeded = require('../utils/seeded');
 
 module.exports = {
   up: (queryInterface, Sequelize) => {
     return queryInterface.bulkInsert('Roles', 
       [
         {
-          name: roleName,
-          involves: 'Testing',
-          createdAt: '2019-06-06',
-          updatedAt: '2019-06-06'
+          name: Seeded.role.name,
+          involves: Seeded.role.involves,
+          createdAt: Seeded.role.createdAt,
+          updatedAt: Seeded.role.updatedAt
         }
       ], {});
   },
 
   down: (queryInterface, Sequelize) => {
-    return queryInterface.bulkDelete('Roles', {name: roleName});
+    return queryInterface.bulkDelete('Roles', {name: Seeded.role.name});
   }
 };

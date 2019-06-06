@@ -1,24 +1,20 @@
 var request = require('supertest');
 var app = require('../app');
-var chai = require('chai');
-
 const Role = require('../server/models').Role;
 
-var expect = chai.expect;
+const Seeded = require('../server/utils/seeded');
 
-const adminEmail = 'seededadmin@testing.com';
-const adminPassword = 'Admin123';
-
-const volunteerEmail = 'seededvolunteer@testing.com';
-const volunteerPassword = 'Volunteer123';
-
-const roleName = "Test Role";
-const roleInvolves = "Testing";
+const test = {
+  role: {
+    name: 'Test Role',
+    involves: 'Testing'
+  }
+}
 
 describe('Add roles', function() {
 
   after( function() {
-    Role.destroy({where: {name: roleName}})
+    Role.destroy({where: {name: test.role.name}})
   })
 
   it('Does not allow unauthorised request to add role', function(done) {
@@ -26,22 +22,22 @@ describe('Add roles', function() {
       .post('/roles')
       .send(
         {
-          name: roleName,
-          involves: roleInvolves,
+          name: test.role.name,
+          involves: test.role.involves,
         }
       )
       .set('Accept', 'application/json')
       .expect(401, done);
   });
 
-  it('Does not allow non-admin to add role', function(done){
+  it('Does not allow volunteer to add role', function(done){
     // Acquire bearer token
     request(app)
       .post('/auth/login')
       .send(
         {
-          email: volunteerEmail,
-          password: volunteerPassword
+          email: Seeded.volunteer.email,
+          password: Seeded.volunteer.password
         }
       )
       .set('Accept', 'application/json')
@@ -52,8 +48,8 @@ describe('Add roles', function() {
           .post('/roles')
           .send(
             {
-              name: roleName,
-              involves: roleInvolves,
+              name: test.role.name,
+              involves: test.role.involves,
             }
           )
           .set('Accept', 'application/json')
@@ -62,14 +58,14 @@ describe('Add roles', function() {
       })
   })
 
-  it('Allows admin to add role', function(done){
+  it('Allows admin to add new role', function(done){
     // Acquire bearer token
     request(app)
       .post('/auth/login')
       .send(
         {
-          email: adminEmail,
-          password: adminPassword
+          email: Seeded.admin.email,
+          password: Seeded.admin.password
         }
       )
       .set('Accept', 'application/json')
@@ -80,16 +76,45 @@ describe('Add roles', function() {
           .post('/roles')
           .send(
             {
-              name: roleName,
-              involves: roleInvolves,
+              name: test.role.name,
+              involves: test.role.involves,
             }
           )
           .set('Accept', 'application/json')
           .set('Authorization', 'Bearer '+response.body.token)
           .expect(201, done);
       });
-    })
   })
+
+  it('Does not allow admin to add existing role', function(done){
+    // Acquire bearer token
+    request(app)
+      .post('/auth/login')
+      .send(
+        {
+          email: Seeded.admin.email,
+          password: Seeded.admin.password
+        }
+      )
+      .set('Accept', 'application/json')
+      .expect(200)
+      .then(response => {
+        // Use bearer token to add role
+        request(app)
+          .post('/roles')
+          .send(
+            {
+              name: Seeded.role.name,
+              involves: Seeded.role.involves,
+            }
+          )
+          .set('Accept', 'application/json')
+          .set('Authorization', 'Bearer '+response.body.token)
+          .expect(400, done);
+      });
+  })
+
+});
 
 
 describe('Retrieve roles', function() {
@@ -106,8 +131,8 @@ describe('Retrieve roles', function() {
       .post('/auth/login')
       .send(
         {
-          email: volunteerEmail,
-          password: volunteerPassword
+          email: Seeded.volunteer.email,
+          password: Seeded.volunteer.password
         }
       )
       .set('Accept', 'application/json')

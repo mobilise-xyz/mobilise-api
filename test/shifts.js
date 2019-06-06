@@ -1,27 +1,32 @@
 var request = require("supertest");
 var app = require("../app");
-var chai = require("chai");
 
-var expect = chai.expect;
+const Seeded = require('../server/utils/seeded');
 
-const adminEmail = 'seededadmin@testing.com';
-const adminPassword = 'Admin123';
-
-const volunteerEmail = 'seededvolunteer@testing.com';
-const volunteerPassword = 'Volunteer123';
+const test = {
+  shift: {
+    title: 'Shift Title',
+    description: 'Shift Description',
+    date: '2019-02-08',
+    start: '16:00',
+    stop: '18:00',
+    repeatedType: 'Never',
+    address: 'SW72AZ'
+  }
+}
 
 describe("Add shifts", function() {
   it("Does not allow unauthorised request to add shift", function(done) {
     request(app)
       .post("/shifts")
       .send({
-        title: "Shift Title",
-        description: "Shift Description",
-        date: "2019-02-08",
-        start: "16:00",
-        stop: "18:00",
-        repeatedType: "Never",
-        postcode: "SW72AZ"
+        title: test.shift.title,
+        description: test.shift.description,
+        date: test.shift.date,
+        start: test.shift.start,
+        stop: test.shift.stop,
+        repeatedType: test.shift.repeatedType,
+        address: test.shift.address
       })
       .set("Accept", "application/json")
       .expect(401, done);
@@ -32,8 +37,8 @@ describe("Add shifts", function() {
     request(app)
       .post("/auth/login")
       .send({
-        email: volunteerEmail,
-        password: volunteerPassword
+        email: Seeded.volunteer.email,
+        password: Seeded.volunteer.password
       })
       .set("Accept", "application/json")
       .expect(200)
@@ -42,13 +47,13 @@ describe("Add shifts", function() {
         request(app)
           .post("/shifts")
           .send({
-            title: "Shift Title",
-            description: "Shift Description",
-            date: "2019-02-08",
-            start: "16:00",
-            stop: "18:00",
-            repeatedType: "Never",
-            address: "SW72AZ"
+            title: test.shift.title,
+            description: test.shift.description,
+            date: test.shift.date,
+            start: test.shift.start,
+            stop: test.shift.stop,
+            repeatedType: test.shift.repeatedType,
+            address: test.shift.address
           })
           .set("Authorization", "Bearer " + response.body.token)
           .set("Accept", "application/json")
@@ -61,8 +66,8 @@ describe("Add shifts", function() {
     request(app)
       .post("/auth/login")
       .send({
-        email: adminEmail,
-        password: adminPassword
+        email: Seeded.admin.email,
+        password: Seeded.admin.password
       })
       .set("Accept", "application/json")
       .expect(200)
@@ -71,13 +76,13 @@ describe("Add shifts", function() {
         request(app)
           .post("/shifts")
           .send({
-            title: "Shift Title",
-            description: "Shift Description",
-            date: "2019-02-08",
-            start: "16:00",
-            stop: "18:00",
-            repeatedType: "Never",
-            address: "SW72AZ"
+            title: test.shift.title,
+            description: test.shift.description,
+            date: test.shift.date,
+            start: test.shift.start,
+            stop: test.shift.stop,
+            repeatedType: test.shift.repeatedType,
+            address: test.shift.address
           })
           .set("Authorization", "Bearer " + response.body.token)
           .set("Accept", "application/json")
@@ -99,8 +104,8 @@ describe("Retrieve Shifts", function() {
     request(app)
       .post("/auth/login")
       .send({
-        email: volunteerEmail,
-        password: volunteerPassword
+        email: Seeded.volunteer.email,
+        password: Seeded.volunteer.password
       })
       .set("Accept", "application/json")
       .expect(200)
@@ -128,8 +133,8 @@ describe("Retrieve Shift Titles", function() {
     request(app)
       .post("/auth/login")
       .send({
-        email: volunteerEmail,
-        password: volunteerPassword
+        email: Seeded.volunteer.email,
+        password: Seeded.volunteer.password
       })
       .set("Accept", "application/json")
       .expect(200)
