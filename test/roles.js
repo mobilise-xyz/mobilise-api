@@ -118,7 +118,7 @@ describe('Add roles', function() {
 
 
 describe('Retrieve roles', function() {
-  it('Does not allow unauthorised requests to get roles', function(done) {
+  it('Does not allow unauthorised request to get roles', function(done) {
     request(app)
       .get('/roles')
       .set('Accept', 'application/json')
@@ -145,5 +145,81 @@ describe('Retrieve roles', function() {
         .set('Accept', 'application/json')
         .expect(200, done);
       });
+  });
+
+  describe('Remove a role', function() {
+
+    after(function() {
+      Role.create({
+        name: Seeded.role.name,
+        involves: Seeded.role.involves,
+        colour: Seeded.role.colour
+      })
+    })
+
+    it('Does not allow unauthorised request to remove a role', function(done) {
+      request(app)
+        .delete('/roles')
+        .send({
+          name: Seeded.role.name
+        })
+        .set('Accept', 'application/json')
+        .expect(401, done);
+    });
+
+    it('Does not allow volunteer to delete existing role', function(done){
+      // Acquire bearer token
+      request(app)
+        .post('/auth/login')
+        .send(
+          {
+            email: Seeded.volunteer.email,
+            password: Seeded.volunteer.password
+          }
+        )
+        .set('Accept', 'application/json')
+        .expect(200)
+        .then(response => {
+          // Use bearer token to add role
+          request(app)
+            .delete('/roles')
+            .send(
+              {
+                name: Seeded.role.name,
+              }
+            )
+            .set('Accept', 'application/json')
+            .set('Authorization', 'Bearer '+response.body.token)
+            .expect(401, done);
+        });
+    });
+
+    it('Allows admin to delete existing role', function(done){
+      // Acquire bearer token
+      request(app)
+        .post('/auth/login')
+        .send(
+          {
+            email: Seeded.admin.email,
+            password: Seeded.admin.password
+          }
+        )
+        .set('Accept', 'application/json')
+        .expect(200)
+        .then(response => {
+          // Use bearer token to add role
+          request(app)
+            .delete('/roles')
+            .send(
+              {
+                name: Seeded.role.name,
+              }
+            )
+            .set('Accept', 'application/json')
+            .set('Authorization', 'Bearer '+response.body.token)
+            .expect(200, done);
+        });
+    })
+
   });
 })
