@@ -3,7 +3,7 @@ var app = require('../../app');
 
 const Seeded = require('../../server/utils/seeded');
 
-describe('Getting contact information', function() {
+describe('Getting contact preferences', function() {
   
   it('Unauthorised user cannot retrieve contact preferences of a volunteer by user id', function(done) {
     request(app)
