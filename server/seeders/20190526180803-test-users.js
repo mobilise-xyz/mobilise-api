@@ -18,6 +18,17 @@ module.exports = {
           updatedAt: Seeded.volunteers[0].updatedAt
         },
         {
+          id: Seeded.volunteers[1].UUID,
+          firstName: Seeded.volunteers[1].firstName,
+          lastName: Seeded.volunteers[1].lastName,
+          email: Seeded.volunteers[1].email,
+          password: bcrypt.hashSync(Seeded.volunteers[1].password, bcrypt.genSaltSync(8), null),
+          isAdmin: Seeded.volunteers[1].isAdmin,
+          dob: Seeded.volunteers[1].dob,
+          createdAt: Seeded.volunteers[1].createdAt,
+          updatedAt: Seeded.volunteers[1].updatedAt
+        },
+        {
           id: Seeded.admins[0].UUID,
           firstName: Seeded.admins[0].firstName,
           lastName: Seeded.admins[0].lastName,
@@ -33,6 +44,12 @@ module.exports = {
   },
 
   down: (queryInterface, Sequelize) => {
-      return queryInterface.bulkDelete('Users', {id: [Seeded.volunteers[0].UUID, Seeded.admins[0].UUID]});
+      return queryInterface.bulkDelete('Users', {
+        id: [
+          Seeded.volunteers[0].UUID,
+          Seeded.volunteers[1].UUID, 
+          Seeded.admins[0].UUID
+        ]
+      });
   }
 };

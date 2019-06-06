@@ -13,6 +13,13 @@ var VolunteerController = function(volunteerRepository, shiftRepository) {
   this.shiftRepository = shiftRepository;
 
   this.list = function(req, res) {
+
+    // Restrict access to admin
+    if (!req.user.isAdmin) {
+      res.status(401).send({ message: "Only admins can access volunteer catalogue" });
+      return;
+    }
+
     volunteerRepository
       .getAll()
       .then(volunteers => res.status(200).send(volunteers))
@@ -24,7 +31,7 @@ var VolunteerController = function(volunteerRepository, shiftRepository) {
     // Check bearer token id matches parameter id
     if (req.user.id != req.params.id) {
       res
-        .status(400)
+        .status(401)
         .send({ message: "You can only view your own stats." });
       return;
     }
@@ -44,7 +51,7 @@ var VolunteerController = function(volunteerRepository, shiftRepository) {
     // Check bearer token id matches parameter id
     if (req.user.id != req.params.id) {
       res
-        .status(400)
+        .status(401)
         .send({ message: "You can only view your own stats." });
       return;
     }
@@ -102,7 +109,7 @@ var VolunteerController = function(volunteerRepository, shiftRepository) {
     // Check bearer token id matches parameter id
     if (req.user.id != req.params.id) {
       res
-        .status(400)
+        .status(401)
         .send({ message: "You can only update your own availability." });
       return;
     }
@@ -130,7 +137,7 @@ var VolunteerController = function(volunteerRepository, shiftRepository) {
     // Check bearer token id matches parameter id
     if (req.user.id != req.params.id) {
       res
-        .status(400)
+        .status(401)
         .send({ message: "You can only update your own availability." });
       return;
     }
