@@ -6,10 +6,13 @@ var UserController = function(userRepository) {
 
   this.getById = function(req, res) {
 
-    // Check request made by admin
-    if (!req.user.isAdmin) {
-      res.status(401).send({ message: "Only admins can access user catalogue" })
-    }
+    // Check request validity
+    // 1) Request made by admin 
+    // 2) Request made by volunteer for their own info
+    if (!req.user.isAdmin && (req.user.id != req.params.id)) {
+      res.status(401).send({ message: "Unauthorised request" });
+      return;
+    } 
 
     userRepository
       .getById(req.params.id)
