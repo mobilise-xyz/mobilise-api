@@ -64,7 +64,7 @@ var VolunteerController = function(volunteerRepository, shiftRepository) {
         },
         {
           title: "Made your first booking",
-          description: "You completed your first pick-up at Tesco"
+          description: "You made your first booking for a pick-up at Tesco"
         }
       ]
     });
