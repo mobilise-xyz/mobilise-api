@@ -27,7 +27,7 @@ var VolunteerController = function(volunteerRepository, shiftRepository) {
       .catch(err => res.status(500).send(err));
   };
 
-  (this.getStats = function(req, res) {
+  ((this.getStats = function(req, res) {
     // Check bearer token id matches parameter id
     if (req.user.id != req.params.id) {
       res.status(401).send({ message: "You can only view your own stats." });
@@ -38,42 +38,30 @@ var VolunteerController = function(volunteerRepository, shiftRepository) {
       contributions: {
         shiftsCompleted: 10,
         hours: 10,
-        challengesCompleted: 5
+        challengesCompleted: 2
       }
     });
   }),
-    (this.getActivity = function(req, res) {
-      // Check bearer token id matches parameter id
-      if (req.user.id != req.params.id) {
-        res.status(401).send({ message: "You can only view your own stats." });
-        return;
-      }
+  (this.getActivity = function(req, res) {
+    // Check bearer token id matches parameter id
+    if (req.user.id != req.params.id) {
+      res.status(401).send({ message: "You can only view your own stats." });
+      return;
+    }
 
-      res.status(200).send({
-        myActivity: [
-          {
-            title: "Title",
-            description: "Description"
-          },
-          {
-            title: "Title",
-            description: "Description"
-          },
-          {
-            title: "Title",
-            description: "Description"
-          },
-          {
-            title: "Title",
-            description: "Description"
-          },
-          {
-            title: "Title",
-            description: "Description"
-          }
-        ]
-      });
-    }),
+    res.status(200).send({
+      myActivity: [
+        {
+          title: "Achievement! Completed First Shift",
+          description: "You completed your first shift with City Harvest London"
+        },
+        {
+          title: "Made your first booking",
+          description: "You made your first booking for Pick-up - Tesco"
+        }
+      ]
+    });
+  })),
     (this.getHallOfFame = function(req, res) {
       res.status(200).send({
         hallOfFame: {

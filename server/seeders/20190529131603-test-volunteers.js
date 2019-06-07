@@ -15,7 +15,7 @@ module.exports = {
         createdAt: Seeded.volunteers[1].createdAt,
         updatedAt: Seeded.volunteers[1].updatedAt
       }
-  ], {});
+    ], {});
   },
 
   down: (queryInterface, Sequelize) => {
