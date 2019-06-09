@@ -27,19 +27,20 @@ const REPEATED_TYPES = {
   Annually: ["Never", "Annually"]
 };
 
-var ShiftController = function(
+
+var ShiftController = function (
   shiftRepository,
   roleRepository,
   bookingRepository
 ) {
-  this.list = function(req, res) {
+  this.list = function (req, res) {
     shiftRepository
       .getAllWithRequirements()
       .then(shifts => res.status(200).send(shifts))
       .catch(err => res.status(500).send(err));
   };
 
-  this.listTitles = function(req, res) {
+  this.listTitles = function (req, res) {
     shiftRepository
       .getAll(["title"])
       .then(shifts => {
@@ -54,18 +55,18 @@ var ShiftController = function(
       .catch(err => res.status(500).send(err));
   };
 
-  this.deleteById = function(req, res) {
+  this.deleteById = function (req, res) {
     shiftRepository
       .removeById(req.params.id)
       .then(shift =>
-        res.status(200).send({ message: "Successfully deleted", shift: shift })
+        res.status(200).send({message: "Successfully deleted", shift: shift})
       )
       .catch(err => res.status(500).send(err));
   };
 
-  this.book = function(req, res) {
+  this.book = function (req, res) {
     if (req.user.isAdmin) {
-      res.status(400).send({ message: "Admin cannot book onto shift" });
+      res.status(400).send({message: "Admin cannot book onto shift"});
       return;
     }
 
@@ -84,7 +85,7 @@ var ShiftController = function(
         if (!role) {
           res
             .status(400)
-            .send({ message: "No role with name: " + req.body.roleName });
+            .send({message: "No role with name: " + req.body.roleName});
         } else {
           return shiftRepository.getById(req.params.id);
         }
@@ -93,7 +94,7 @@ var ShiftController = function(
         if (!shift) {
           res
             .status(400)
-            .send({ message: "No shift with id: " + req.params.id });
+            .send({message: "No shift with id: " + req.params.id});
           return;
         }
 
@@ -113,7 +114,7 @@ var ShiftController = function(
         ) {
           res
             .status(400)
-            .send({ message: "Repeated type incompatible with shift" });
+            .send({message: "Repeated type incompatible with shift"});
           return;
         }
         // Book repeated shifts
@@ -128,17 +129,17 @@ var ShiftController = function(
       .then(booking => {
         res
           .status(200)
-          .send({ message: "Successfully created booking", booking: booking });
+          .send({message: "Successfully created booking", booking: booking});
       })
       .catch(err => {
         res.status(500).send(err);
       });
   };
 
-  this.update = function(req, res) {
+  this.update = function (req, res) {
     // Check if user is admin
     if (!req.user.isAdmin) {
-      res.status(401).send({ message: "Only admin can edit a shift" });
+      res.status(401).send({message: "Only admin can edit a shift"});
       return;
     }
     // Check shift exists
@@ -146,21 +147,21 @@ var ShiftController = function(
       .getById(req.params.id)
       .then(async shift => {
         if (!shift) {
-          res.status(400).send({ message: "Shift does not exist" });
+          res.status(400).send({message: "Shift does not exist"});
           return;
         }
         return shiftRepository.update(shift, req.body);
       })
       .then(shift => {
-        res.status(200).send({ message: "Shift updated" });
+        res.status(200).send({message: "Shift updated"});
       })
       .catch(err => res.status(500).send(err));
   };
 
-  this.updateRoles = function(req, res) {
+  this.updateRoles = function (req, res) {
     // Check if user is admin
     if (!req.user.isAdmin) {
-      res.status(401).send({ message: "Only admin can edit a shift" });
+      res.status(401).send({message: "Only admin can edit a shift"});
       return;
     }
     // Check shift exists
@@ -168,18 +169,18 @@ var ShiftController = function(
       .getById(req.params.id)
       .then(async shift => {
         if (!shift) {
-          res.status(400).send({ message: "Shift does not exist" });
+          res.status(400).send({message: "Shift does not exist"});
           return;
         }
         // Check the referenced roles
-        var { errs, rolesRequired } = await checkRoles(
+        var {errs, rolesRequired} = await checkRoles(
           req.body.rolesRequired,
           roleRepository
         );
         if (errs.length > 0) {
           res
             .status(400)
-            .send({ "Could not modify shift due to invalid roles": errs });
+            .send({"Could not modify shift due to invalid roles": errs});
           return;
         }
         return shiftRepository.updateRoles(shift, rolesRequired);
@@ -190,11 +191,11 @@ var ShiftController = function(
       .catch(err => res.status(500).send(err));
   };
 
-  this.ping = function(req, res) {
+  this.ping = function (req, res) {
     if (!req.user.isAdmin) {
       res
         .status(401)
-        .send({ message: "Only an admin may ping all volunteers for shift" });
+        .send({message: "Only an admin may ping all volunteers for shift"});
       return;
     }
 
@@ -202,40 +203,19 @@ var ShiftController = function(
       .getById(req.params.id)
       .then(shift => {
         if (!shift) {
-          res.status(400).send({ message: "No shift with that id" });
+          res.status(400).send({message: "No shift with that id"});
         } else {
-          const transporter = nodemailer.createTransport({
-            host: process.env.MAIL_HOST,
-            port: process.env.MAIL_PORT,
-            auth: {
-              user: process.env.MAIL_SENDER_USER,
-              pass: process.env.MAIL_SENDER_PASS
-            }
-          });
-          const nexmo = new Nexmo({
-            apiKey: process.env.NEXMO_API_KEY,
-            apiSecret: process.env.NEXMO_API_SECRET
-          });
-
+          const emailClient = createEmailClient();
+          const textClient = createTextClient();
           return volunteerRepository.getAll().then(volunteers => {
             volunteers.forEach(volunteer => {
-              if (volunteerIsAvailableForShift(volunteer, shift) > 0.5) {
-                var message = `Hello ${volunteer.user.firstName},\n\n A shift needs your assistance! \nTitle: ${shift.title}\nDescription: ${shift.description}`;
+              if (!volunteerCurrentlyOnShift(volunteer, shift) && volunteerIsAvailableForShift(volunteer, shift)) {
+                var message = constructMessage(volunteer, shift);
                 if (volunteer.user.contactPreference.email) {
-                  var mailOptions = {
-                    from: process.env.SMTP_FROM,
-                    to: volunteer.user.email,
-                    subject: "Help needed for shift!",
-                    text: message
-                  };
-                  transporter.sendMail(mailOptions);
+                  sendEmail(emailClient, volunteer, message);
                 }
                 if (volunteer.user.contactPreference.text) {
-                  nexmo.message.sendSms(
-                    "Mobilise",
-                    volunteer.user.telephone,
-                    message
-                  );
+                  sendText(textClient, volunteer, message);
                 }
               }
             });
@@ -246,25 +226,25 @@ var ShiftController = function(
       .then(_ => {
         res
           .status(200)
-          .send({ message: "Sending alerts to available volunteers" });
+          .send({message: "Sending alerts to available volunteers"});
       });
   };
 
-  this.create = async function(req, res) {
+  this.create = async function (req, res) {
     // Check if user is admin
     if (!req.user.isAdmin) {
-      res.status(401).send({ message: "Only admin can add shifts" });
+      res.status(401).send({message: "Only admin can add shifts"});
       return;
     }
     // Check the referenced roles
-    var { errs, rolesRequired } = await checkRoles(
+    var {errs, rolesRequired} = await checkRoles(
       req.body.rolesRequired,
       roleRepository
     );
     if (errs.length > 0) {
       res
         .status(400)
-        .send({ "Could not add shift due to invalid roles": errs });
+        .send({"Could not add shift due to invalid roles": errs});
       return;
     }
     var type = req.body.repeatedType;
@@ -315,11 +295,63 @@ function repeatedTypeIsValid(type, startDate) {
   return REPEATED_TYPES.hasOwnProperty(type);
 }
 
+function sendEmail(emailClient, volunteer, message) {
+  var mailOptions = {
+    from: process.env.SMTP_FROM,
+    to: volunteer.user.email,
+    subject: "Help needed for shift!",
+    text: message
+  };
+  emailClient.sendMail(mailOptions);
+}
+
+function sendText(textClient, volunteer, message) {
+  textClient.message.sendSms(
+    "Mobilise",
+    volunteer.user.telephone,
+    message
+  );
+}
+
 function repeatedTypesCompatible(shiftType, bookingType) {
   if (shiftType === bookingType) {
     return true;
   }
   return REPEATED_TYPES[shiftType].includes(bookingType);
+}
+
+function createEmailClient() {
+  return nodemailer.createTransport({
+    host: process.env.MAIL_HOST,
+    port: process.env.MAIL_PORT,
+    auth: {
+      user: process.env.MAIL_SENDER_USER,
+      pass: process.env.MAIL_SENDER_PASS
+    }
+  });
+}
+
+function createTextClient() {
+  return new Nexmo({
+    apiKey: process.env.NEXMO_API_KEY,
+    apiSecret: process.env.NEXMO_API_SECRET
+  });
+}
+
+function constructMessage(volunteer, shift) {
+  return `Hello ${volunteer.user.firstName},\n\nA shift needs your assistance! \nTitle: ${shift.title}\nDescription: ${shift.description}`;;
+}
+
+function volunteerCurrentlyOnShift(volunteer, shift) {
+  for (var i = 0; i < shift.requirements.length; i ++) {
+    var requirement = shift.requirements[i];
+    for (var j = 0; j < requirement.bookings.length; j++) {
+      if (requirement.bookings[j].volunteerId === volunteer.userId) {
+        return true;
+      }
+    }
+  }
+  return false;
 }
 
 async function checkRoles(rolesRequired, roleRepository) {
@@ -337,5 +369,5 @@ async function checkRoles(rolesRequired, roleRepository) {
     }
   }
 
-  return { errs, rolesRequired };
+  return {errs, rolesRequired};
 }

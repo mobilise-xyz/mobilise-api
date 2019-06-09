@@ -1,5 +1,7 @@
 const moment = require("moment");
 
+const AVAILABILITY_THRESHOLD = 0.5;
+
 function volunteerIsAvailableForShift(volunteer, shift) {
 
   var dayOfWeek = moment(shift.date, "YYYY-MM-DD").toDate().getDay();
@@ -7,7 +9,7 @@ function volunteerIsAvailableForShift(volunteer, shift) {
 
   var startAvailability= dayAvailability[getSlotForTime(shift.start)];
   var stopAvailability = dayAvailability[getSlotForTime(shift.stop)];
-  return Number(startAvailability) + Number(stopAvailability) / 2;
+  return (Number(startAvailability) + Number(stopAvailability) / 2) >= AVAILABILITY_THRESHOLD;
 }
 
 function getSlotForTime(time) {

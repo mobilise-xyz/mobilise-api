@@ -26,7 +26,7 @@ var VolunteerController = function(volunteerRepository, shiftRepository) {
 
   ((this.getStats = function(req, res) {
     // Check bearer token id matches parameter id
-    if (req.user.id != req.params.id) {
+    if (req.user.id !== req.params.id) {
       res.status(401).send({ message: "You can only view your own stats." });
       return;
     }
@@ -41,7 +41,7 @@ var VolunteerController = function(volunteerRepository, shiftRepository) {
   }),
   (this.getActivity = function(req, res) {
     // Check bearer token id matches parameter id
-    if (req.user.id != req.params.id) {
+    if (req.user.id !== req.params.id) {
       res.status(401).send({ message: "You can only view your own stats." });
       return;
     }
@@ -79,7 +79,7 @@ var VolunteerController = function(volunteerRepository, shiftRepository) {
     }),
     (this.updateAvailability = function(req, res) {
       // Check bearer token id matches parameter id
-      if (req.user.id != req.params.id) {
+      if (req.user.id !== req.params.id) {
         res
           .status(401)
           .send({ message: "You can only update your own availability." });
@@ -107,7 +107,7 @@ var VolunteerController = function(volunteerRepository, shiftRepository) {
 
   this.getAvailability = function(req, res) {
     // Check bearer token id matches parameter id
-    if (req.user.id != req.params.id) {
+    if (req.user.id !== req.params.id) {
       res
         .status(401)
         .send({ message: "You can only update your own availability." });
@@ -177,7 +177,7 @@ var VolunteerController = function(volunteerRepository, shiftRepository) {
               var result = [];
               shifts.forEach(s => {
                 var shift = s.toJSON();
-                if (volunteerIsAvailableForShift(volunteer, shift) > 0.5) {
+                if (volunteerIsAvailableForShift(volunteer, shift)) {
                   for (var i = 0; i < shift.requirements.length; i++) {
                     var requirement = shift.requirements[i];
                     if (
