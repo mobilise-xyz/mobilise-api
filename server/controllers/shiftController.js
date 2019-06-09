@@ -37,10 +37,6 @@ var ShiftController = function(
   roleRepository,
   bookingRepository
 ) {
-  this.shiftRepository = shiftRepository;
-  this.roleRepository = roleRepository;
-  this.bookingRepository = bookingRepository;
-
   this.list = function(req, res) {
     shiftRepository
       .getAllWithRequirements()

@@ -15,10 +15,6 @@ var AuthController = function(
   volunteerRepository,
   adminRepository
 ) {
-  this.userRepository = userRepository;
-  this.volunteerRepository = volunteerRepository;
-  this.adminRepository = adminRepository;
-
   this.registerUser = function(req, res) {
     userRepository
       .getByEmail(req.body.email)
