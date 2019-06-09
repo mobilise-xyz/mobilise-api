@@ -1,8 +1,12 @@
 const shiftRepository = require("../repositories").ShiftRepository;
 const roleRepository = require("../repositories").RoleRepository;
 const bookingRepository = require("../repositories").BookingRepository;
+const volunteerRepository = require("../repositories").VolunteerRepository;
 const isWeekend = require("../utils/date").isWeekend;
 const moment = require("moment");
+const volunteerIsAvailableForShift = require("../utils/availability")
+  .volunteerIsAvailableForShift;
+var nodemailer = require("nodemailer");
 
 const REPEATED_TYPES = {
   Never: ["Never"],
@@ -187,6 +191,49 @@ var ShiftController = function(
         res.status(200).send(shift);
       })
       .catch(err => res.status(500).send(err));
+  };
+
+  this.ping = function(req, res) {
+    const transporter = nodemailer.createTransport({
+      host: "smtp.ethereal.email",
+      port: 587,
+      auth: {
+        user: process.env.MAIL_SENDER_USER,
+        pass: process.env.MAIL_SENDER_PASS
+      }
+    });
+
+    shiftRepository
+      .getById(req.params.id)
+      .then(shift => {
+        if (!shift) {
+          res.status(400).send({ message: "No shift with that id" });
+        } else {
+          return volunteerRepository.getAll().then(volunteers => {
+            volunteers.forEach(volunteer => {
+              if (volunteerIsAvailableForShift(volunteer, shift) > 0.5) {
+                var mailOptions = {
+                  from: process.env.SMTP_FROM,
+                  to: volunteer.user.email,
+                  subject: "Help needed for shift!",
+                  text:
+                    "Title: " +
+                    shift.title +
+                    "\nDescription: " +
+                    shift.description
+                };
+                transporter.sendMail(mailOptions);
+              }
+            });
+            return shift;
+          });
+        }
+      })
+      .then(result => {
+        res
+          .status(200)
+          .send({ message: "Sending alerts to available volunteers" });
+      });
   };
 
   this.create = async function(req, res) {
