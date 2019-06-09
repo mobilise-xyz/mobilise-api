@@ -239,14 +239,7 @@ var ShiftController = function(
                   nexmo.message.sendSms(
                     "Mobilise",
                     volunteer.user.telephone,
-                    message,
-                    (err, responseData) => {
-                      if (err) {
-                        console.log(err);
-                      } else {
-                        console.log(responseData);
-                      }
-                    }
+                    message
                   );
                 }
               }
