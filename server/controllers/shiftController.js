@@ -216,8 +216,12 @@ var ShiftController = function(
             }
           });
           return volunteerRepository.getAll().then(volunteers => {
+            console.log(volunteers);
             volunteers.forEach(volunteer => {
-              if (volunteerIsAvailableForShift(volunteer, shift) > 0.5) {
+              if (
+                volunteerIsAvailableForShift(volunteer, shift) > 0.5 &&
+                volunteer.user.contactPreference.email
+              ) {
                 var mailOptions = {
                   from: process.env.SMTP_FROM,
                   to: volunteer.user.email,

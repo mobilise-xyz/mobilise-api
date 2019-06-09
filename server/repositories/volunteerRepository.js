@@ -1,4 +1,5 @@
 const Volunteer = require("../models").Volunteer;
+const User = require("../models").User;
 const Q = require("q");
 const VolunteerRepositoryInterface = require("./interfaces/volunteerRepositoryInterface");
 
@@ -19,7 +20,15 @@ VolunteerRepository.add = function(volunteer) {
 VolunteerRepository.getAll = function() {
   var deferred = Q.defer();
 
-  Volunteer.findAll({ include: ["user"] })
+  Volunteer.findAll({
+    include: [
+      {
+        model: User,
+        as: "user",
+        include: ["contactPreference"]
+      }
+    ]
+  })
     .then(volunteers => deferred.resolve(volunteers))
     .catch(err => deferred.reject(err));
 
