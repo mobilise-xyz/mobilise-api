@@ -9,11 +9,6 @@ const volunteerIsAvailableForShift = require("../utils/availability")
 const nodemailer = require("nodemailer");
 const Nexmo = require("nexmo");
 
-const nexmo = new Nexmo({
-  apiKey: process.env.NEXMO_API_KEY,
-  apiSecret: process.env.NEXMO_API_SECRET
-});
-
 const REPEATED_TYPES = {
   Never: ["Never"],
   Daily: [
@@ -216,6 +211,10 @@ var ShiftController = function(
               user: process.env.MAIL_SENDER_USER,
               pass: process.env.MAIL_SENDER_PASS
             }
+          });
+          const nexmo = new Nexmo({
+            apiKey: process.env.NEXMO_API_KEY,
+            apiSecret: process.env.NEXMO_API_SECRET
           });
 
           return volunteerRepository.getAll().then(volunteers => {
