@@ -247,6 +247,15 @@ var ShiftController = function (
         .send({"Could not add shift due to invalid roles": errs});
       return;
     }
+
+    if (!moment(req.body.start, "HH:mm").isBefore(moment(req.body.stop, "HH:mm"))) {
+      res.status(400).send({
+        message:
+          "Start time is not before end time"
+      });
+      return;
+    }
+
     var type = req.body.repeatedType;
 
     if (!type || type === "Never") {
@@ -258,6 +267,16 @@ var ShiftController = function (
         .catch(err => res.status(500).send(err));
     } else {
       var startDate = moment(req.body.date, "YYYY-MM-DD");
+      var untilDate = moment(req.body.untilDate, "YYYY-MM-DD");
+
+      if (untilDate.isBefore(startDate)) {
+        res.status(400).send({
+          message:
+            "Until date is before start date"
+        });
+        return;
+      }
+
       // Check if valid request
       if (!repeatedTypeIsValid(type, startDate)) {
         res.status(400).send({
