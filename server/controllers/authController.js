@@ -3,10 +3,10 @@ const userContactPreferenceRepository = require("../repositories")
 const userRepository = require("../repositories").UserRepository;
 const volunteerRepository = require("../repositories").VolunteerRepository;
 const adminRepository = require("../repositories").AdminRepository;
-
-var bcrypt = require("bcryptjs");
-var config = require("../config/config.js");
-var jwt = require("jsonwebtoken");
+const moment = require("moment");
+const bcrypt = require("bcryptjs");
+const config = require("../config/config.js");
+const jwt = require("jsonwebtoken");
 
 var AuthController = function(
   userRepository,
@@ -63,22 +63,31 @@ var AuthController = function(
   };
 
   this.loginUser = function(req, res) {
+    var lastLogin;
     userRepository
       .getByEmail(req.body.email)
       .then(user => {
         if (user && validatePassword(req.body.password, user.password)) {
-          res
-            .status(200)
-            .json({
-              message: "Successful login!",
-              uid: user.id,
-              isAdmin: user.isAdmin,
-              lastLogin: user.lastLogin,
-              token: generateToken(user)
-            });
+          return user;
         } else {
           res.status(400).json({ message: "Invalid username/password" });
         }
+      })
+      .then(user => {
+        lastLogin = user.lastLogin;
+        const currentDate = moment();
+        return userRepository.update(user, {
+          lastLogin: currentDate
+        });
+      })
+      .then(user => {
+        res.status(200).json({
+          message: "Successful login!",
+          uid: user.id,
+          isAdmin: user.isAdmin,
+          lastLogin: lastLogin,
+          token: generateToken(user)
+        });
       })
       .catch(err => res.status(500).send(err));
   };
