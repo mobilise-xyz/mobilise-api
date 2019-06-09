@@ -89,4 +89,33 @@ describe("Add shifts", function() {
           .expect(201, done);
       });
   });
+
+  it("Does not allow a stop time before a start time", function(done) {
+    // Acquire bearer token
+    request(app)
+      .post("/auth/login")
+      .send({
+        email: Seeded.admins[0].email,
+        password: Seeded.admins[0].password
+      })
+      .set("Accept", "application/json")
+      .expect(200)
+      .then(response => {
+        // Use bearer token to add shift
+        request(app)
+          .post("/shifts")
+          .send({
+            title: test.shift.title,
+            description: test.shift.description,
+            date: test.shift.date,
+            start: test.shift.stop,
+            stop: test.shift.start,
+            repeatedType: test.shift.repeatedType,
+            address: test.shift.address
+          })
+          .set("Authorization", "Bearer " + response.body.token)
+          .set("Accept", "application/json")
+          .expect(400, done);
+      });
+  });
 });
