@@ -177,7 +177,7 @@ var VolunteerController = function(volunteerRepository, shiftRepository) {
               var result = [];
               shifts.forEach(s => {
                 var shift = s.toJSON();
-                if (volunteerIsAvailableForShift(volunteer, shift) > 0.5) {
+                if (volunteerIsAvailableForShift(volunteer, shift)) {
                   for (var i = 0; i < shift.requirements.length; i++) {
                     var requirement = shift.requirements[i];
                     if (

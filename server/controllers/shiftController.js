@@ -209,7 +209,7 @@ var ShiftController = function (
           const textClient = createTextClient();
           return volunteerRepository.getAll().then(volunteers => {
             volunteers.forEach(volunteer => {
-              if (!volunteerCurrentlyOnShift(volunteer, shift) && volunteerIsAvailableForShift(volunteer, shift) > 0.5) {
+              if (!volunteerCurrentlyOnShift(volunteer, shift) && volunteerIsAvailableForShift(volunteer, shift)) {
                 var message = constructMessage(volunteer, shift);
                 if (volunteer.user.contactPreference.email) {
                   sendEmail(emailClient, volunteer, message);
