@@ -321,7 +321,7 @@ function repeatedTypesCompatible(shiftType, bookingType) {
 }
 
 function createEmailClient() {
-  const transporter = nodemailer.createTransport({
+  return nodemailer.createTransport({
     host: process.env.MAIL_HOST,
     port: process.env.MAIL_PORT,
     auth: {
@@ -329,15 +329,13 @@ function createEmailClient() {
       pass: process.env.MAIL_SENDER_PASS
     }
   });
-  return transporter;
 }
 
 function createTextClient() {
-  const nexmo = new Nexmo({
+  return new Nexmo({
     apiKey: process.env.NEXMO_API_KEY,
     apiSecret: process.env.NEXMO_API_SECRET
   });
-  return nexmo;
 }
 
 function constructMessage(volunteer, shift) {
