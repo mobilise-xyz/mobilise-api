@@ -224,7 +224,44 @@ ShiftRepository.getAll = function(attributes) {
 ShiftRepository.getById = function(id) {
   var deferred = Q.defer();
 
-  Shift.findOne({ where: { id: id }, include: ["repeated"] })
+  Shift.findOne({ where: { id: id },
+    include: [
+      {
+        model: ShiftRequirement,
+        as: "requirements",
+        attributes: ["numberRequired", "expectedShortage"],
+        include: [
+          {
+            model: Booking,
+            as: "bookings",
+            required: false,
+            where: sequelize.where(
+              sequelize.col("requirements.roleName"),
+              "=",
+              sequelize.col("requirements->bookings.roleName")
+            ),
+            attributes: ["volunteerId"]
+          },
+          {
+            model: Role,
+            as: "role",
+            attributes: ["name", "involves", "colour"]
+          }
+        ]
+      },
+      {
+        model: Admin,
+        as: "creator",
+        include: [
+          {
+            model: User,
+            as: "user",
+            attributes: ["firstName", "lastName", "email"]
+          }
+        ]
+      },
+      "repeated"]
+  })
     .then(shift => deferred.resolve(shift))
     .catch(err => deferred.reject(err));
 

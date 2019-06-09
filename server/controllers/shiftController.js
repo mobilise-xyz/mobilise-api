@@ -211,11 +211,14 @@ var ShiftController = function (
             volunteers.forEach(volunteer => {
               if (!volunteerCurrentlyOnShift(volunteer, shift) && volunteerIsAvailableForShift(volunteer, shift) > 0.5) {
                 var message = constructMessage(volunteer, shift);
+                console.log("Name: " + volunteer.user.firstName);
+                console.log("Email: " + volunteer.user.email);
+                console.log("ID: " + volunteer.userId);
                 if (volunteer.user.contactPreference.email) {
-                  sendEmail(emailClient, volunteer, message);
+                  //sendEmail(emailClient, volunteer, message);
                 }
                 if (volunteer.user.contactPreference.text) {
-                  sendText(textClient, volunteer, message);
+                  //sendText(textClient, volunteer, message);
                 }
               }
             });
@@ -343,13 +346,14 @@ function constructMessage(volunteer, shift) {
 }
 
 function volunteerCurrentlyOnShift(volunteer, shift) {
-  shift.requirements.forEach(requirement => {
-    requirement.bookings.forEach(booking => {
-      if (booking.volunteerId === volunteer.userId) {
+  for (var i = 0; i < shift.requirements.length; i ++) {
+    var requirement = shift.requirements[i];
+    for (var j = 0; j < requirement.bookings.length; j++) {
+      if (requirement.bookings[j].volunteerId === volunteer.userId) {
         return true;
       }
-    })
-  });
+    }
+  }
   return false;
 }
 
