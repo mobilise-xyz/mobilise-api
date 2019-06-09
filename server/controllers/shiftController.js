@@ -194,14 +194,12 @@ var ShiftController = function(
   };
 
   this.ping = function(req, res) {
-    const transporter = nodemailer.createTransport({
-      host: "smtp.ethereal.email",
-      port: 587,
-      auth: {
-        user: process.env.MAIL_SENDER_USER,
-        pass: process.env.MAIL_SENDER_PASS
-      }
-    });
+    if (!req.user.isAdmin) {
+      res
+        .status(401)
+        .send({ message: "Only an admin may ping all volunteers for shift" });
+      return;
+    }
 
     shiftRepository
       .getById(req.params.id)
@@ -209,6 +207,14 @@ var ShiftController = function(
         if (!shift) {
           res.status(400).send({ message: "No shift with that id" });
         } else {
+          const transporter = nodemailer.createTransport({
+            host: process.env.MAIL_HOST,
+            port: 587,
+            auth: {
+              user: process.env.MAIL_SENDER_USER,
+              pass: process.env.MAIL_SENDER_PASS
+            }
+          });
           return volunteerRepository.getAll().then(volunteers => {
             volunteers.forEach(volunteer => {
               if (volunteerIsAvailableForShift(volunteer, shift) > 0.5) {
@@ -229,7 +235,7 @@ var ShiftController = function(
           });
         }
       })
-      .then(result => {
+      .then(_ => {
         res
           .status(200)
           .send({ message: "Sending alerts to available volunteers" });
