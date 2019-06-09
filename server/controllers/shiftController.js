@@ -209,7 +209,7 @@ var ShiftController = function (
           const textClient = createTextClient();
           return volunteerRepository.getAll().then(volunteers => {
             volunteers.forEach(volunteer => {
-              if (volunteerIsAvailableForShift(volunteer, shift) > 0.5) {
+              if (!volunteerCurrentlyOnShift(volunteer, shift) && volunteerIsAvailableForShift(volunteer, shift) > 0.5) {
                 var message = constructMessage(volunteer, shift);
                 if (volunteer.user.contactPreference.email) {
                   sendEmail(emailClient, volunteer, message);
@@ -340,6 +340,17 @@ function createTextClient() {
 
 function constructMessage(volunteer, shift) {
   return `Hello ${volunteer.user.firstName},\n\nA shift needs your assistance! \nTitle: ${shift.title}\nDescription: ${shift.description}`;;
+}
+
+function volunteerCurrentlyOnShift(volunteer, shift) {
+  shift.requirements.forEach(requirement => {
+    requirement.bookings.forEach(booking => {
+      if (booking.volunteerId === volunteer.userId) {
+        return true;
+      }
+    })
+  });
+  return false;
 }
 
 async function checkRoles(rolesRequired, roleRepository) {
