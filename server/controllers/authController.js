@@ -1,95 +1,122 @@
-const userContactPreferenceRepository = require('../repositories').UserContactPreferenceRepository;
-const userRepository = require('../repositories').UserRepository;
-const volunteerRepository = require('../repositories').VolunteerRepository;
-const adminRepository = require('../repositories').AdminRepository;
+const userContactPreferenceRepository = require("../repositories")
+  .UserContactPreferenceRepository;
+const userRepository = require("../repositories").UserRepository;
+const volunteerRepository = require("../repositories").VolunteerRepository;
+const adminRepository = require("../repositories").AdminRepository;
+const moment = require("moment");
+const bcrypt = require("bcryptjs");
+const config = require("../config/config.js");
+const jwt = require("jsonwebtoken");
 
-var bcrypt = require('bcryptjs');
-var config = require('../config/config.js');
-var jwt = require('jsonwebtoken');
-
-var AuthController = function(userRepository, volunteerRepository, adminRepository) {
-
+var AuthController = function(
+  userRepository,
+  volunteerRepository,
+  adminRepository
+) {
   this.userRepository = userRepository;
   this.volunteerRepository = volunteerRepository;
   this.adminRepository = adminRepository;
 
   this.registerUser = function(req, res) {
-    userRepository.getByEmail(req.body.email)
+    userRepository
+      .getByEmail(req.body.email)
       .then(user => {
         if (user) {
-          res.status(400).send({message: "An account with that email already exists"});
+          res
+            .status(400)
+            .send({ message: "An account with that email already exists" });
         } else {
           var hash = hashedPassword(req.body.password);
-          return  userRepository.add(req.body, hash)
+          return userRepository.add(req.body, hash);
         }
       })
-      .then(async(user) => {
+      .then(async user => {
+        // Add user to volunteer or admin table
+        if (!user.isAdmin) {
+          await volunteerRepository.add({ userId: user.id });
+        } else {
+          await adminRepository.add({ userId: user.id });
+        }
 
-          // Add user to volunteer or admin table
-          if (!user.isAdmin) {
-            await volunteerRepository.add({ userId: user.id })
-          } else {
-            await adminRepository.add({ userId: user.id })
-          }
-          
-          return user
+        return user;
       })
-      .then(async(user) => {
-
+      .then(async user => {
         // Create entry for user's contact preferences
-        await userContactPreferenceRepository.add(
-          user.id,
-          {
-            email: false,
-            text: false
-          }
-        )
+        await userContactPreferenceRepository.add(user.id, {
+          email: false,
+          text: false
+        });
 
-        return user
+        return user;
       })
-      .then(user => res.status(201).send(
-          {
-            id: user.id,
-            firstName: user.firstName,
-            lastName: user.lastName,
-            email: user.email,
-            isAdmin: user.isAdmin,
-            dob: user.dob
-          }
-      ))
+      .then(user =>
+        res.status(201).send({
+          id: user.id,
+          firstName: user.firstName,
+          lastName: user.lastName,
+          email: user.email,
+          isAdmin: user.isAdmin,
+          dob: user.dob
+        })
+      )
       .catch(error => res.status(500).send(error));
   };
 
   this.loginUser = function(req, res) {
-
+    var lastLogin;
+    var loggedInUser;
     userRepository
       .getByEmail(req.body.email)
       .then(user => {
+        loggedInUser = user;
         if (user && validatePassword(req.body.password, user.password)) {
-          res.status(200).json({message: "Successful login!", uid: user.id, isAdmin: user.isAdmin, token: generateToken(user)});
-        } else{
-          res.status(400).json({message: "Invalid username/password"});
+          return user;
+        } else {
+          res.status(400).json({ message: "Invalid username/password" });
         }
       })
-      .catch(err => res.status(500).send(err))
-
+      .then(user => {
+        lastLogin = user.lastLogin;
+        const currentDate = moment();
+        return userRepository.update(user, {
+          lastLogin: currentDate
+        });
+      })
+      .then(result => {
+        res.status(200).json({
+          message: "Successful login!",
+          uid: loggedInUser.id,
+          isAdmin: loggedInUser.isAdmin,
+          lastLogin: lastLogin,
+          token: generateToken(loggedInUser)
+        });
+      })
+      .catch(err => res.status(500).send(err));
   };
-}
+};
 
-module.exports = new AuthController(userRepository, volunteerRepository, adminRepository);
+module.exports = new AuthController(
+  userRepository,
+  volunteerRepository,
+  adminRepository
+);
 
 /* Helper functions */
-function hashedPassword(password){
-    return bcrypt.hashSync(password, bcrypt.genSaltSync(8), null);
-  }
-
-function validatePassword(password, hashedPassword){
-    return bcrypt.compareSync(password, hashedPassword);
+function hashedPassword(password) {
+  return bcrypt.hashSync(password, bcrypt.genSaltSync(8), null);
 }
 
-function generateToken(user){
-    var tokenConfig =  config.token;
-    return jwt.sign({
+function validatePassword(password, hashedPassword) {
+  return bcrypt.compareSync(password, hashedPassword);
+}
+
+function generateToken(user) {
+  var tokenConfig = config.token;
+  return jwt.sign(
+    {
       id: user.id
-    },config["jwt-secret"], {expiresIn: tokenConfig.timeout*60});
+    },
+    config["jwt-secret"],
+    { expiresIn: tokenConfig.timeout * 60 }
+  );
 }
