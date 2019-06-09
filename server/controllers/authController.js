@@ -64,9 +64,11 @@ var AuthController = function(
 
   this.loginUser = function(req, res) {
     var lastLogin;
+    var loggedInUser;
     userRepository
       .getByEmail(req.body.email)
       .then(user => {
+        loggedInUser = user;
         if (user && validatePassword(req.body.password, user.password)) {
           return user;
         } else {
@@ -80,13 +82,13 @@ var AuthController = function(
           lastLogin: currentDate
         });
       })
-      .then(user => {
+      .then(result => {
         res.status(200).json({
           message: "Successful login!",
-          uid: user.id,
-          isAdmin: user.isAdmin,
+          uid: loggedInUser.id,
+          isAdmin: loggedInUser.isAdmin,
           lastLogin: lastLogin,
-          token: generateToken(user)
+          token: generateToken(loggedInUser)
         });
       })
       .catch(err => res.status(500).send(err));
