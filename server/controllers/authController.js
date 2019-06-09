@@ -7,16 +7,14 @@ const moment = require("moment");
 const bcrypt = require("bcryptjs");
 const config = require("../config/config.js");
 const jwt = require("jsonwebtoken");
+const PNF = require('google-libphonenumber').PhoneNumberFormat;
+const phoneUtil = require('google-libphonenumber').PhoneNumberUtil.getInstance();
 
 var AuthController = function(
   userRepository,
   volunteerRepository,
   adminRepository
 ) {
-  this.userRepository = userRepository;
-  this.volunteerRepository = volunteerRepository;
-  this.adminRepository = adminRepository;
-
   this.registerUser = function(req, res) {
     userRepository
       .getByEmail(req.body.email)
@@ -27,7 +25,15 @@ var AuthController = function(
             .send({ message: "An account with that email already exists" });
         } else {
           var hash = hashedPassword(req.body.password);
-          return userRepository.add(req.body, hash);
+          const number = phoneUtil.parse(req.body.telephone, 'GB');
+          if (!phoneUtil.isValidNumber(number)) {
+            res
+              .status(400)
+              .send({ message: "Invalid UK phone number" });
+          } else {
+            const formattedNumber = phoneUtil.format(number, PNF.E164);
+            return userRepository.add(req.body, hash, formattedNumber);
+          }
         }
       })
       .then(async user => {
@@ -46,7 +52,6 @@ var AuthController = function(
           email: false,
           text: false
         });
-
         return user;
       })
       .then(user =>

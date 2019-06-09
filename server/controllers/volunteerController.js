@@ -9,9 +9,6 @@ const volunteerIsAvailableForShift = require("../utils/availability")
 const EXPECTED_SHORTAGE_THRESHOLD = 6;
 
 var VolunteerController = function(volunteerRepository, shiftRepository) {
-  this.volunteerRepository = volunteerRepository;
-  this.shiftRepository = shiftRepository;
-
   this.list = function(req, res) {
     // Restrict access to admin
     if (!req.user.isAdmin) {

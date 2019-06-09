@@ -4,7 +4,7 @@ const UserRepositoryInterface = require("./interfaces/userRepositoryInterface");
 
 var UserRepository = Object.create(UserRepositoryInterface);
 
-UserRepository.add = function(user, hash) {
+UserRepository.add = function(user, hash, phone) {
   var deferred = Q.defer();
 
   User.create({
@@ -14,7 +14,7 @@ UserRepository.add = function(user, hash) {
     password: hash,
     isAdmin: user.isAdmin,
     dob: user.dob,
-    telephone: user.telephone
+    telephone: phone
   })
     .then(user => deferred.resolve(user))
     .catch(error => deferred.reject(error));

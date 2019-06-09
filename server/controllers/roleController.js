@@ -1,9 +1,7 @@
 const roleRepository = require("../repositories").RoleRepository;
 
 var RoleController = function(roleRepository) {
-  this.roleRepository = roleRepository;
-
-  // Create a new role
+// Create a new role
   this.create = function(req, res) {
     // Check if admin
     if (!req.user.isAdmin) {

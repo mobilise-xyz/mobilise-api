@@ -6,7 +6,8 @@ const isWeekend = require("../utils/date").isWeekend;
 const moment = require("moment");
 const volunteerIsAvailableForShift = require("../utils/availability")
   .volunteerIsAvailableForShift;
-var nodemailer = require("nodemailer");
+const nodemailer = require("nodemailer");
+const Nexmo = require("nexmo");
 
 const REPEATED_TYPES = {
   Never: ["Never"],
@@ -31,10 +32,6 @@ var ShiftController = function(
   roleRepository,
   bookingRepository
 ) {
-  this.shiftRepository = shiftRepository;
-  this.roleRepository = roleRepository;
-  this.bookingRepository = bookingRepository;
-
   this.list = function(req, res) {
     shiftRepository
       .getAllWithRequirements()
@@ -209,30 +206,37 @@ var ShiftController = function(
         } else {
           const transporter = nodemailer.createTransport({
             host: process.env.MAIL_HOST,
-            port: 587,
+            port: process.env.MAIL_PORT,
             auth: {
               user: process.env.MAIL_SENDER_USER,
               pass: process.env.MAIL_SENDER_PASS
             }
           });
+          const nexmo = new Nexmo({
+            apiKey: process.env.NEXMO_API_KEY,
+            apiSecret: process.env.NEXMO_API_SECRET
+          });
+
           return volunteerRepository.getAll().then(volunteers => {
-            console.log(volunteers);
             volunteers.forEach(volunteer => {
-              if (
-                volunteerIsAvailableForShift(volunteer, shift) > 0.5 &&
-                volunteer.user.contactPreference.email
-              ) {
-                var mailOptions = {
-                  from: process.env.SMTP_FROM,
-                  to: volunteer.user.email,
-                  subject: "Help needed for shift!",
-                  text:
-                    "Title: " +
-                    shift.title +
-                    "\nDescription: " +
-                    shift.description
-                };
-                transporter.sendMail(mailOptions);
+              if (volunteerIsAvailableForShift(volunteer, shift) > 0.5) {
+                var message = `Hello ${volunteer.user.firstName},\n\n A shift needs your assistance! \nTitle: ${shift.title}\nDescription: ${shift.description}`;
+                if (volunteer.user.contactPreference.email) {
+                  var mailOptions = {
+                    from: process.env.SMTP_FROM,
+                    to: volunteer.user.email,
+                    subject: "Help needed for shift!",
+                    text: message
+                  };
+                  transporter.sendMail(mailOptions);
+                }
+                if (volunteer.user.contactPreference.text) {
+                  nexmo.message.sendSms(
+                    "Mobilise",
+                    volunteer.user.telephone,
+                    message
+                  );
+                }
               }
             });
             return shift;

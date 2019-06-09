@@ -1,5 +1,5 @@
 var UserRepositoryInterface = {
-  add: function(user, hash) {},
+  add: function(user, hash, phone) {},
   getByEmail: function(email) {},
   getById: function(id) {},
   update: function(user, body) {}
