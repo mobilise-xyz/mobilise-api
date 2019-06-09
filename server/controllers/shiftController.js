@@ -211,14 +211,11 @@ var ShiftController = function (
             volunteers.forEach(volunteer => {
               if (!volunteerCurrentlyOnShift(volunteer, shift) && volunteerIsAvailableForShift(volunteer, shift) > 0.5) {
                 var message = constructMessage(volunteer, shift);
-                console.log("Name: " + volunteer.user.firstName);
-                console.log("Email: " + volunteer.user.email);
-                console.log("ID: " + volunteer.userId);
                 if (volunteer.user.contactPreference.email) {
-                  //sendEmail(emailClient, volunteer, message);
+                  sendEmail(emailClient, volunteer, message);
                 }
                 if (volunteer.user.contactPreference.text) {
-                  //sendText(textClient, volunteer, message);
+                  sendText(textClient, volunteer, message);
                 }
               }
             });
