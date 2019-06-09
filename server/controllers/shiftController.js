@@ -6,7 +6,13 @@ const isWeekend = require("../utils/date").isWeekend;
 const moment = require("moment");
 const volunteerIsAvailableForShift = require("../utils/availability")
   .volunteerIsAvailableForShift;
-var nodemailer = require("nodemailer");
+const nodemailer = require("nodemailer");
+const Nexmo = require("nexmo");
+
+const nexmo = new Nexmo({
+  apiKey: process.env.NEXMO_API_KEY,
+  apiSecret: process.env.NEXMO_API_SECRET
+});
 
 const REPEATED_TYPES = {
   Never: ["Never"],
@@ -215,24 +221,34 @@ var ShiftController = function(
               pass: process.env.MAIL_SENDER_PASS
             }
           });
+
           return volunteerRepository.getAll().then(volunteers => {
-            console.log(volunteers);
             volunteers.forEach(volunteer => {
-              if (
-                volunteerIsAvailableForShift(volunteer, shift) > 0.5 &&
-                volunteer.user.contactPreference.email
-              ) {
-                var mailOptions = {
-                  from: process.env.SMTP_FROM,
-                  to: volunteer.user.email,
-                  subject: "Help needed for shift!",
-                  text:
-                    "Title: " +
-                    shift.title +
-                    "\nDescription: " +
-                    shift.description
-                };
-                transporter.sendMail(mailOptions);
+              if (volunteerIsAvailableForShift(volunteer, shift) > 0.5) {
+                var message = `Hello ${volunteer.user.firstName},\n\n A shift needs your assistance! \nTitle: ${shift.title}\nDescription: ${shift.description}`;
+                if (volunteer.user.contactPreference.email) {
+                  var mailOptions = {
+                    from: process.env.SMTP_FROM,
+                    to: volunteer.user.email,
+                    subject: "Help needed for shift!",
+                    text: message
+                  };
+                  transporter.sendMail(mailOptions);
+                }
+                if (volunteer.user.contactPreference.text) {
+                  nexmo.message.sendSms(
+                    "Mobilise",
+                    volunteer.user.telephone,
+                    message,
+                    (err, responseData) => {
+                      if (err) {
+                        console.log(err);
+                      } else {
+                        console.log(responseData);
+                      }
+                    }
+                  );
+                }
               }
             });
             return shift;

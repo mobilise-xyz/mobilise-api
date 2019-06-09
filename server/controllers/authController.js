@@ -7,6 +7,7 @@ const moment = require("moment");
 const bcrypt = require("bcryptjs");
 const config = require("../config/config.js");
 const jwt = require("jsonwebtoken");
+const phone  = require('phone');
 
 var AuthController = function(
   userRepository,
@@ -27,7 +28,13 @@ var AuthController = function(
             .send({ message: "An account with that email already exists" });
         } else {
           var hash = hashedPassword(req.body.password);
-          return userRepository.add(req.body, hash);
+          // sort out phone
+          var phone = phone(req.body.telephone, 'UK');
+          if (!phone[0]) {
+            res.status(400).send({message: "Invalid phone number"});
+          } else {
+            return userRepository.add(req.body, hash, phone[0]);
+          }
         }
       })
       .then(async user => {
@@ -46,7 +53,6 @@ var AuthController = function(
           email: false,
           text: false
         });
-
         return user;
       })
       .then(user =>
