@@ -161,6 +161,21 @@ BookingRepository.getByVolunteerId = function (volunteerId) {
   return deferred.promise;
 };
 
+BookingRepository.delete = function(shiftId, volunteerId) {
+  var deferred = Q.defer();
+
+  Booking.destroy({
+    where: {
+      volunteerId: volunteerId,
+      shiftId: shiftId
+    }
+  })
+    .then(booking => deferred.resolve(booking))
+    .catch(err => deferred.reject(err));
+
+  return deferred.promise;
+};
+
 BookingRepository.getById = function (shiftId, volunteerId) {
   var deferred = Q.defer();
 
@@ -168,7 +183,8 @@ BookingRepository.getById = function (shiftId, volunteerId) {
     where: {
       shiftId: shiftId,
       volunteerId: volunteerId
-    }
+    },
+    include: ['shift']
   })
     .then(booking => deferred.resolve(booking))
     .catch(err => deferred.reject(err));

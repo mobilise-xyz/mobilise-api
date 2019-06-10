@@ -38,7 +38,11 @@ VolunteerRepository.getAll = function() {
 VolunteerRepository.getById = function(id) {
   var deferred = Q.defer();
 
-  Volunteer.findOne({ where: { userId: id } })
+  Volunteer.findOne({ where: { userId: id }, include: [{
+    model: User,
+      as: "user",
+      include: ['contactPreference']
+    }] })
     .then(volunteer => deferred.resolve(volunteer))
     .catch(err => deferred.reject(err));
 
