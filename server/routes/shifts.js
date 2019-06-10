@@ -23,6 +23,9 @@ router.put("/:id/rolesRequired", controller.updateRoles);
 /* Book a shift */
 router.post("/:id/book", controller.book);
 
+/* Delete booking by ID */
+router.delete("/:id/booking", controller.cancel);
+
 /* Get all shift titles */
 router.get("/titles", controller.listTitles);
 

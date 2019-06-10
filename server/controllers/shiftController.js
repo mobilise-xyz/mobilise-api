@@ -2,6 +2,7 @@ const shiftRepository = require("../repositories").ShiftRepository;
 const roleRepository = require("../repositories").RoleRepository;
 const bookingRepository = require("../repositories").BookingRepository;
 const volunteerRepository = require("../repositories").VolunteerRepository;
+const adminRepository = require("../repositories").AdminRepository;
 const isWeekend = require("../utils/date").isWeekend;
 const moment = require("moment");
 const volunteerIsAvailableForShift = require("../utils/availability")
@@ -63,6 +64,54 @@ var ShiftController = function (
       )
       .catch(err => res.status(500).send(err));
   };
+
+  this.cancel = function (req, res) {
+
+    var creator;
+    var shift;
+
+    shiftRepository
+      .getById(req.params.id)
+      .then(s => {
+        if (!s) {
+          res.status(400).send({message: "No shift with that id"});
+        } else {
+          shift = s;
+          return adminRepository.getById(shift.creatorId);
+        }
+      })
+      .then(admin => {
+        if (!admin) {
+          res.status(400).send({message: "Shift has no creator"});
+        } else {
+          creator = admin;
+          return volunteerRepository.getById(req.user.id);
+        }
+      })
+      .then(volunteer => {
+        if (!volunteer) {
+          res.status(400).send({message: "Only a volunteer can cancel a booking"});
+        } else {
+          const message = constructCancelMessage(creator, volunteer, shift, req.body.reason);
+          if (creator.user.contactPreference.email) {
+            var emailClient = createEmailClient();
+            sendEmail(emailClient, creator.user, message);
+          }
+          if (creator.user.contactPreference.text) {
+            var textClient = createTextClient();
+            sendText(textClient, creator.user, message);
+          }
+          return bookingRepository.delete(req.user.id, req.params.id);
+        }
+      })
+      .then(res =>
+        res.status(200).send({message: "Successfully cancelled booking"})
+      )
+      .catch(err =>
+        res.status(500).send(err)
+      );
+  };
+
 
   this.book = function (req, res) {
     if (req.user.isAdmin) {
@@ -210,12 +259,12 @@ var ShiftController = function (
           return volunteerRepository.getAll().then(volunteers => {
             volunteers.forEach(volunteer => {
               if (!volunteerCurrentlyOnShift(volunteer, shift) && volunteerIsAvailableForShift(volunteer, shift)) {
-                var message = constructMessage(volunteer, shift);
+                var message = constructHelpMessage(volunteer, shift);
                 if (volunteer.user.contactPreference.email) {
-                  sendEmail(emailClient, volunteer, message);
+                  sendEmail(emailClient, volunteer.user, message);
                 }
                 if (volunteer.user.contactPreference.text) {
-                  sendText(textClient, volunteer, message);
+                  sendText(textClient, volunteer.user, message);
                 }
               }
             });
@@ -314,20 +363,20 @@ function repeatedTypeIsValid(type, startDate) {
   return REPEATED_TYPES.hasOwnProperty(type);
 }
 
-function sendEmail(emailClient, volunteer, message) {
+function sendEmail(emailClient, user, message) {
   var mailOptions = {
     from: process.env.SMTP_FROM,
-    to: volunteer.user.email,
+    to: user.email,
     subject: "Help needed for shift!",
     text: message
   };
   emailClient.sendMail(mailOptions);
 }
 
-function sendText(textClient, volunteer, message) {
+function sendText(textClient, user, message) {
   textClient.message.sendSms(
     "Mobilise",
-    volunteer.user.telephone,
+    user.telephone,
     message
   );
 }
@@ -357,12 +406,16 @@ function createTextClient() {
   });
 }
 
-function constructMessage(volunteer, shift) {
-  return `Hello ${volunteer.user.firstName},\n\nA shift needs your assistance! \nTitle: ${shift.title}\nDescription: ${shift.description}`;;
+function constructCancelMessage(admin, volunteer, shift, reason) {
+  return `Hello ${admin.user.firstName},\n\n${volunteer.user.firstName} has cancelled their booking for a shift.\nTitle: ${shift.title}\nDescription: ${shift.description}\n\nReason for cancelling:${reason}`;
+}
+
+function constructHelpMessage(volunteer, shift) {
+  return `Hello ${volunteer.user.firstName},\n\nA shift needs your assistance! \nTitle: ${shift.title}\nDescription: ${shift.description}`;
 }
 
 function volunteerCurrentlyOnShift(volunteer, shift) {
-  for (var i = 0; i < shift.requirements.length; i ++) {
+  for (var i = 0; i < shift.requirements.length; i++) {
     var requirement = shift.requirements[i];
     for (var j = 0; j < requirement.bookings.length; j++) {
       if (requirement.bookings[j].volunteerId === volunteer.userId) {
