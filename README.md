@@ -14,6 +14,14 @@ DB_PASSWORD=
 DB_NAME=
 DB_PORT=
 JWT_SECRET=literallyanything
+MAIL_HOST=
+MAIL_PORT=587
+MAIL_SENDER_USER=
+MAIL_SENDER_PASS=
+SMTP_FROM=no-reply@mobilise.xyz
+NEXMO_API_KEY=
+NEXMO_API_SECRET=
+NODE_ENV=development
 ```
 
 Set up local postgres database and populate .env values respectively.
