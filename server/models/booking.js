@@ -28,6 +28,10 @@ module.exports = (sequelize, DataTypes) => {
       as: "repeated",
       foreignKey: "repeatedId"
     });
+    Booking.belongsTo(models.Shift, {
+      as: 'shift',
+      foreignKey: 'shiftId'
+    })
   };
   return Booking;
 };

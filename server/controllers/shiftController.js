@@ -70,13 +70,13 @@ var ShiftController = function (
     var creator;
     var shift;
 
-    shiftRepository
-      .getById(req.params.id)
-      .then(s => {
-        if (!s) {
-          res.status(400).send({message: "No shift with that id"});
+    bookingRepository
+      .getById(req.params.id, req.user.id)
+      .then(booking => {
+        if (!booking) {
+          res.status(400).send({message: "No such booking exists"});
         } else {
-          shift = s;
+          shift = booking.shift;
           return adminRepository.getById(shift.creatorId);
         }
       })
@@ -95,17 +95,17 @@ var ShiftController = function (
           const message = constructCancelMessage(creator, volunteer, shift, req.body.reason);
           if (creator.user.contactPreference.email) {
             var emailClient = createEmailClient();
-            sendEmail(emailClient, creator.user, message);
+            sendEmail(emailClient, creator.user, "Cancelled booking" ,message);
           }
           if (creator.user.contactPreference.text) {
             var textClient = createTextClient();
             sendText(textClient, creator.user, message);
           }
-          return bookingRepository.delete(req.user.id, req.params.id);
+          return bookingRepository.delete(req.params.id, req.user.id);
         }
       })
-      .then(res =>
-        res.status(200).send({message: "Successfully cancelled booking"})
+      .then(booking =>
+        res.status(200).send({message: "Successfully cancelled booking", booking: booking})
       )
       .catch(err =>
         res.status(500).send(err)
@@ -261,7 +261,7 @@ var ShiftController = function (
               if (!volunteerCurrentlyOnShift(volunteer, shift) && volunteerIsAvailableForShift(volunteer, shift)) {
                 var message = constructHelpMessage(volunteer, shift);
                 if (volunteer.user.contactPreference.email) {
-                  sendEmail(emailClient, volunteer.user, message);
+                  sendEmail(emailClient, volunteer.user, "Help needed for shift!" ,message);
                 }
                 if (volunteer.user.contactPreference.text) {
                   sendText(textClient, volunteer.user, message);
@@ -363,11 +363,11 @@ function repeatedTypeIsValid(type, startDate) {
   return REPEATED_TYPES.hasOwnProperty(type);
 }
 
-function sendEmail(emailClient, user, message) {
+function sendEmail(emailClient, user, title, message) {
   var mailOptions = {
     from: process.env.SMTP_FROM,
     to: user.email,
-    subject: "Help needed for shift!",
+    subject: title,
     text: message
   };
   emailClient.sendMail(mailOptions);
@@ -407,7 +407,7 @@ function createTextClient() {
 }
 
 function constructCancelMessage(admin, volunteer, shift, reason) {
-  return `Hello ${admin.user.firstName},\n\n${volunteer.user.firstName} has cancelled their booking for a shift.\nTitle: ${shift.title}\nDescription: ${shift.description}\n\nReason for cancelling:${reason}`;
+  return `Hello ${admin.user.firstName},\n\n${volunteer.user.firstName} has cancelled their booking for a shift.\nTitle: ${shift.title}\nDescription: ${shift.description}\n\nReason for cancelling: ${reason}`;
 }
 
 function constructHelpMessage(volunteer, shift) {
