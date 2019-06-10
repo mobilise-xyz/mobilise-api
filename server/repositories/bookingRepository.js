@@ -147,13 +147,18 @@ BookingRepository.getAllWithShifts = function () {
   return deferred.promise;
 };
 
-BookingRepository.getByVolunteerId = function (volunteerId) {
+BookingRepository.getByVolunteerId = function (volunteerId, whereShift) {
   var deferred = Q.defer();
-
   Booking.findAll({
     where: {
       volunteerId: volunteerId
-    }
+    },
+    include: [{
+      model: Shift,
+      as: "shift",
+      where: whereShift,
+      required: true
+    }]
   })
     .then(bookings => deferred.resolve(bookings))
     .catch(err => deferred.reject(err));
