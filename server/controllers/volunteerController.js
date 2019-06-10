@@ -3,18 +3,19 @@ const shiftRepository = require("../repositories").ShiftRepository;
 const bookingRepository = require("../repositories").BookingRepository;
 const Op = require("../models").Sequelize.Op;
 const Predictor = require("../recommenderSystem").Predictor;
+const moment = require("moment");
 const volunteerIsAvailableForShift = require("../utils/availability")
   .volunteerIsAvailableForShift;
 
 const EXPECTED_SHORTAGE_THRESHOLD = 6;
 
-var VolunteerController = function(volunteerRepository, shiftRepository) {
-  this.list = function(req, res) {
+var VolunteerController = function (volunteerRepository, shiftRepository) {
+  this.list = function (req, res) {
     // Restrict access to admin
     if (!req.user.isAdmin) {
       res
         .status(401)
-        .send({ message: "Only admins can access volunteer catalogue" });
+        .send({message: "Only admins can access volunteer catalogue"});
       return;
     }
 
@@ -24,42 +25,82 @@ var VolunteerController = function(volunteerRepository, shiftRepository) {
       .catch(err => res.status(500).send(err));
   };
 
-  ((this.getStats = function(req, res) {
+  ((this.getStats = function (req, res) {
     // Check bearer token id matches parameter id
     if (req.user.id !== req.params.id) {
-      res.status(401).send({ message: "You can only view your own stats." });
+      res.status(401).send({message: "You can only view your own stats."});
       return;
     }
 
-    res.status(200).send({
-      contributions: {
-        shiftsCompleted: 10,
-        hours: 10,
-        challengesCompleted: 2
-      }
-    });
-  }),
-  (this.getActivity = function(req, res) {
-    // Check bearer token id matches parameter id
-    if (req.user.id !== req.params.id) {
-      res.status(401).send({ message: "You can only view your own stats." });
-      return;
-    }
-
-    res.status(200).send({
-      myActivity: [
-        {
-          title: "Achievement! Completed First Shift",
-          description: "You completed your first shift with City Harvest London"
-        },
-        {
-          title: "Made your first booking",
-          description: "You made your first booking for Pick-up - Tesco"
+    volunteerRepository.getById(req.user.id)
+      .then(volunteer => {
+        if (!volunteer) {
+          res.status(400).send({message: "No volunteer with that id"});
+        } else {
+          const now = moment();
+          const date = now.format("YYYY-MM-DD");
+          const time = now.format("HH:mm");
+          return bookingRepository.getByVolunteerId(volunteer.userId, {
+            [Op.or]: [{
+              date: {
+                [Op.lt]: date
+              }
+            }, {
+              [Op.and]: [{
+                date: {
+                  [Op.eq]: date,
+                },
+                stop: {
+                  [Op.lte]: time
+                }
+              }]
+            }]
+          });
         }
-      ]
-    });
-  })),
-    (this.getHallOfFame = function(req, res) {
+      })
+      .then(bookings => {
+        var hours = 0;
+        var shiftsCompleted = bookings.length;
+        bookings.forEach(booking => {
+          var shift = booking.shift;
+          var startTime = moment(shift.start, "HH:mm");
+          var stopTime = moment(shift.stop, "HH:mm");
+          var duration = moment.duration(stopTime.diff(startTime));
+          hours += duration.asHours();
+        });
+        res.status(200).send({
+          contributions: {
+            shiftsCompleted: shiftsCompleted,
+            hours: hours,
+            challengesCompleted: 2
+          }
+        });
+      })
+      .catch(err => res.status(500).send(err));
+  }),
+
+
+    (this.getActivity = function (req, res) {
+      // Check bearer token id matches parameter id
+      if (req.user.id !== req.params.id) {
+        res.status(401).send({message: "You can only view your own stats."});
+        return;
+      }
+
+      res.status(200).send({
+        myActivity: [
+          {
+            title: "Achievement! Completed First Shift",
+            description: "You completed your first shift with City Harvest London"
+          },
+          {
+            title: "Made your first booking",
+            description: "You made your first booking for Pick-up - Tesco"
+          }
+        ]
+      });
+    })),
+    (this.getHallOfFame = function (req, res) {
       res.status(200).send({
         hallOfFame: {
           fastResponder: {
@@ -77,12 +118,12 @@ var VolunteerController = function(volunteerRepository, shiftRepository) {
         }
       });
     }),
-    (this.updateAvailability = function(req, res) {
+    (this.updateAvailability = function (req, res) {
       // Check bearer token id matches parameter id
       if (req.user.id !== req.params.id) {
         res
           .status(401)
-          .send({ message: "You can only update your own availability." });
+          .send({message: "You can only update your own availability."});
         return;
       }
 
@@ -90,7 +131,7 @@ var VolunteerController = function(volunteerRepository, shiftRepository) {
         .getById(req.params.id)
         .then(volunteer => {
           if (!volunteer) {
-            res.status(400).send({ message: "No volunteer with that id" });
+            res.status(400).send({message: "No volunteer with that id"});
           } else {
             volunteerRepository
               .updateAvailability(req.params.id, req.body.availability)
@@ -105,12 +146,12 @@ var VolunteerController = function(volunteerRepository, shiftRepository) {
         .catch(error => res.status(500).send(error));
     });
 
-  this.getAvailability = function(req, res) {
+  this.getAvailability = function (req, res) {
     // Check bearer token id matches parameter id
     if (req.user.id !== req.params.id) {
       res
         .status(401)
-        .send({ message: "You can only update your own availability." });
+        .send({message: "You can only update your own availability."});
       return;
     }
 
@@ -118,7 +159,7 @@ var VolunteerController = function(volunteerRepository, shiftRepository) {
       .getById(req.params.id)
       .then(volunteer => {
         if (!volunteer) {
-          res.status(400).send({ message: "No volunteer with that id" });
+          res.status(400).send({message: "No volunteer with that id"});
         } else {
           volunteerRepository
             .getAvailability(req.params.id)
@@ -129,13 +170,13 @@ var VolunteerController = function(volunteerRepository, shiftRepository) {
       .catch(error => res.status(500).send(error));
   };
 
-  this.listShiftsByVolunteerId = function(req, res) {
+  this.listShiftsByVolunteerId = function (req, res) {
     var volunteer;
     volunteerRepository
       .getById(req.params.id)
       .then(vol => {
         if (!vol) {
-          res.status(400).send({ message: "No volunteer with that id" });
+          res.status(400).send({message: "No volunteer with that id"});
         } else {
           volunteer = vol;
           return bookingRepository.getByVolunteerId(vol.userId);
@@ -147,7 +188,7 @@ var VolunteerController = function(volunteerRepository, shiftRepository) {
         if (req.query.booked) {
           return shiftRepository
             .getAllWithRequirements({
-              id: { [Op.in]: shiftIds }
+              id: {[Op.in]: shiftIds}
             })
             .then(shifts => {
               var result = [];
@@ -171,7 +212,7 @@ var VolunteerController = function(volunteerRepository, shiftRepository) {
         return Predictor.computeExpectedShortages().then(_ => {
           return shiftRepository
             .getAllWithRequirements({
-              id: { [Op.notIn]: shiftIds }
+              id: {[Op.notIn]: shiftIds}
             })
             .then(shifts => {
               var result = [];

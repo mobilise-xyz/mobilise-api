@@ -69,4 +69,5 @@ VolunteerRepository.getAvailability = function(id) {
   return deferred.promise;
 };
 
+
 module.exports = VolunteerRepository;
