@@ -113,6 +113,7 @@ var VolunteerController = function (volunteerRepository, shiftRepository) {
               var volunteer = volunteers[j];
               ranking.push({
                 rank: j+1,
+                uid: volunteer.userId,
                 name: `${volunteer.user.firstName} ${volunteer.user.lastName}`,
                 number: volunteer[fields[i]]
               });
