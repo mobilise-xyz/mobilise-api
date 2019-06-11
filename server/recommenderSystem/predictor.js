@@ -1,10 +1,51 @@
 const Q = require("q");
 const shiftRepository = require("../repositories").ShiftRepository;
 const ShiftRequirement = require("../models").ShiftRequirement;
+const volunteerRepository = require("../repositories").VolunteerRepository;
 const Op = require("../models").Sequelize.Op;
 
 var Predictor = function(shiftRepository) {
+
   this.shiftRepository = shiftRepository;
+
+  this.getCumulativeAvailability = async function() {
+    var deferred = Q.defer();
+
+    await volunteerRepository.getAll()
+      .then(volunteers => {
+
+        // Initialise array to build cumulative availability
+        var array = Array(7).fill([0, 0, 0]);
+
+        // Loop through list of volunteers and build the array of cumulative availabilities
+        var i;
+        for(i = 0; i < volunteers.length; i++) {
+          var availability = volunteers[i].availability;
+
+          // Loop through each element of 2D availability array
+          var j;
+          for(j = 0; j < array.length; j++) {
+            var k;
+            for(k = 0; k < array[0].length; k++) {
+
+              // Compare availability character and increment corresponding cell in array
+              if (availability[j][k] == '2') {
+                array[j][k] += 1;
+              } else if (availability[j][k] == '1') {
+                array[j][k] += 0.5;
+              } 
+
+            }
+          }
+        }
+
+        return array;
+      })
+      .then(result => deferred.resolve(result))
+      .catch(error => deferred.reject(error))
+
+    return deferred.promise;
+  }
 
   this.computeExpectedShortages = async function(whereTrue) {
     var deferred = Q.defer();
