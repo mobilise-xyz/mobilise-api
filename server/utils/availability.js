@@ -22,4 +22,19 @@ function getSlotForTime(time) {
   return 1;
 }
 
-module.exports = {volunteerIsAvailableForShift};
+function volunteerBookedOnShift(volunteer, shift) {
+  for (var i = 0; i < shift.requirements.length; i++) {
+    var requirement = shift.requirements[i];
+    for (var j = 0; j < requirement.bookings.length; j++) {
+      if (requirement.bookings[j].volunteerId === volunteer.userId) {
+        return true;
+      }
+    }
+  }
+  return false;
+}
+
+module.exports = {
+  volunteerIsAvailableForShift,
+  volunteerBookedOnShift
+};
