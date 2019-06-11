@@ -6,7 +6,14 @@ module.exports = (sequelize, DataTypes) => {
       primaryKey: true,
       type: DataTypes.STRING
     },
-    value: DataTypes.INTEGER
+    verb: {
+      allowNull: false,
+      type: DataTypes.STRING
+    },
+    value: {
+      allowNull: false,
+      type: DataTypes.INTEGER
+    }
   }, {});
   Metric.associate = function(models) {
     // associations can be defined here

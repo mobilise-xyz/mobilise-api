@@ -7,7 +7,12 @@ module.exports = {
         primaryKey: true,
         type: Sequelize.STRING
       },
+      verb: {
+        allowNull: false,
+        type: Sequelize.STRING
+      },
       value: {
+        allowNull: false,
         type: Sequelize.INTEGER
       },
       createdAt: {
