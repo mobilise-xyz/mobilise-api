@@ -25,7 +25,7 @@ var VolunteerController = function (volunteerRepository, shiftRepository) {
       .catch(err => res.status(500).send(err));
   };
 
-  ((this.getStats = function (req, res) {
+  (this.getStats = function (req, res) {
     // Check bearer token id matches parameter id
     if (req.user.id !== req.params.id) {
       res.status(401).send({message: "You can only view your own stats."});
@@ -77,7 +77,7 @@ var VolunteerController = function (volunteerRepository, shiftRepository) {
         });
       })
       .catch(err => res.status(500).send(err));
-  }),
+  });
 
 
     (this.getActivity = function (req, res) {
@@ -99,25 +99,29 @@ var VolunteerController = function (volunteerRepository, shiftRepository) {
           }
         ]
       });
-    })),
-    (this.getHallOfFame = function (req, res) {
-      res.status(200).send({
-        hallOfFame: {
-          fastResponder: {
-            name: "Mark Wheelhouse",
-            number: 3
-          },
-          mostHours: {
-            name: "Joon-Ho Son",
-            number: 50
-          },
-          onTheRise: {
-            name: "Jane Doe",
-            number: 4
-          }
-        }
-      });
-    }),
+    });
+
+    (this.getHallOfFame = async function (req, res) {
+      var response = {};
+      var fields = ['lastWeekHours', 'lastWeekShifts', 'lastWeekIncrease'];
+      for (var i = 0; i < fields.length; i++) {
+        var ranking = [];
+        await volunteerRepository.getTop([[fields[i],'DESC']], 3)
+          .then(volunteers => {
+            for (var j = 0; j < volunteers.length; j++) {
+              var volunteer = volunteers[j];
+              ranking.push({
+                rank: j+1,
+                name: `${volunteer.user.firstName} ${volunteer.user.lastName}`,
+                number: volunteer[fields[i]]
+              })
+            }
+          });
+        response[fields[i]] = ranking;
+      }
+      res.status(200).send(response);
+    });
+
     (this.updateAvailability = function (req, res) {
       // Check bearer token id matches parameter id
       if (req.user.id !== req.params.id) {
@@ -238,6 +242,70 @@ var VolunteerController = function (volunteerRepository, shiftRepository) {
       .then(shifts => res.status(200).send(shifts))
       .catch(err => res.status(500).send(err));
   };
+
+  (this.calculateHallOfFame = function (req, res) {
+    var date = moment().format("YYYY-MM-DD");
+    var time = moment().format("HH:mm");
+    var lastWeek = moment().subtract(7, "d").format("YYYY-MM-DD");
+
+    volunteerRepository.getAllWithShifts({
+      [Op.or]: [{
+        date: {
+          [Op.gt]: lastWeek
+        }
+      }, {
+        [Op.and]: [{
+          date: {
+            [Op.eq]: lastWeek,
+          },
+          start: {
+            [Op.gte]: time
+          }
+        }]
+      }],
+      [Op.and]: {
+        // Started after last week
+        // Stopped before now
+        [Op.or]: [{
+          date: {
+            [Op.lt]: date
+          }
+        }, {
+          [Op.and]: [{
+            date: {
+              [Op.eq]: date,
+            },
+            stop: {
+              [Op.lte]: time
+            }
+          }]
+        }]
+      }
+    })
+      .then(async volunteers => {
+        for (var i = 0; i < volunteers.length; i++) {
+          var volunteer = volunteers[i];
+          var lastWeekHours = 0;
+          var lastWeekShifts = volunteer.shifts.length;
+          var lastWeekIncrease = 0;
+          volunteer.shifts.forEach(shift => {
+            var startTime = moment(shift.start, "HH:mm");
+            var stopTime = moment(shift.stop, "HH:mm");
+            var duration = moment.duration(stopTime.diff(startTime));
+            lastWeekHours += duration.asHours();
+          });
+          if (volunteer.lastWeekHours > 0) {
+            lastWeekIncrease = (lastWeekHours / volunteer.lastWeekHours).toFixed(1);
+          }
+          await volunteerRepository.update(volunteer, {
+            lastWeekHours: lastWeekHours,
+            lastWeekShifts: lastWeekShifts,
+            lastWeekIncrease: lastWeekIncrease
+          });
+        }
+        res.status(200).send({message: "Success"});
+      });
+  });
 };
 
 module.exports = new VolunteerController(volunteerRepository, shiftRepository);
