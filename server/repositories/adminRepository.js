@@ -27,7 +27,7 @@ AdminRepository.getById = function (id) {
       }, include: [{
         model: User,
         as: "user",
-        include: ['contactPreference']
+        include: ['contactPreferences']
       }]
     })
     .then(admin => deferred.resolve(admin))
