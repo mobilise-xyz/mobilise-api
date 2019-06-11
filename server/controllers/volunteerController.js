@@ -1,6 +1,7 @@
 const volunteerRepository = require("../repositories").VolunteerRepository;
 const shiftRepository = require("../repositories").ShiftRepository;
 const bookingRepository = require("../repositories").BookingRepository;
+const metricRepository = require("../repositories").MetricRepository;
 const Op = require("../models").Sequelize.Op;
 const Predictor = require("../recommenderSystem").Predictor;
 const moment = require("moment");
@@ -31,16 +32,18 @@ var VolunteerController = function (volunteerRepository, shiftRepository) {
       res.status(401).send({message: "You can only view your own stats."});
       return;
     }
+    var volunteer;
 
     volunteerRepository.getById(req.user.id)
-      .then(volunteer => {
-        if (!volunteer) {
+      .then(vol => {
+        if (!vol) {
           res.status(400).send({message: "No volunteer with that id"});
         } else {
           const now = moment();
           const date = now.format("YYYY-MM-DD");
           const time = now.format("HH:mm");
-          return bookingRepository.getByVolunteerId(volunteer.userId, {
+          volunteer = vol;
+          return bookingRepository.getByVolunteerId(vol.userId, {
             [Op.or]: [{
               date: {
                 [Op.lt]: date
@@ -59,6 +62,7 @@ var VolunteerController = function (volunteerRepository, shiftRepository) {
         }
       })
       .then(bookings => {
+        var contributions = {};
         var hours = 0;
         var shiftsCompleted = bookings.length;
         bookings.forEach(booking => {
@@ -68,84 +72,104 @@ var VolunteerController = function (volunteerRepository, shiftRepository) {
           var duration = moment.duration(stopTime.diff(startTime));
           hours += duration.asHours();
         });
-        res.status(200).send({
-          contributions: {
-            shiftsCompleted: shiftsCompleted,
-            hours: hours
-          }
-        });
+        var metricStat;
+        var totalHoursFromLastWeek;
+        contributions["shiftsCompleted"] = shiftsCompleted;
+        contributions["hours"] = hours;
+        metricRepository.get()
+          .then(metric => {
+            if (metric) {
+              metricStat = metric;
+              return volunteerRepository.getTotalHoursFromLastWeek();
+            } else {
+              res.status(200).send({
+                contributions: contributions
+              });
+            }
+          })
+          .then(hours => {
+            totalHoursFromLastWeek = hours;
+            contributions["metric"] = {
+              name: metricStat.name,
+              verb: metricStat.verb,
+              value: metricStat.value * (volunteer.lastWeekHours /totalHoursFromLastWeek)
+            };
+            res.status(200).send({
+              contributions: contributions
+            });
+          });
       })
       .catch(err => res.status(500).send(err));
   });
 
 
-    (this.getActivity = function (req, res) {
-      // Check bearer token id matches parameter id
-      if (req.user.id !== req.params.id) {
-        res.status(401).send({message: "You can only view your own stats."});
-        return;
-      }
+  (this.getActivity = function (req, res) {
+    // Check bearer token id matches parameter id
+    if (req.user.id !== req.params.id) {
+      res.status(401).send({message: "You can only view your own stats."});
+      return;
+    }
 
-      res.status(200).send({
-        myActivity: []
-      });
+    res.status(200).send({
+      myActivity: []
     });
+  });
 
-    (this.getHallOfFame = async function (req, res) {
-      var response = {};
-      var fields = ['lastWeekHours', 'lastWeekIncrease'];
-      var errs = [];
-      for (var i = 0; i < fields.length; i++) {
-        var ranking = [];
-        await volunteerRepository.getTop([[fields[i],'DESC']], 3)
-          .then(volunteers => {
-            for (var j = 0; j < volunteers.length; j++) {
-              var volunteer = volunteers[j];
-              ranking.push({
-                rank: j+1,
-                uid: volunteer.userId,
-                name: `${volunteer.user.firstName} ${volunteer.user.lastName}`,
-                number: volunteer[fields[i]]
-              });
-            }
-          })
-          .catch(err => errs.push(err));
-        response[fields[i]] = ranking;
-      }
-      if (errs.length > 0) {
-        res.status(500).send(errs);
-      } else {
-        res.status(200).send({hallOfFame: response});
-      }
-    });
-
-    (this.updateAvailability = function (req, res) {
-      // Check bearer token id matches parameter id
-      if (req.user.id !== req.params.id) {
-        res
-          .status(401)
-          .send({message: "You can only update your own availability."});
-        return;
-      }
-
-      volunteerRepository
-        .getById(req.params.id)
-        .then(volunteer => {
-          if (!volunteer) {
-            res.status(400).send({message: "No volunteer with that id"});
-          } else {
-            volunteerRepository
-              .updateAvailability(req.params.id, req.body.availability)
-              .then(result =>
-                res.status(201).send({
-                  message: "Availability Updated Successfuly"
-                })
-              )
-              .catch(error => res.status(400).send(error));
+  (this.getHallOfFame = async function (req, res) {
+    var response = {};
+    var fields = ['lastWeekHours', 'lastWeekIncrease'];
+    var errs = [];
+    for (var i = 0; i < fields.length; i++) {
+      var ranking = [];
+      await volunteerRepository.getTop([[fields[i], 'DESC']], 3)
+        .then(volunteers => {
+          for (var j = 0; j < volunteers.length; j++) {
+            var volunteer = volunteers[j];
+            ranking.push({
+              rank: j + 1,
+              uid: volunteer.userId,
+              name: `${volunteer.user.firstName} ${volunteer.user.lastName}`,
+              number: volunteer[fields[i]]
+            });
           }
         })
-        .catch(error => res.status(500).send(error));
-    });
+        .catch(err => errs.push(err));
+      response[fields[i]] = ranking;
+    }
+    if (errs.length > 0) {
+      res.status(500).send(errs);
+    } else {
+      res.status(200).send({hallOfFame: response});
+    }
+  });
+
+  (this.updateAvailability = function (req, res) {
+    // Check bearer token id matches parameter id
+    if (req.user.id !== req.params.id) {
+      res
+        .status(401)
+        .send({message: "You can only update your own availability."});
+      return;
+    }
+
+    volunteerRepository
+      .getById(req.params.id)
+      .then(volunteer => {
+        if (!volunteer) {
+          res.status(400).send({message: "No volunteer with that id"});
+        } else {
+          volunteerRepository
+            .updateAvailability(req.params.id, req.body.availability)
+            .then(result =>
+              res.status(201).send({
+                message: "Availability Updated Successfuly"
+              })
+            )
+            .catch(error => res.status(400).send(error));
+        }
+      })
+      .catch(error => res.status(500).send(error));
+  });
 
   this.getAvailability = function (req, res) {
     // Check bearer token id matches parameter id

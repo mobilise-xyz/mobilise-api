@@ -18,6 +18,16 @@ VolunteerRepository.add = function(volunteer) {
   return deferred.promise;
 };
 
+VolunteerRepository.getTotalHoursFromLastWeek = function() {
+  var deferred = Q.defer();
+
+  Volunteer.sum('lastWeekHours')
+    .then(hours => deferred.resolve(hours))
+    .catch(error => deferred.reject(error));
+
+  return deferred.promise;
+}
+
 VolunteerRepository.getTop = function(orderBy, limit) {
   var deferred = Q.defer();
 
