@@ -4,12 +4,12 @@ const bookingRepository = require("../repositories").BookingRepository;
 const Op = require("../models").Sequelize.Op;
 const Predictor = require("../recommenderSystem").Predictor;
 const moment = require("moment");
-const volunteerIsAvailableForShift = require("../utils/availability")
-  .volunteerIsAvailableForShift;
+const volunteerIsAvailableForShift = require("../utils/availability").volunteerIsAvailableForShift;
 
 const EXPECTED_SHORTAGE_THRESHOLD = 6;
 
 var VolunteerController = function (volunteerRepository, shiftRepository) {
+
   this.list = function (req, res) {
     // Restrict access to admin
     if (!req.user.isAdmin) {
@@ -25,7 +25,7 @@ var VolunteerController = function (volunteerRepository, shiftRepository) {
       .catch(err => res.status(500).send(err));
   };
 
-  ((this.getStats = function (req, res) {
+  this.getStats = function (req, res) {
     // Check bearer token id matches parameter id
     if (req.user.id !== req.params.id) {
       res.status(401).send({message: "You can only view your own stats."});
@@ -77,74 +77,75 @@ var VolunteerController = function (volunteerRepository, shiftRepository) {
         });
       })
       .catch(err => res.status(500).send(err));
-  }),
+  },
 
+  this.getActivity = function (req, res) {
+    // Check bearer token id matches parameter id
+    if (req.user.id !== req.params.id) {
+      res.status(401).send({message: "You can only view your own stats."});
+      return;
+    }
 
-    (this.getActivity = function (req, res) {
-      // Check bearer token id matches parameter id
-      if (req.user.id !== req.params.id) {
-        res.status(401).send({message: "You can only view your own stats."});
-        return;
-      }
-
-      res.status(200).send({
-        myActivity: [
-          {
-            title: "Achievement! Completed First Shift",
-            description: "You completed your first shift with City Harvest London"
-          },
-          {
-            title: "Made your first booking",
-            description: "You made your first booking for Pick-up - Tesco"
-          }
-        ]
-      });
-    })),
-    (this.getHallOfFame = function (req, res) {
-      res.status(200).send({
-        hallOfFame: {
-          fastResponder: {
-            name: "Mark Wheelhouse",
-            number: 3
-          },
-          mostHours: {
-            name: "Joon-Ho Son",
-            number: 50
-          },
-          onTheRise: {
-            name: "Jane Doe",
-            number: 4
-          }
+    res.status(200).send({
+      myActivity: [
+        {
+          title: "Achievement! Completed First Shift",
+          description: "You completed your first shift with City Harvest London"
+        },
+        {
+          title: "Made your first booking",
+          description: "You made your first booking for Pick-up - Tesco"
         }
-      });
-    }),
-    (this.updateAvailability = function (req, res) {
-      // Check bearer token id matches parameter id
-      if (req.user.id !== req.params.id) {
-        res
-          .status(401)
-          .send({message: "You can only update your own availability."});
-        return;
-      }
-
-      volunteerRepository
-        .getById(req.params.id)
-        .then(volunteer => {
-          if (!volunteer) {
-            res.status(400).send({message: "No volunteer with that id"});
-          } else {
-            volunteerRepository
-              .updateAvailability(req.params.id, req.body.availability)
-              .then(result =>
-                res.status(201).send({
-                  message: "Availability Updated Successfuly"
-                })
-              )
-              .catch(error => res.status(400).send(error));
-          }
-        })
-        .catch(error => res.status(500).send(error));
+      ]
     });
+  },
+
+  this.getHallOfFame = function (req, res) {
+    res.status(200).send({
+      hallOfFame: {
+        fastResponder: {
+          name: "Mark Wheelhouse",
+          number: 3
+        },
+        mostHours: {
+          name: "Joon-Ho Son",
+          number: 50
+        },
+        onTheRise: {
+          name: "Jane Doe",
+          number: 4
+        }
+      }
+    });
+  },
+
+  this.updateAvailability = function (req, res) {
+    // Check bearer token id matches parameter id
+    if (req.user.id !== req.params.id) {
+      res
+        .status(401)
+        .send({message: "You can only update your own availability."});
+      return;
+    }
+
+    volunteerRepository
+      .getById(req.params.id)
+      .then(volunteer => {
+        if (!volunteer) {
+          res.status(400).send({message: "No volunteer with that id"});
+        } else {
+          volunteerRepository
+            .updateAvailability(req.params.id, req.body.availability)
+            .then(result =>
+              res.status(201).send({
+                message: "Availability Updated Successfuly"
+              })
+            )
+            .catch(error => res.status(400).send(error));
+        }
+      })
+      .catch(error => res.status(500).send(error));
+  };
 
   this.getAvailability = function (req, res) {
     // Check bearer token id matches parameter id
