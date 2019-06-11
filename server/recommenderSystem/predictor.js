@@ -30,8 +30,6 @@ var Predictor = function(shiftRepository) {
         for(i = 0; i < volunteers.length; i++) {
           var availability = volunteers[i].availability;
 
-          console.log(availability);
-
           // Loop through each element of 2D availability array
           var j;
           for(j = 0; j < array.length; j++) {
