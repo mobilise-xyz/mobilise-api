@@ -104,6 +104,7 @@ var VolunteerController = function (volunteerRepository, shiftRepository) {
     (this.getHallOfFame = async function (req, res) {
       var response = {};
       var fields = ['lastWeekHours', 'lastWeekShifts', 'lastWeekIncrease'];
+      var errs = [];
       for (var i = 0; i < fields.length; i++) {
         var ranking = [];
         await volunteerRepository.getTop([[fields[i],'DESC']], 3)
@@ -116,10 +117,15 @@ var VolunteerController = function (volunteerRepository, shiftRepository) {
                 number: volunteer[fields[i]]
               })
             }
-          });
+          })
+          .catch(err => errs.push(err));
         response[fields[i]] = ranking;
       }
-      res.status(200).send(response);
+      if (errs.length > 0) {
+        res.status(500).send(errs);
+      } else {
+        res.status(200).send(response);
+      }
     });
 
     (this.updateAvailability = function (req, res) {
