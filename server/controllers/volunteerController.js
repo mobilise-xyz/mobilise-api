@@ -71,8 +71,7 @@ var VolunteerController = function (volunteerRepository, shiftRepository) {
         res.status(200).send({
           contributions: {
             shiftsCompleted: shiftsCompleted,
-            hours: hours,
-            challengesCompleted: 2
+            hours: hours
           }
         });
       })
