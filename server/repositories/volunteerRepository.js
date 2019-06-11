@@ -26,7 +26,7 @@ VolunteerRepository.getTop = function(orderBy, limit) {
       {
         model: User,
         as: "user",
-        include: ["contactPreference"]
+        include: ["contactPreferences"]
       }
     ],
     order: orderBy,
@@ -46,7 +46,7 @@ VolunteerRepository.getAll = function() {
       {
         model: User,
         as: "user",
-        include: ["contactPreference"]
+        include: ["contactPreferences"]
       }
     ]
   })
@@ -79,7 +79,7 @@ VolunteerRepository.getById = function(id) {
   Volunteer.findOne({ where: { userId: id }, include: [{
     model: User,
       as: "user",
-      include: ['contactPreference']
+      include: ['contactPreferences']
     }] })
     .then(volunteer => deferred.resolve(volunteer))
     .catch(err => deferred.reject(err));

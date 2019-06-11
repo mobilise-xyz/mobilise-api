@@ -4,7 +4,7 @@ var app = require('../../../app');
 const Seeded = require('../../../server/utils/seeded');
 
 test = {
-  contactPreference: {
+  contactPreferences: {
     email: true,
     text: true
   }
@@ -32,7 +32,7 @@ describe('Updating contact information', function() {
         request(app)
         .put(`/users/${Seeded.volunteers[1].UUID}/contact-preferences`)
         .send({
-            contactPreference: test.contactPreference
+            contactPreferences: test.contactPreferences
         })
         .set('Authorization', 'Bearer '+response.body.token)
         .set('Accept', 'application/json')
@@ -53,7 +53,7 @@ describe('Updating contact information', function() {
           request(app)
           .put(`/users/${Seeded.admins[0].UUID}/contact-preferences`)
           .send({
-              contactPreference: test.contactPreference
+              contactPreferences: test.contactPreferences
           })
           .set('Authorization', 'Bearer '+response.body.token)
           .set('Accept', 'application/json')
@@ -74,7 +74,7 @@ describe('Updating contact information', function() {
           request(app)
           .put(`/users/${Seeded.admins[1].UUID}/contact-preferences`)
           .send({
-            contactPreference: test.contactPreference
+            contactPreferences: test.contactPreferences
           })
           .set('Authorization', 'Bearer '+response.body.token)
           .set('Accept', 'application/json')
@@ -95,7 +95,7 @@ describe('Updating contact information', function() {
           request(app)
           .put(`/users/${Seeded.volunteers[0].UUID}/contact-preferences`)
           .send({
-            contactPreference: test.contactPreference
+            contactPreferences: test.contactPreferences
           })
           .set('Authorization', 'Bearer '+response.body.token)
           .set('Accept', 'application/json')
@@ -116,7 +116,7 @@ describe('Updating contact information', function() {
           request(app)
           .put(`/users/${Seeded.volunteers[0].UUID}/contact-preferences`)
           .send({
-            contactPreference: test.contactPreference
+            contactPreferences: test.contactPreferences
           })
           .set('Authorization', 'Bearer '+response.body.token)
           .set('Accept', 'application/json')
@@ -137,7 +137,7 @@ describe('Updating contact information', function() {
           request(app)
           .put(`/users/${Seeded.admins[0].UUID}/contact-preferences`)
           .send({
-            contactPreference: test.contactPreference
+            contactPreferences: test.contactPreferences
           })
           .set('Authorization', 'Bearer '+response.body.token)
           .set('Accept', 'application/json')

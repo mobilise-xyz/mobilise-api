@@ -57,7 +57,7 @@ module.exports = (sequelize, DataTypes) => {
     });
 
     User.hasOne(models.UserContactPreference, {
-      as: "contactPreference",
+      as: "contactPreferences",
       foreignKey: "userId"
     });
   };

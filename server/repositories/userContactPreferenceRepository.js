@@ -4,16 +4,16 @@ const UserContactPreferenceRepositoryInterface = require('./interfaces/userConta
 
 var UserContactPreferenceRepository = Object.create(UserContactPreferenceRepositoryInterface);
 
-UserContactPreferenceRepository.add = function(userId, contactPreference) {
+UserContactPreferenceRepository.add = function(userId, contactPreferences) {
   var deferred = Q.defer();
   
   UserContactPreference
     .create({
         userId: userId,
-        email: contactPreference.email,
-        text: contactPreference.text
+        email: contactPreferences.email,
+        text: contactPreferences.text
     })
-    .then(contactPreference => deferred.resolve(contactPreference))
+    .then(contactPreferences => deferred.resolve(contactPreferences))
     .catch(error => deferred.reject(error));
   
   return deferred.promise;
@@ -24,26 +24,26 @@ UserContactPreferenceRepository.getById = function(userId) {
 
   UserContactPreference
     .findOne({where: {userId: userId}})
-    .then(contactPreference => deferred.resolve(contactPreference))
+    .then(contactPreferences => deferred.resolve(contactPreferences))
     .catch(error => deferred.reject(error));
 
   return deferred.promise;
 };
 
-UserContactPreferenceRepository.update = function(userId, contactPreference) {
+UserContactPreferenceRepository.update = function(userId, contactPreferences) {
   var deferred = Q.defer();
   
   UserContactPreference
     .update(
       {
-        email: contactPreference.email,
-        text: contactPreference.text
+        email: contactPreferences.email,
+        text: contactPreferences.text
       },
       {
         where: {userId: userId}
       }
     )
-    .then(contactPreference => deferred.resolve(contactPreference))
+    .then(contactPreferences => deferred.resolve(contactPreferences))
     .catch(error => deferred.reject(error));
   
   return deferred.promise;

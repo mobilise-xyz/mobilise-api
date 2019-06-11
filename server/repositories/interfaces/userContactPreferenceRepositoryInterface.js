@@ -1,7 +1,7 @@
 var UserContactPreference = {
-    add: function(userId, contactPreference) {},
+    add: function(userId, contactPreferences) {},
     getById: function(userId) {},
-    update: function(userId, contactPreference) {}
+    update: function(userId, contactPreferences) {}
 };
 
 module.exports = UserContactPreference;

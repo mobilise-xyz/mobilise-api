@@ -71,8 +71,7 @@ var VolunteerController = function (volunteerRepository, shiftRepository) {
         res.status(200).send({
           contributions: {
             shiftsCompleted: shiftsCompleted,
-            hours: hours,
-            challengesCompleted: 2
+            hours: hours
           }
         });
       })
@@ -88,16 +87,7 @@ var VolunteerController = function (volunteerRepository, shiftRepository) {
       }
 
       res.status(200).send({
-        myActivity: [
-          {
-            title: "Achievement! Completed First Shift",
-            description: "You completed your first shift with City Harvest London"
-          },
-          {
-            title: "Made your first booking",
-            description: "You made your first booking for Pick-up - Tesco"
-          }
-        ]
+        myActivity: []
       });
     });
 
@@ -113,6 +103,7 @@ var VolunteerController = function (volunteerRepository, shiftRepository) {
               var volunteer = volunteers[j];
               ranking.push({
                 rank: j+1,
+                uid: volunteer.userId,
                 name: `${volunteer.user.firstName} ${volunteer.user.lastName}`,
                 number: volunteer[fields[i]]
               });
