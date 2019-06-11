@@ -23,6 +23,7 @@ var shiftsRouter = require("./server/routes/shifts");
 var rolesRouter = require("./server/routes/roles");
 var authRouter = require("./server/routes/auth");
 var volunteersRouter = require("./server/routes/volunteers");
+var metricRouter = require("./server/routes/metric");
 
 // view engine setup
 app.set("views", path.join(__dirname, "views"));
@@ -57,6 +58,11 @@ app.use(
   passport.authenticate("jwt", { session: false }),
   volunteersRouter
 );
+app.use(
+  "/metric",
+  passport.authenticate("jwt", {session: false}),
+  metricRouter
+)
 
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {
