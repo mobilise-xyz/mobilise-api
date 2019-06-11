@@ -4,6 +4,7 @@ var VolunteerRepositoryInterface = {
   getById: function () {},
   getAllWithShifts: function () {},
   getTop: function(orderBy, limit) {},
+  getTotalHoursFromLastWeek: function() {},
   update: function(volunteer, body) {}
 };
 
