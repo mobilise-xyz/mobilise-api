@@ -88,16 +88,7 @@ var VolunteerController = function (volunteerRepository, shiftRepository) {
       }
 
       res.status(200).send({
-        myActivity: [
-          {
-            title: "Achievement! Completed First Shift",
-            description: "You completed your first shift with City Harvest London"
-          },
-          {
-            title: "Made your first booking",
-            description: "You made your first booking for Pick-up - Tesco"
-          }
-        ]
+        myActivity: []
       });
     });
 
