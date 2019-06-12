@@ -75,7 +75,7 @@ var VolunteerController = function (volunteerRepository, shiftRepository) {
         var metricStat;
         var totalHoursFromLastWeek;
         contributions["shiftsCompleted"] = shiftsCompleted;
-        contributions["hours"] = hours.toFixed(1);
+        contributions["hours"] = Math.round(hours);
         metricRepository.get()
           .then(metric => {
             if (metric) {
