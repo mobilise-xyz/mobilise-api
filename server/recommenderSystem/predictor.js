@@ -3,6 +3,7 @@ const shiftRepository = require("../repositories").ShiftRepository;
 const ShiftRequirement = require("../models").ShiftRequirement;
 const volunteerRepository = require("../repositories").VolunteerRepository;
 const getCumulativeAvailability = require('../utils/availability').getCumulativeAvailability;
+const volunteerIsAvailableForShift = require('../utils/availability').volunteerIsAvailableForShift;
 const Op = require("../models").Sequelize.Op;
 
 var Predictor = function(shiftRepository) {
@@ -28,14 +29,17 @@ var Predictor = function(shiftRepository) {
 
             // Obtain the bookings made for specific role requirement
             var bookings = requirement.bookings;
+            
+            // Obtain the volunteer user ids from the bookings
+            var volunteerIds = bookings.map(booking => booking.volunteerId);
 
             // Obtain all the volunteers who have made bookings
             var volunteers = await volunteerRepository.getAll({
-              userId: { [Op.in]: bookings }
-            })
+              userId: { [Op.in]: volunteerIds }
+            });
 
-            console.log('VOLUNTEERS');
-            console.log(volunteers);
+            // Find booked volunters who were available for shift
+            var availableVolunteers = volunteers.filter(volunteer => volunteerIsAvailableForShift(volunteer, shift));
 
             // Add updated shift requirement to list
             updatedShiftRequirements.push({
