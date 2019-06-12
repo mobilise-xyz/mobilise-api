@@ -102,13 +102,6 @@ var VolunteerController = function (volunteerRepository, shiftRepository) {
       .catch(err => res.status(500).send(err));
   },
 
-  this.getActivity = function (req, res) {
-    // Check bearer token id matches parameter id
-    if (req.user.id !== req.params.id) {
-      res.status(401).send({message: "You can only view your own stats."});
-      return;
-    }
-
   (this.getActivity = function (req, res) {
     // Check bearer token id matches parameter id
     if (req.user.id !== req.params.id) {
