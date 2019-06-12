@@ -426,7 +426,6 @@ function formatTime(time) {
 }
 
 function constructHelpMessage(volunteer, shift) {
-  console.log(shift);
   var message = `Hello ${volunteer.user.firstName},\n\n`;
   message += (`A shift needs your assistance! \n`);
   message += (`The shift details are as follows:\n\n`);

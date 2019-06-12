@@ -75,7 +75,7 @@ var VolunteerController = function (volunteerRepository, shiftRepository) {
         var metricStat;
         var totalHoursFromLastWeek;
         contributions["shiftsCompleted"] = shiftsCompleted;
-        contributions["hours"] = hours;
+        contributions["hours"] = hours.toFixed(1);
         metricRepository.get()
           .then(metric => {
             if (metric) {
@@ -92,7 +92,7 @@ var VolunteerController = function (volunteerRepository, shiftRepository) {
             contributions["metric"] = {
               name: metricStat.name,
               verb: metricStat.verb,
-              value: metricStat.value * (volunteer.lastWeekHours /totalHoursFromLastWeek)
+              value: Math.round(metricStat.value * (volunteer.lastWeekHours /totalHoursFromLastWeek))
             };
             res.status(200).send({
               contributions: contributions
@@ -128,7 +128,7 @@ var VolunteerController = function (volunteerRepository, shiftRepository) {
               rank: j + 1,
               uid: volunteer.userId,
               name: `${volunteer.user.firstName} ${volunteer.user.lastName}`,
-              number: volunteer[fields[i]]
+              number: volunteer[fields[i]].toFixed(1)
             });
           }
         })
@@ -314,7 +314,7 @@ var VolunteerController = function (volunteerRepository, shiftRepository) {
             lastWeekHours += duration.asHours();
           });
           if (volunteer.lastWeekHours > 0) {
-            lastWeekIncrease = (lastWeekHours / volunteer.lastWeekHours).toFixed(1);
+            lastWeekIncrease = (lastWeekHours / volunteer.lastWeekHours);
           }
           await volunteerRepository.update(volunteer, {
             lastWeekHours: lastWeekHours,
