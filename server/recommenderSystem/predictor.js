@@ -1,13 +1,21 @@
 const Q = require("q");
 const shiftRepository = require("../repositories").ShiftRepository;
 const ShiftRequirement = require("../models").ShiftRequirement;
+const volunteerRepository = require("../repositories").VolunteerRepository;
+const getCumulativeAvailability = require('../utils/availability').getCumulativeAvailability;
+const volunteerIsAvailableForShiftStart = require('../utils/availability').volunteerIsAvailableForShiftStart;
+const getSlotForTime = require('../utils/availability').getSlotForTime;
+const getDayOfWeekForDate = require('../utils/availability').getDayOfWeekForDate;
 const Op = require("../models").Sequelize.Op;
 
 var Predictor = function(shiftRepository) {
+
   this.shiftRepository = shiftRepository;
 
   this.computeExpectedShortages = async function(whereTrue) {
     var deferred = Q.defer();
+
+    const cumulativeAvailability = await getCumulativeAvailability();
 
     var updatedShiftRequirements = [];
 
@@ -19,17 +27,37 @@ var Predictor = function(shiftRepository) {
           // Obtain the shift requirements
           var requirements = shift.requirements;
 
-          requirements.forEach(requirement => {
+          requirements.forEach(async requirement => {
 
             // Obtain the bookings made for specific role requirement
             var bookings = requirement.bookings;
+            
+            // Obtain the volunteer user ids from the bookings
+            var volunteerIds = bookings.map(booking => booking.volunteerId);
+
+            // Obtain all the volunteers who have made bookings
+            var volunteers = await volunteerRepository.getAll({
+              userId: { [Op.in]: volunteerIds }
+            });
+
+            // Find booked volunters who were available for shift
+            var availableVolunteers = volunteers.filter(volunteer => volunteerIsAvailableForShiftStart(volunteer, shift));
+
+            // Find cumulative availability for shift (start time)
+            var dayOfWeek = getDayOfWeekForDate(shift.date);
+
+            // Find slot for shift start time
+            var slot = getSlotForTime(shift.start);
+
+            // Heuristic to predict how many currently available volunteers will actually book
+            var currentAvailabilityForShift = (cumulativeAvailability[dayOfWeek][slot] - availableVolunteers) * 0.30;
 
             // Add updated shift requirement to list
             updatedShiftRequirements.push({
               shiftId: shift.id,
               roleName: requirement.role.name,
               numberRequired: requirement.numberRequired,
-              expectedShortage: requirement.numberRequired - bookings.length
+              expectedShortage: requirement.numberRequired - bookings.length - currentAvailabilityForShift
             });
           });
         });
