@@ -57,6 +57,8 @@ var Predictor = function(shiftRepository) {
   this.computeExpectedShortages = async function(whereTrue) {
     var deferred = Q.defer();
 
+    const cumulativeAvailability = getCumulativeAvailability();
+
     var updatedShiftRequirements = [];
 
     await shiftRepository
