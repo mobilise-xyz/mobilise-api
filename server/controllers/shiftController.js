@@ -6,6 +6,7 @@ const adminRepository = require("../repositories").AdminRepository;
 const isWeekend = require("../utils/date").isWeekend;
 const moment = require("moment");
 const Op = require("../models").Sequelize.Op;
+const shiftStartsAfter = require("../utils/utils").shiftStartsAfter;
 const volunteerIsAvailableForShift = require("../utils/availability")
   .volunteerIsAvailableForShift;
 const volunteerBookedOnShift = require("../utils/availability")
@@ -45,27 +46,7 @@ var ShiftController = function(
       var afterMoment = moment(after);
       var date = afterMoment.format("YYYY-MM-DD");
       var time = afterMoment.format("HH:mm");
-      whereTrue = {
-        [Op.or]: [
-          {
-            date: {
-              [Op.gt]: date
-            }
-          },
-          {
-            [Op.and]: [
-              {
-                date: {
-                  [Op.eq]: date
-                },
-                start: {
-                  [Op.gte]: time
-                }
-              }
-            ]
-          }
-        ]
-      };
+      whereTrue = shiftStartsAfter(date, time);
     }
 
     shiftRepository

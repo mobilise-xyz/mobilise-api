@@ -3,7 +3,7 @@ const shiftRepository = require("../repositories").ShiftRepository;
 const bookingRepository = require("../repositories").BookingRepository;
 const metricRepository = require("../repositories").MetricRepository;
 const Op = require("../models").Sequelize.Op;
-const Predictor = require("../recommenderSystem").Predictor;
+const shiftStartsAfter = require("../utils/utils").shiftStartsAfter;
 const moment = require("moment");
 const volunteerIsAvailableForShift = require("../utils/availability")
   .volunteerIsAvailableForShift;
@@ -212,27 +212,7 @@ var VolunteerController = function(volunteerRepository, shiftRepository) {
       var afterMoment = moment(after);
       var date = afterMoment.format("YYYY-MM-DD");
       var time = afterMoment.format("HH:mm");
-      whereTrue = {
-        [Op.or]: [
-          {
-            date: {
-              [Op.gt]: date
-            }
-          },
-          {
-            [Op.and]: [
-              {
-                date: {
-                  [Op.eq]: date
-                },
-                start: {
-                  [Op.gte]: time
-                }
-              }
-            ]
-          }
-        ]
-      };
+      whereTrue = shiftStartsAfter(date, time);
     }
     volunteerRepository
       .getById(req.params.id)
