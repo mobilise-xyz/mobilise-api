@@ -10,6 +10,8 @@ const volunteerIsAvailableForShift = require("../utils/availability")
 const nodemailer = require("nodemailer");
 const Nexmo = require("nexmo");
 
+const APP_LINK = "https://city-harvest.mobilise.xyz";
+
 const REPEATED_TYPES = {
   Never: ["Never"],
   Daily: [
@@ -95,7 +97,7 @@ var ShiftController = function (
           const message = constructCancelMessage(creator, volunteer, shift, req.body.reason);
           if (creator.user.contactPreferences.email) {
             var emailClient = createEmailClient();
-            sendEmail(emailClient, creator.user, "Cancelled booking" ,message);
+            sendEmail(emailClient, creator.user, "Cancelled booking", message);
           }
           if (creator.user.contactPreferences.text) {
             var textClient = createTextClient();
@@ -261,7 +263,7 @@ var ShiftController = function (
               if (!volunteerCurrentlyOnShift(volunteer, shift) && volunteerIsAvailableForShift(volunteer, shift)) {
                 var message = constructHelpMessage(volunteer, shift);
                 if (volunteer.user.contactPreferences.email) {
-                  sendEmail(emailClient, volunteer.user, "Help needed for shift!" ,message);
+                  sendEmail(emailClient, volunteer.user, "Help needed for shift!", message);
                 }
                 if (volunteer.user.contactPreferences.text) {
                   sendText(textClient, volunteer.user, message);
@@ -407,11 +409,26 @@ function createTextClient() {
 }
 
 function constructCancelMessage(admin, volunteer, shift, reason) {
-  return `Hello ${admin.user.firstName},\n\n${volunteer.user.firstName} has cancelled their booking for a shift.\nTitle: ${shift.title}\nDescription: ${shift.description}\n\nReason for cancelling: ${reason}`;
+  var message = `Hello ${admin.user.firstName},\n\n`;
+  message.concat(`${volunteer.user.firstName} has cancelled their booking for a shift.\n`);
+  message.concat(`Title: ${shift.title}\n`);
+  message.concat(`Description: ${shift.description}\n`);
+  message.concat(`When: ${moment(shift.date).format('LL')} from ${moment(shift.start).format("HH:mm")} to ${moment(shift.stop).format("HH:mm")}\n\n`);
+  message.concat(`Reason for cancelling: ${reason}\n\n`);
+  message.concat(`Go to site: ${APP_LINK}`);
+  return message;
 }
 
 function constructHelpMessage(volunteer, shift) {
-  return `Hello ${volunteer.user.firstName},\n\nA shift needs your assistance! \nTitle: ${shift.title}\nDescription: ${shift.description}`;
+  var message = `Hello ${volunteer.user.firstName},\n\n`;
+  message.concat(`A shift needs your assistance! \n`);
+  message.concat(`The shift details are as follows:\n\n`);
+  message.concat(`Title: ${shift.title}\n`);
+  message.concat(`Description: ${shift.description}`);
+  message.concat(`Location: ${shift.address}`);
+  message.concat(`When: ${moment(shift.date).format('LL')} from ${moment(shift.start).format("HH:mm")} to ${moment(shift.stop).format("HH:mm")}\n\n`);
+  message.concat(`Go to site: ${APP_LINK}`);
+  return message;
 }
 
 function volunteerCurrentlyOnShift(volunteer, shift) {
