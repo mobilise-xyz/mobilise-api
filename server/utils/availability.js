@@ -6,13 +6,23 @@ const AVAILABILITY_THRESHOLD = 0.5;
 
 function volunteerIsAvailableForShift(volunteer, shift) {
 
-  var dayOfWeek = moment(shift.date, "YYYY-MM-DD").toDate().getDay();
+  var dayOfWeek = getDayOfWeekForDate(shift.date);
   var dayAvailability = volunteer.availability[(((dayOfWeek - 1) % 7) + 7) % 7];
 
   var startAvailability = dayAvailability[getSlotForTime(shift.start)];
   var stopAvailability  = dayAvailability[getSlotForTime(shift.stop)];
   
   return (Number(startAvailability) + Number(stopAvailability) / 2) >= AVAILABILITY_THRESHOLD;
+}
+
+function volunteerIsAvailableForShiftStart(volunteer, shift) {
+
+  var dayOfWeek = getDayOfWeekForDate(shift.date);
+  var dayAvailability = volunteer.availability[(((dayOfWeek - 1) % 7) + 7) % 7];
+
+  var startAvailability = dayAvailability[getSlotForTime(shift.start)];
+  
+  return Number(startAvailability) >= AVAILABILITY_THRESHOLD;
 }
 
 function getSlotForTime(time) {
@@ -23,6 +33,11 @@ function getSlotForTime(time) {
     return 2;
   }
   return 1;
+}
+
+// Accepts date in YYYY-MM-DD formate
+function getDayOfWeekForDate(date) {
+  return moment(date, "YYYY-MM-DD").toDate().getDay();
 }
 
 function volunteerBookedOnShift(volunteer, shift) {
@@ -84,6 +99,9 @@ async function getCumulativeAvailability() {
 
 module.exports = {
   volunteerIsAvailableForShift,
+  volunteerIsAvailableForShiftStart,
   volunteerBookedOnShift,
-  getCumulativeAvailability
+  getCumulativeAvailability,
+  getSlotForTime,
+  getDayOfWeekForDate
 };
