@@ -26,7 +26,7 @@ VolunteerRepository.getTotalHoursFromLastWeek = function() {
     .catch(error => deferred.reject(error));
 
   return deferred.promise;
-}
+};
 
 VolunteerRepository.getTop = function(orderBy, limit) {
   var deferred = Q.defer();
@@ -48,10 +48,11 @@ VolunteerRepository.getTop = function(orderBy, limit) {
   return deferred.promise;
 };
 
-VolunteerRepository.getAll = function() {
+VolunteerRepository.getAll = function(whereTrue) {
   var deferred = Q.defer();
 
   Volunteer.findAll({
+    where: whereTrue,
     include: [
       {
         model: User,

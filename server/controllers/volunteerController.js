@@ -5,12 +5,12 @@ const metricRepository = require("../repositories").MetricRepository;
 const Op = require("../models").Sequelize.Op;
 const Predictor = require("../recommenderSystem").Predictor;
 const moment = require("moment");
-const volunteerIsAvailableForShift = require("../utils/availability")
-  .volunteerIsAvailableForShift;
+const volunteerIsAvailableForShift = require("../utils/availability").volunteerIsAvailableForShift;
 
 const EXPECTED_SHORTAGE_THRESHOLD = 6;
 
 var VolunteerController = function (volunteerRepository, shiftRepository) {
+
   this.list = function (req, res) {
     // Restrict access to admin
     if (!req.user.isAdmin) {
@@ -26,7 +26,7 @@ var VolunteerController = function (volunteerRepository, shiftRepository) {
       .catch(err => res.status(500).send(err));
   };
 
-  (this.getStats = function (req, res) {
+  this.getStats = function (req, res) {
     // Check bearer token id matches parameter id
     if (req.user.id !== req.params.id) {
       res.status(401).send({message: "You can only view your own stats."});
@@ -100,8 +100,7 @@ var VolunteerController = function (volunteerRepository, shiftRepository) {
           });
       })
       .catch(err => res.status(500).send(err));
-  });
-
+  },
 
   (this.getActivity = function (req, res) {
     // Check bearer token id matches parameter id

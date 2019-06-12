@@ -5,8 +5,8 @@ const volunteerRepository = require("../repositories").VolunteerRepository;
 const adminRepository = require("../repositories").AdminRepository;
 const isWeekend = require("../utils/date").isWeekend;
 const moment = require("moment");
-const volunteerIsAvailableForShift = require("../utils/availability")
-  .volunteerIsAvailableForShift;
+const volunteerIsAvailableForShift = require("../utils/availability").volunteerIsAvailableForShift;
+const volunteerBookedOnShift = require('../utils/availability').volunteerBookedOnShift;
 const nodemailer = require("nodemailer");
 const Nexmo = require("nexmo");
 
@@ -258,7 +258,7 @@ var ShiftController = function (
           const textClient = createTextClient();
           return volunteerRepository.getAll().then(volunteers => {
             volunteers.forEach(volunteer => {
-              if (!volunteerCurrentlyOnShift(volunteer, shift) && volunteerIsAvailableForShift(volunteer, shift)) {
+              if (!volunteerBookedOnShift(volunteer, shift) && volunteerIsAvailableForShift(volunteer, shift)) {
                 var message = constructHelpMessage(volunteer, shift);
                 if (volunteer.user.contactPreferences.email) {
                   sendEmail(emailClient, volunteer.user, "Help needed for shift!" ,message);
@@ -412,18 +412,6 @@ function constructCancelMessage(admin, volunteer, shift, reason) {
 
 function constructHelpMessage(volunteer, shift) {
   return `Hello ${volunteer.user.firstName},\n\nA shift needs your assistance! \nTitle: ${shift.title}\nDescription: ${shift.description}`;
-}
-
-function volunteerCurrentlyOnShift(volunteer, shift) {
-  for (var i = 0; i < shift.requirements.length; i++) {
-    var requirement = shift.requirements[i];
-    for (var j = 0; j < requirement.bookings.length; j++) {
-      if (requirement.bookings[j].volunteerId === volunteer.userId) {
-        return true;
-      }
-    }
-  }
-  return false;
 }
 
 async function checkRoles(rolesRequired, roleRepository) {
