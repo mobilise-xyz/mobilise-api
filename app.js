@@ -24,6 +24,7 @@ var rolesRouter = require("./server/routes/roles");
 var authRouter = require("./server/routes/auth");
 var volunteersRouter = require("./server/routes/volunteers");
 var metricRouter = require("./server/routes/metric");
+var statsRouter = require("./server/routes/stats");
 var predictionRouter = require("./server/routes/prediction");
 
 // view engine setup
@@ -40,6 +41,7 @@ app.use(express.static(path.join(__dirname, "public")));
 app.use("/", indexRouter);
 app.use("/auth", authRouter);
 app.use("/prediction", predictionRouter);
+app.use("/stats", statsRouter);
 app.use(
   "/shifts",
   passport.authenticate("jwt", { session: false }),
@@ -62,9 +64,9 @@ app.use(
 );
 app.use(
   "/metric",
-  passport.authenticate("jwt", {session: false}),
+  passport.authenticate("jwt", { session: false }),
   metricRouter
-)
+);
 
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {
