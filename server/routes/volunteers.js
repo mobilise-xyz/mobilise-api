@@ -8,8 +8,6 @@ router.get("/", controller.list);
 /* Get hall of fame of volunteers */
 router.get("/hall-of-fame", controller.getHallOfFame);
 
-router.get("/calculate-hall-of-fame", controller.calculateHallOfFame);
-
 /* Get all shifts for a volunteer */
 router.get("/:id/shifts", controller.listShiftsByVolunteerId);
 
