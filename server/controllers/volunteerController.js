@@ -3,20 +3,20 @@ const shiftRepository = require("../repositories").ShiftRepository;
 const bookingRepository = require("../repositories").BookingRepository;
 const metricRepository = require("../repositories").MetricRepository;
 const Op = require("../models").Sequelize.Op;
-const Predictor = require("../recommenderSystem").Predictor;
+const shiftStartsAfter = require("../utils/utils").shiftStartsAfter;
 const moment = require("moment");
-const volunteerIsAvailableForShift = require("../utils/availability").volunteerIsAvailableForShift;
+const volunteerIsAvailableForShift = require("../utils/availability")
+  .volunteerIsAvailableForShift;
 
 const EXPECTED_SHORTAGE_THRESHOLD = 6;
 
-var VolunteerController = function (volunteerRepository, shiftRepository) {
-
-  this.list = function (req, res) {
+var VolunteerController = function(volunteerRepository, shiftRepository) {
+  this.list = function(req, res) {
     // Restrict access to admin
     if (!req.user.isAdmin) {
       res
         .status(401)
-        .send({message: "Only admins can access volunteer catalogue"});
+        .send({ message: "Only admins can access volunteer catalogue" });
       return;
     }
 
@@ -26,38 +26,44 @@ var VolunteerController = function (volunteerRepository, shiftRepository) {
       .catch(err => res.status(500).send(err));
   };
 
-  this.getStats = function (req, res) {
+  (this.getStats = function(req, res) {
     // Check bearer token id matches parameter id
     if (req.user.id !== req.params.id) {
-      res.status(401).send({message: "You can only view your own stats."});
+      res.status(401).send({ message: "You can only view your own stats." });
       return;
     }
     var volunteer;
 
-    volunteerRepository.getById(req.user.id)
+    volunteerRepository
+      .getById(req.user.id)
       .then(vol => {
         if (!vol) {
-          res.status(400).send({message: "No volunteer with that id"});
+          res.status(400).send({ message: "No volunteer with that id" });
         } else {
           const now = moment();
           const date = now.format("YYYY-MM-DD");
           const time = now.format("HH:mm");
           volunteer = vol;
           return bookingRepository.getByVolunteerId(vol.userId, {
-            [Op.or]: [{
-              date: {
-                [Op.lt]: date
-              }
-            }, {
-              [Op.and]: [{
+            [Op.or]: [
+              {
                 date: {
-                  [Op.eq]: date,
-                },
-                stop: {
-                  [Op.lte]: time
+                  [Op.lt]: date
                 }
-              }]
-            }]
+              },
+              {
+                [Op.and]: [
+                  {
+                    date: {
+                      [Op.eq]: date
+                    },
+                    stop: {
+                      [Op.lte]: time
+                    }
+                  }
+                ]
+              }
+            ]
           });
         }
       })
@@ -76,7 +82,8 @@ var VolunteerController = function (volunteerRepository, shiftRepository) {
         var totalHoursFromLastWeek;
         contributions["shiftsCompleted"] = shiftsCompleted;
         contributions["hours"] = Math.round(hours);
-        metricRepository.get()
+        metricRepository
+          .get()
           .then(metric => {
             if (metric) {
               metricStat = metric;
@@ -92,7 +99,10 @@ var VolunteerController = function (volunteerRepository, shiftRepository) {
             contributions["metric"] = {
               name: metricStat.name,
               verb: metricStat.verb,
-              value: Math.round(metricStat.value * (volunteer.lastWeekHours /totalHoursFromLastWeek))
+              value: Math.round(
+                metricStat.value *
+                  (volunteer.lastWeekHours / totalHoursFromLastWeek)
+              )
             };
             res.status(200).send({
               contributions: contributions
@@ -100,27 +110,27 @@ var VolunteerController = function (volunteerRepository, shiftRepository) {
           });
       })
       .catch(err => res.status(500).send(err));
-  },
+  }),
+    (this.getActivity = function(req, res) {
+      // Check bearer token id matches parameter id
+      if (req.user.id !== req.params.id) {
+        res.status(401).send({ message: "You can only view your own stats." });
+        return;
+      }
 
-  (this.getActivity = function (req, res) {
-    // Check bearer token id matches parameter id
-    if (req.user.id !== req.params.id) {
-      res.status(401).send({message: "You can only view your own stats."});
-      return;
-    }
-
-    res.status(200).send({
-      myActivity: []
+      res.status(200).send({
+        myActivity: []
+      });
     });
-  });
 
-  (this.getHallOfFame = async function (req, res) {
+  this.getHallOfFame = async function(req, res) {
     var response = {};
-    var fields = ['lastWeekHours', 'lastWeekIncrease'];
+    var fields = ["lastWeekHours", "lastWeekIncrease"];
     var errs = [];
     for (var i = 0; i < fields.length; i++) {
       var ranking = [];
-      await volunteerRepository.getTop([[fields[i], 'DESC']], 3)
+      await volunteerRepository
+        .getTop([[fields[i], "DESC"]], 3)
         .then(volunteers => {
           for (var j = 0; j < volunteers.length; j++) {
             var volunteer = volunteers[j];
@@ -138,16 +148,16 @@ var VolunteerController = function (volunteerRepository, shiftRepository) {
     if (errs.length > 0) {
       res.status(500).send(errs);
     } else {
-      res.status(200).send({hallOfFame: response});
+      res.status(200).send({ hallOfFame: response });
     }
-  });
+  };
 
-  (this.updateAvailability = function (req, res) {
+  this.updateAvailability = function(req, res) {
     // Check bearer token id matches parameter id
     if (req.user.id !== req.params.id) {
       res
         .status(401)
-        .send({message: "You can only update your own availability."});
+        .send({ message: "You can only update your own availability." });
       return;
     }
 
@@ -155,7 +165,7 @@ var VolunteerController = function (volunteerRepository, shiftRepository) {
       .getById(req.params.id)
       .then(volunteer => {
         if (!volunteer) {
-          res.status(400).send({message: "No volunteer with that id"});
+          res.status(400).send({ message: "No volunteer with that id" });
         } else {
           volunteerRepository
             .updateAvailability(req.params.id, req.body.availability)
@@ -168,14 +178,14 @@ var VolunteerController = function (volunteerRepository, shiftRepository) {
         }
       })
       .catch(error => res.status(500).send(error));
-  });
+  };
 
-  this.getAvailability = function (req, res) {
+  this.getAvailability = function(req, res) {
     // Check bearer token id matches parameter id
     if (req.user.id !== req.params.id) {
       res
         .status(401)
-        .send({message: "You can only update your own availability."});
+        .send({ message: "You can only update your own availability." });
       return;
     }
 
@@ -183,7 +193,7 @@ var VolunteerController = function (volunteerRepository, shiftRepository) {
       .getById(req.params.id)
       .then(volunteer => {
         if (!volunteer) {
-          res.status(400).send({message: "No volunteer with that id"});
+          res.status(400).send({ message: "No volunteer with that id" });
         } else {
           volunteerRepository
             .getAvailability(req.params.id)
@@ -194,13 +204,21 @@ var VolunteerController = function (volunteerRepository, shiftRepository) {
       .catch(error => res.status(500).send(error));
   };
 
-  this.listShiftsByVolunteerId = function (req, res) {
+  this.listShiftsByVolunteerId = function(req, res) {
     var volunteer;
+    var after = req.query.after;
+    var whereTrue = {};
+    if (after) {
+      var afterMoment = moment(after);
+      var date = afterMoment.format("YYYY-MM-DD");
+      var time = afterMoment.format("HH:mm");
+      whereTrue = shiftStartsAfter(date, time);
+    }
     volunteerRepository
       .getById(req.params.id)
       .then(vol => {
         if (!vol) {
-          res.status(400).send({message: "No volunteer with that id"});
+          res.status(400).send({ message: "No volunteer with that id" });
         } else {
           volunteer = vol;
           return bookingRepository.getByVolunteerId(vol.userId);
@@ -210,10 +228,9 @@ var VolunteerController = function (volunteerRepository, shiftRepository) {
         var shiftIds = bookings.map(booking => booking.shiftId);
 
         if (req.query.booked) {
+          whereTrue["id"] = { [Op.in]: shiftIds };
           return shiftRepository
-            .getAllWithRequirements({
-              id: {[Op.in]: shiftIds}
-            })
+            .getAllWithRequirements(whereTrue)
             .then(shifts => {
               var result = [];
               shifts.forEach(s => {
@@ -232,11 +249,9 @@ var VolunteerController = function (volunteerRepository, shiftRepository) {
               return result;
             });
         }
-        
+        whereTrue["id"] = { [Op.notIn]: shiftIds };
         return shiftRepository
-          .getAllWithRequirements({
-            id: {[Op.notIn]: shiftIds}
-          })
+          .getAllWithRequirements(whereTrue)
           .then(shifts => {
             var result = [];
             shifts.forEach(s => {
@@ -256,51 +271,63 @@ var VolunteerController = function (volunteerRepository, shiftRepository) {
             });
             return result;
           });
-        
       })
       .then(shifts => res.status(200).send(shifts))
       .catch(err => res.status(500).send(err));
   };
 
-  (this.calculateHallOfFame = function (req, res) {
+  this.calculateHallOfFame = function(req, res) {
     var date = moment().format("YYYY-MM-DD");
     var time = moment().format("HH:mm");
-    var lastWeek = moment().subtract(7, "d").format("YYYY-MM-DD");
+    var lastWeek = moment()
+      .subtract(7, "d")
+      .format("YYYY-MM-DD");
 
-    volunteerRepository.getAllWithShifts({
-      [Op.or]: [{
-        date: {
-          [Op.gt]: lastWeek
-        }
-      }, {
-        [Op.and]: [{
-          date: {
-            [Op.eq]: lastWeek,
-          },
-          start: {
-            [Op.gte]: time
-          }
-        }]
-      }],
-      [Op.and]: {
-        // Started after last week
-        // Stopped before now
-        [Op.or]: [{
-          date: {
-            [Op.lt]: date
-          }
-        }, {
-          [Op.and]: [{
+    volunteerRepository
+      .getAllWithShifts({
+        [Op.or]: [
+          {
             date: {
-              [Op.eq]: date,
-            },
-            stop: {
-              [Op.lte]: time
+              [Op.gt]: lastWeek
             }
-          }]
-        }]
-      }
-    })
+          },
+          {
+            [Op.and]: [
+              {
+                date: {
+                  [Op.eq]: lastWeek
+                },
+                start: {
+                  [Op.gte]: time
+                }
+              }
+            ]
+          }
+        ],
+        [Op.and]: {
+          // Started after last week
+          // Stopped before now
+          [Op.or]: [
+            {
+              date: {
+                [Op.lt]: date
+              }
+            },
+            {
+              [Op.and]: [
+                {
+                  date: {
+                    [Op.eq]: date
+                  },
+                  stop: {
+                    [Op.lte]: time
+                  }
+                }
+              ]
+            }
+          ]
+        }
+      })
       .then(async volunteers => {
         for (var i = 0; i < volunteers.length; i++) {
           var volunteer = volunteers[i];
@@ -314,7 +341,7 @@ var VolunteerController = function (volunteerRepository, shiftRepository) {
             lastWeekHours += duration.asHours();
           });
           if (volunteer.lastWeekHours > 0) {
-            lastWeekIncrease = (lastWeekHours / volunteer.lastWeekHours);
+            lastWeekIncrease = lastWeekHours / volunteer.lastWeekHours;
           }
           await volunteerRepository.update(volunteer, {
             lastWeekHours: lastWeekHours,
@@ -322,9 +349,9 @@ var VolunteerController = function (volunteerRepository, shiftRepository) {
             lastWeekIncrease: lastWeekIncrease
           });
         }
-        res.status(200).send({message: "Success"});
+        res.status(200).send({ message: "Success" });
       });
-  });
+  };
 };
 
 module.exports = new VolunteerController(volunteerRepository, shiftRepository);
