@@ -57,7 +57,7 @@ var Predictor = function(shiftRepository) {
             var slot = getSlotForTime(shift.start);
 
             // Heuristic to predict how many currently available volunteers will actually book
-            var currentAvailabilityForShift = (cumulativeAvailability[dayOfWeek][slot] - availableVolunteers.length);
+            var currentAvailabilityForShift = (cumulativeAvailability[dayOfWeek][slot] - availableVolunteers.length) * 0.30;
 
             // Add updated shift requirement to list
             await updatedShiftRequirements.push({
