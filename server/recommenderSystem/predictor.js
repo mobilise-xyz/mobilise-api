@@ -23,15 +23,22 @@ var Predictor = function(shiftRepository) {
       .getAllWithRequirements(whereTrue)
       .then(async shifts => {
 
-        await shifts.forEach(shift => {
+        var i;
+        for(i = 0; i < shifts.length; i++) {
+
+          var shift = shifts[i];
+
           // Obtain the shift requirements
           var requirements = shift.requirements;
 
-          requirements.forEach(async requirement => {
+          var j;
+          for(j = 0; j < requirements.length; j++) {
+
+            var requirement = requirements[j];
 
             // Obtain the bookings made for specific role requirement
             var bookings = requirement.bookings;
-            
+
             // Obtain the volunteer user ids from the bookings
             var volunteerIds = bookings.map(booking => booking.volunteerId);
 
@@ -50,18 +57,17 @@ var Predictor = function(shiftRepository) {
             var slot = getSlotForTime(shift.start);
 
             // Heuristic to predict how many currently available volunteers will actually book
-            var currentAvailabilityForShift = (cumulativeAvailability[dayOfWeek][slot] - availableVolunteers) * 0.30;
+            var currentAvailabilityForShift = (cumulativeAvailability[dayOfWeek][slot] - availableVolunteers.length);
 
             // Add updated shift requirement to list
-            updatedShiftRequirements.push({
+            await updatedShiftRequirements.push({
               shiftId: shift.id,
               roleName: requirement.role.name,
               numberRequired: requirement.numberRequired,
-              expectedShortage: requirement.numberRequired - bookings.length - currentAvailabilityForShift
+              expectedShortage: (requirement.numberRequired - bookings.length - currentAvailabilityForShift)
             });
-          });
-        });
-
+          }
+        }
         return updatedShiftRequirements;
       })
       .then(async updatedShiftRequirements => {
