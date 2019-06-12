@@ -3,13 +3,13 @@ var chai = require("chai");
 var expect = chai.expect;
 
 const Seeded = require('../../server/utils/seeded');
-const Predictor = require('../../server/recommenderSystem').Predictor;
+const getCumulativeAvailability = require('../../server/utils/availability').getCumulativeAvailability;
 const volunteerRepository = require('../../server/repositories').VolunteerRepository;
 
 describe('Cumulative Availability for Seeded', function() {
 
     it('Returns zeroed array for Seeded Volunteers', async function() {
-        var cumulative = await Predictor.getCumulativeAvailability();
+        var cumulative = await getCumulativeAvailability();
 
         expect(cumulative).to.eql(Array(7).fill([0,0,0]));
     })
@@ -34,7 +34,7 @@ describe('Cumulative Availability', async function() {
     })
 
     it('Returns array of 1s for single volunteer with maximum availability', async function() {
-        var cumulative = await Predictor.getCumulativeAvailability();
+        var cumulative = await getCumulativeAvailability();
 
         console.log(cumulative);
 
