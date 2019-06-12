@@ -232,32 +232,31 @@ var VolunteerController = function (volunteerRepository, shiftRepository) {
               return result;
             });
         }
-
-        return Predictor.computeExpectedShortages().then(_ => {
-          return shiftRepository
-            .getAllWithRequirements({
-              id: {[Op.notIn]: shiftIds}
-            })
-            .then(shifts => {
-              var result = [];
-              shifts.forEach(s => {
-                var shift = s.toJSON();
-                if (volunteerIsAvailableForShift(volunteer, shift)) {
-                  for (var i = 0; i < shift.requirements.length; i++) {
-                    var requirement = shift.requirements[i];
-                    if (
-                      requirement.expectedShortage > EXPECTED_SHORTAGE_THRESHOLD
-                    ) {
-                      requirement.recommended = true;
-                    }
-                    shift.requirements[i] = requirement;
+        
+        return shiftRepository
+          .getAllWithRequirements({
+            id: {[Op.notIn]: shiftIds}
+          })
+          .then(shifts => {
+            var result = [];
+            shifts.forEach(s => {
+              var shift = s.toJSON();
+              if (volunteerIsAvailableForShift(volunteer, shift)) {
+                for (var i = 0; i < shift.requirements.length; i++) {
+                  var requirement = shift.requirements[i];
+                  if (
+                    requirement.expectedShortage > EXPECTED_SHORTAGE_THRESHOLD
+                  ) {
+                    requirement.recommended = true;
                   }
+                  shift.requirements[i] = requirement;
                 }
-                result.push(shift);
-              });
-              return result;
+              }
+              result.push(shift);
             });
-        });
+            return result;
+          });
+        
       })
       .then(shifts => res.status(200).send(shifts))
       .catch(err => res.status(500).send(err));
