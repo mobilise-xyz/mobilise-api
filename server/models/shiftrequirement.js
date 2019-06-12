@@ -14,7 +14,7 @@ module.exports = (sequelize, DataTypes) => {
         type: DataTypes.STRING
       },
       numberRequired: DataTypes.INTEGER,
-      expectedShortage: DataTypes.INTEGER
+      expectedShortage: DataTypes.FLOAT
     },
     {}
   );
