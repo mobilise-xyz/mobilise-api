@@ -3,7 +3,9 @@ const shiftRepository = require("../repositories").ShiftRepository;
 const ShiftRequirement = require("../models").ShiftRequirement;
 const volunteerRepository = require("../repositories").VolunteerRepository;
 const getCumulativeAvailability = require('../utils/availability').getCumulativeAvailability;
-const volunteerIsAvailableForShift = require('../utils/availability').volunteerIsAvailableForShift;
+const volunteerIsAvailableForShiftStart = require('../utils/availability').volunteerIsAvailableForShiftStart;
+const getSlotForTime = require('../utils/availability').getSlotForTime;
+const getDayOfWeekForDate = require('../utils/availability').getDayOfWeekForDate;
 const Op = require("../models").Sequelize.Op;
 
 var Predictor = function(shiftRepository) {
@@ -39,14 +41,23 @@ var Predictor = function(shiftRepository) {
             });
 
             // Find booked volunters who were available for shift
-            var availableVolunteers = volunteers.filter(volunteer => volunteerIsAvailableForShift(volunteer, shift));
+            var availableVolunteers = volunteers.filter(volunteer => volunteerIsAvailableForShiftStart(volunteer, shift));
+
+            // Find cumulative availability for shift (start time)
+            var dayOfWeek = getDayOfWeekForDate(shift.date);
+
+            // Find slot for shift start time
+            var slot = getSlotForTime(shift.start);
+
+            // Heuristic to predict how many currently available volunteers will actually book
+            var currentAvailabilityForShift = (cumulativeAvailability[dayOfWeek][slot] - availableVolunteers) * 0.30;
 
             // Add updated shift requirement to list
             updatedShiftRequirements.push({
               shiftId: shift.id,
               roleName: requirement.role.name,
               numberRequired: requirement.numberRequired,
-              expectedShortage: requirement.numberRequired - bookings.length
+              expectedShortage: requirement.numberRequired - bookings.length - currentAvailabilityForShift
             });
           });
         });
