@@ -67,11 +67,9 @@ async function getCumulativeAvailability() {
           for(k = 0; k < array[j].length; k++) {
 
             // Compare availability character and increment corresponding cell in array
-            if (availability[j][k] === '2') {
+            if (availability[j][k] === '2' || availability[j][k] === '1') {
               array[j][k] = array[j][k] + 1;
-            } else if (availability[j][k] === '1') {
-              array[j][k] += 0.5;
-            } 
+            }  
           }
         }
       }
