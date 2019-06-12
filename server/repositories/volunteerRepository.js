@@ -26,7 +26,7 @@ VolunteerRepository.getTotalHoursFromLastWeek = function() {
     .catch(error => deferred.reject(error));
 
   return deferred.promise;
-}
+};
 
 VolunteerRepository.getTop = function(orderBy, limit) {
   var deferred = Q.defer();
