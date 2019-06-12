@@ -4,9 +4,13 @@ var PredictionController = function() {
 
     this.computeExpectedShortages = function(req, res) {
 
-        Predictor.computeExpectedShortages();
+        if (process.env.COMPUTATION_TRIGGER_KEY != req.body.COMPUTATION_TRIGGER_KEY) {
+            res.status(401).send({ message: "Unauthorised request" })
+        } else {
+            Predictor.computeExpectedShortages();
 
-        res.status(200).send({ message: "Computation Initiated Successfully" });
+            res.status(200).send({ message: "Computation Initiated Successfully" });
+        }
 
     }
 };
