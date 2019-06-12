@@ -17,10 +17,11 @@ VolunteerRepository.add = function(volunteer) {
   return deferred.promise;
 };
 
-VolunteerRepository.getAll = function() {
+VolunteerRepository.getAll = function(whereTrue) {
   var deferred = Q.defer();
 
   Volunteer.findAll({
+    where: whereTrue,
     include: [
       {
         model: User,
