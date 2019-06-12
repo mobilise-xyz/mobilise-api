@@ -1,4 +1,5 @@
 const Volunteer = require("../models").Volunteer;
+const Shift = require("../models").Shift;
 const User = require("../models").User;
 const Q = require("q");
 const VolunteerRepositoryInterface = require("./interfaces/volunteerRepositoryInterface");
@@ -17,6 +18,36 @@ VolunteerRepository.add = function(volunteer) {
   return deferred.promise;
 };
 
+VolunteerRepository.getTotalHoursFromLastWeek = function() {
+  var deferred = Q.defer();
+
+  Volunteer.sum('lastWeekHours')
+    .then(hours => deferred.resolve(hours))
+    .catch(error => deferred.reject(error));
+
+  return deferred.promise;
+}
+
+VolunteerRepository.getTop = function(orderBy, limit) {
+  var deferred = Q.defer();
+
+  Volunteer.findAll({
+    include: [
+      {
+        model: User,
+        as: "user",
+        include: ["contactPreferences"]
+      }
+    ],
+    order: orderBy,
+    limit: limit
+  })
+    .then(volunteers => deferred.resolve(volunteers))
+    .catch(err => deferred.reject(err));
+
+  return deferred.promise;
+};
+
 VolunteerRepository.getAll = function(whereTrue) {
   var deferred = Q.defer();
 
@@ -26,9 +57,26 @@ VolunteerRepository.getAll = function(whereTrue) {
       {
         model: User,
         as: "user",
-        include: ["contactPreference"]
+        include: ["contactPreferences"]
       }
     ]
+  })
+    .then(volunteers => deferred.resolve(volunteers))
+    .catch(err => deferred.reject(err));
+
+  return deferred.promise;
+};
+
+VolunteerRepository.getAllWithShifts = function(whereShift) {
+  var deferred = Q.defer();
+
+  Volunteer.findAll({
+    include: [{
+      model: Shift,
+      as: "shifts",
+      required: false,
+      where: whereShift
+    }]
   })
     .then(volunteers => deferred.resolve(volunteers))
     .catch(err => deferred.reject(err));
@@ -42,13 +90,21 @@ VolunteerRepository.getById = function(id) {
   Volunteer.findOne({ where: { userId: id }, include: [{
     model: User,
       as: "user",
-      include: ['contactPreference']
+      include: ['contactPreferences']
     }] })
     .then(volunteer => deferred.resolve(volunteer))
     .catch(err => deferred.reject(err));
 
   return deferred.promise;
 };
+
+VolunteerRepository.update = function(volunteer, body) {
+  var deferred = Q.defer();
+  Volunteer.update(body, { where: { userId: volunteer.userId } })
+    .then(result => deferred.resolve(result))
+    .catch(error => deferred.reject(error));
+  return deferred.promise;
+}
 
 VolunteerRepository.updateAvailability = function(id, availability) {
   var deferred = Q.defer();

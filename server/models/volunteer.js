@@ -13,6 +13,15 @@ module.exports = (sequelize, DataTypes) => {
         type: DataTypes.ARRAY(DataTypes.ARRAY(DataTypes.CHAR(1))),
         allowNull: false,
         defaultValue: Array(7).fill(["0", "0", "0"])
+      },
+      lastWeekShifts: {
+        type: DataTypes.INTEGER
+      },
+      lastWeekHours: {
+        type: DataTypes.FLOAT
+      },
+      lastWeekIncrease: {
+        type: DataTypes.FLOAT
       }
     },
     {}

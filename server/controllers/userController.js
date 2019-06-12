@@ -22,7 +22,8 @@ var UserController = function(userRepository) {
           res.status(200).send({
             id: user.id,
             firstName: user.firstName,
-            lastName: user.lastName
+            lastName: user.lastName,
+            contactPreferences: user.contactPreferences
           });
         }
       })
@@ -52,7 +53,7 @@ var UserController = function(userRepository) {
     }
 
     userContactPreferenceRepository
-      .update(req.params.id, req.body.contactPreference)
+      .update(req.params.id, req.body.contactPreferences)
       .then(result => {
         if (!result) {
           res.status(400).send({ message: "No user with that id" });

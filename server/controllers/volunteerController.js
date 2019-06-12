@@ -1,6 +1,7 @@
 const volunteerRepository = require("../repositories").VolunteerRepository;
 const shiftRepository = require("../repositories").ShiftRepository;
 const bookingRepository = require("../repositories").BookingRepository;
+const metricRepository = require("../repositories").MetricRepository;
 const Op = require("../models").Sequelize.Op;
 const Predictor = require("../recommenderSystem").Predictor;
 const moment = require("moment");
@@ -31,16 +32,18 @@ var VolunteerController = function (volunteerRepository, shiftRepository) {
       res.status(401).send({message: "You can only view your own stats."});
       return;
     }
+    var volunteer;
 
     volunteerRepository.getById(req.user.id)
-      .then(volunteer => {
-        if (!volunteer) {
+      .then(vol => {
+        if (!vol) {
           res.status(400).send({message: "No volunteer with that id"});
         } else {
           const now = moment();
           const date = now.format("YYYY-MM-DD");
           const time = now.format("HH:mm");
-          return bookingRepository.getByVolunteerId(volunteer.userId, {
+          volunteer = vol;
+          return bookingRepository.getByVolunteerId(vol.userId, {
             [Op.or]: [{
               date: {
                 [Op.lt]: date
@@ -59,6 +62,7 @@ var VolunteerController = function (volunteerRepository, shiftRepository) {
         }
       })
       .then(bookings => {
+        var contributions = {};
         var hours = 0;
         var shiftsCompleted = bookings.length;
         bookings.forEach(booking => {
@@ -68,13 +72,32 @@ var VolunteerController = function (volunteerRepository, shiftRepository) {
           var duration = moment.duration(stopTime.diff(startTime));
           hours += duration.asHours();
         });
-        res.status(200).send({
-          contributions: {
-            shiftsCompleted: shiftsCompleted,
-            hours: hours,
-            challengesCompleted: 2
-          }
-        });
+        var metricStat;
+        var totalHoursFromLastWeek;
+        contributions["shiftsCompleted"] = shiftsCompleted;
+        contributions["hours"] = hours;
+        metricRepository.get()
+          .then(metric => {
+            if (metric) {
+              metricStat = metric;
+              return volunteerRepository.getTotalHoursFromLastWeek();
+            } else {
+              res.status(200).send({
+                contributions: contributions
+              });
+            }
+          })
+          .then(hours => {
+            totalHoursFromLastWeek = hours;
+            contributions["metric"] = {
+              name: metricStat.name,
+              verb: metricStat.verb,
+              value: metricStat.value * (volunteer.lastWeekHours /totalHoursFromLastWeek)
+            };
+            res.status(200).send({
+              contributions: contributions
+            });
+          });
       })
       .catch(err => res.status(500).send(err));
   },
@@ -86,40 +109,47 @@ var VolunteerController = function (volunteerRepository, shiftRepository) {
       return;
     }
 
-    res.status(200).send({
-      myActivity: [
-        {
-          title: "Achievement! Completed First Shift",
-          description: "You completed your first shift with City Harvest London"
-        },
-        {
-          title: "Made your first booking",
-          description: "You made your first booking for Pick-up - Tesco"
-        }
-      ]
-    });
-  },
+  (this.getActivity = function (req, res) {
+    // Check bearer token id matches parameter id
+    if (req.user.id !== req.params.id) {
+      res.status(401).send({message: "You can only view your own stats."});
+      return;
+    }
 
-  this.getHallOfFame = function (req, res) {
     res.status(200).send({
-      hallOfFame: {
-        fastResponder: {
-          name: "Mark Wheelhouse",
-          number: 3
-        },
-        mostHours: {
-          name: "Joon-Ho Son",
-          number: 50
-        },
-        onTheRise: {
-          name: "Jane Doe",
-          number: 4
-        }
-      }
+      myActivity: []
     });
-  },
+  });
 
-  this.updateAvailability = function (req, res) {
+  (this.getHallOfFame = async function (req, res) {
+    var response = {};
+    var fields = ['lastWeekHours', 'lastWeekIncrease'];
+    var errs = [];
+    for (var i = 0; i < fields.length; i++) {
+      var ranking = [];
+      await volunteerRepository.getTop([[fields[i], 'DESC']], 3)
+        .then(volunteers => {
+          for (var j = 0; j < volunteers.length; j++) {
+            var volunteer = volunteers[j];
+            ranking.push({
+              rank: j + 1,
+              uid: volunteer.userId,
+              name: `${volunteer.user.firstName} ${volunteer.user.lastName}`,
+              number: volunteer[fields[i]]
+            });
+          }
+        })
+        .catch(err => errs.push(err));
+      response[fields[i]] = ranking;
+    }
+    if (errs.length > 0) {
+      res.status(500).send(errs);
+    } else {
+      res.status(200).send({hallOfFame: response});
+    }
+  });
+
+  (this.updateAvailability = function (req, res) {
     // Check bearer token id matches parameter id
     if (req.user.id !== req.params.id) {
       res
@@ -145,7 +175,7 @@ var VolunteerController = function (volunteerRepository, shiftRepository) {
         }
       })
       .catch(error => res.status(500).send(error));
-  };
+  });
 
   this.getAvailability = function (req, res) {
     // Check bearer token id matches parameter id
@@ -239,6 +269,70 @@ var VolunteerController = function (volunteerRepository, shiftRepository) {
       .then(shifts => res.status(200).send(shifts))
       .catch(err => res.status(500).send(err));
   };
+
+  (this.calculateHallOfFame = function (req, res) {
+    var date = moment().format("YYYY-MM-DD");
+    var time = moment().format("HH:mm");
+    var lastWeek = moment().subtract(7, "d").format("YYYY-MM-DD");
+
+    volunteerRepository.getAllWithShifts({
+      [Op.or]: [{
+        date: {
+          [Op.gt]: lastWeek
+        }
+      }, {
+        [Op.and]: [{
+          date: {
+            [Op.eq]: lastWeek,
+          },
+          start: {
+            [Op.gte]: time
+          }
+        }]
+      }],
+      [Op.and]: {
+        // Started after last week
+        // Stopped before now
+        [Op.or]: [{
+          date: {
+            [Op.lt]: date
+          }
+        }, {
+          [Op.and]: [{
+            date: {
+              [Op.eq]: date,
+            },
+            stop: {
+              [Op.lte]: time
+            }
+          }]
+        }]
+      }
+    })
+      .then(async volunteers => {
+        for (var i = 0; i < volunteers.length; i++) {
+          var volunteer = volunteers[i];
+          var lastWeekHours = 0;
+          var lastWeekShifts = volunteer.shifts.length;
+          var lastWeekIncrease = 0;
+          volunteer.shifts.forEach(shift => {
+            var startTime = moment(shift.start, "HH:mm");
+            var stopTime = moment(shift.stop, "HH:mm");
+            var duration = moment.duration(stopTime.diff(startTime));
+            lastWeekHours += duration.asHours();
+          });
+          if (volunteer.lastWeekHours > 0) {
+            lastWeekIncrease = (lastWeekHours / volunteer.lastWeekHours).toFixed(1);
+          }
+          await volunteerRepository.update(volunteer, {
+            lastWeekHours: lastWeekHours,
+            lastWeekShifts: lastWeekShifts,
+            lastWeekIncrease: lastWeekIncrease
+          });
+        }
+        res.status(200).send({message: "Success"});
+      });
+  });
 };
 
 module.exports = new VolunteerController(volunteerRepository, shiftRepository);

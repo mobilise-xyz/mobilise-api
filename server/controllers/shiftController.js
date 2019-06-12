@@ -93,11 +93,11 @@ var ShiftController = function (
           res.status(400).send({message: "Only a volunteer can cancel a booking"});
         } else {
           const message = constructCancelMessage(creator, volunteer, shift, req.body.reason);
-          if (creator.user.contactPreference.email) {
+          if (creator.user.contactPreferences.email) {
             var emailClient = createEmailClient();
             sendEmail(emailClient, creator.user, "Cancelled booking" ,message);
           }
-          if (creator.user.contactPreference.text) {
+          if (creator.user.contactPreferences.text) {
             var textClient = createTextClient();
             sendText(textClient, creator.user, message);
           }
@@ -260,10 +260,10 @@ var ShiftController = function (
             volunteers.forEach(volunteer => {
               if (!volunteerBookedOnShift(volunteer, shift) && volunteerIsAvailableForShift(volunteer, shift)) {
                 var message = constructHelpMessage(volunteer, shift);
-                if (volunteer.user.contactPreference.email) {
+                if (volunteer.user.contactPreferences.email) {
                   sendEmail(emailClient, volunteer.user, "Help needed for shift!" ,message);
                 }
-                if (volunteer.user.contactPreference.text) {
+                if (volunteer.user.contactPreferences.text) {
                   sendText(textClient, volunteer.user, message);
                 }
               }
