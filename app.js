@@ -24,6 +24,7 @@ var rolesRouter = require("./server/routes/roles");
 var authRouter = require("./server/routes/auth");
 var volunteersRouter = require("./server/routes/volunteers");
 var metricRouter = require("./server/routes/metric");
+var predictionRouter = require("./server/routes/prediction");
 
 // view engine setup
 app.set("views", path.join(__dirname, "views"));
@@ -38,6 +39,7 @@ app.use(express.static(path.join(__dirname, "public")));
 
 app.use("/", indexRouter);
 app.use("/auth", authRouter);
+app.use("/prediction", predictionRouter);
 app.use(
   "/shifts",
   passport.authenticate("jwt", { session: false }),
