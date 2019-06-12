@@ -424,8 +424,8 @@ function constructHelpMessage(volunteer, shift) {
   message += (`A shift needs your assistance! \n`);
   message += (`The shift details are as follows:\n\n`);
   message += (`Title: ${shift.title}\n`);
-  message += (`Description: ${shift.description}`);
-  message += (`Location: ${shift.address}`);
+  message += (`Description: ${shift.description}\n`);
+  message += (`Location: ${shift.address}\n`);
   message += (`When: ${moment(shift.date).format('LL')} from ${moment(shift.start).format("HH:mm")} to ${moment(shift.stop).format("HH:mm")}\n\n`);
   message += (`Go to site: ${APP_LINK}`);
   return message;
