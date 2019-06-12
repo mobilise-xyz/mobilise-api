@@ -40,11 +40,11 @@ var ShiftController = function(
 ) {
   this.list = function(req, res) {
     var after = req.query.after;
+    var whereTrue = {};
     if (after) {
       var afterMoment = moment(after);
       var date = afterMoment.format("YYYY-MM-DD");
       var time = afterMoment.format("HH:mm");
-      var whereTrue = {};
       whereTrue = {
         [Op.or]: [
           {
