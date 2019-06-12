@@ -413,20 +413,27 @@ function constructCancelMessage(admin, volunteer, shift, reason) {
   message += (`${volunteer.user.firstName} has cancelled their booking for a shift.\n`);
   message += (`Title: ${shift.title}\n`);
   message += (`Description: ${shift.description}\n`);
-  message += (`When: ${moment(shift.date).format('LL')} from ${moment(shift.start).format("HH:mm")} to ${moment(shift.stop).format("HH:mm")}\n\n`);
+  message += (`When: ${moment(shift.date).format('LL')} from ${formatTime(shift.start)} to ${formatTime(shift.stop)}\n\n`);
   message += (`Reason for cancelling: ${reason}\n\n`);
   message += (`Go to site: ${APP_LINK}`);
   return message;
 }
 
+function formatTime(time) {
+  return moment(time, 'H:m:ss')
+    .local()
+    .format('HH:mm');
+}
+
 function constructHelpMessage(volunteer, shift) {
+  console.log(shift);
   var message = `Hello ${volunteer.user.firstName},\n\n`;
   message += (`A shift needs your assistance! \n`);
   message += (`The shift details are as follows:\n\n`);
   message += (`Title: ${shift.title}\n`);
   message += (`Description: ${shift.description}\n`);
   message += (`Location: ${shift.address}\n`);
-  message += (`When: ${moment(shift.date).format('LL')} from ${moment(shift.start).format("HH:mm")} to ${moment(shift.stop).format("HH:mm")}\n\n`);
+  message += (`When: ${moment(shift.date).format('LL')} from ${formatTime(shift.start)} to ${formatTime(shift.stop)}\n\n`);
   message += (`Go to site: ${APP_LINK}`);
   return message;
 }
