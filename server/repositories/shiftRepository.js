@@ -22,7 +22,8 @@ function VOLUNTEER() {
     include: [
       {
         model: User,
-        as: "user"
+        as: "user",
+        attributes: ["firstName", "lastName"]
       }
     ]
   };
