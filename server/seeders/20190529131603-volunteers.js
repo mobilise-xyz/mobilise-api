@@ -14,6 +14,11 @@ module.exports = {
         userId: Seeded.volunteers[1].UUID,
         createdAt: Seeded.volunteers[1].createdAt,
         updatedAt: Seeded.volunteers[1].updatedAt
+      },
+      {
+        userId: Seeded.volunteers[2].UUID,
+        createdAt: Seeded.volunteers[2].createdAt,
+        updatedAt: Seeded.volunteers[2].updatedAt
       }
     ], {});
   },
@@ -22,7 +27,8 @@ module.exports = {
     return queryInterface.bulkDelete('Volunteers', {
       userId: [
         Seeded.volunteers[0].UUID, 
-        Seeded.volunteers[1].UUID
+        Seeded.volunteers[1].UUID,
+        Seeded.volunteers[2].UUID
       ]
     });
   }

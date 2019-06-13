@@ -17,6 +17,11 @@ module.exports = {
         updatedAt: Seeded.volunteers[1].updatedAt
       },
       {
+        userId: Seeded.volunteers[2].UUID,
+        createdAt: Seeded.volunteers[2].createdAt,
+        updatedAt: Seeded.volunteers[2].updatedAt
+      },
+      {
         userId: Seeded.admins[0].UUID,
         createdAt: Seeded.admins[0].createdAt,
         updatedAt: Seeded.admins[0].updatedAt
@@ -34,6 +39,7 @@ module.exports = {
       userId: [
         Seeded.volunteers[0].UUID,
         Seeded.volunteers[1].UUID,
+        Seeded.volunteers[2].UUID,
         Seeded.admins[0].UUID,
         Seeded.admins[1].UUID
       ]
