@@ -13,6 +13,47 @@ const ShiftRepositoryInterface = require("./interfaces/shiftRepositoryInterface"
 
 var ShiftRepository = Object.create(ShiftRepositoryInterface);
 
+const REQUIREMENTS_WITH_BOOKINGS = {
+  model: ShiftRequirement,
+  as: "requirements",
+  attributes: ["numberRequired", "expectedShortage"],
+  include: [
+    {
+      model: Booking,
+      as: "bookings",
+      required: false,
+      where: sequelize.where(
+        sequelize.col("requirements.roleName"),
+        "=",
+        sequelize.col("requirements->bookings.roleName")
+      ),
+      attributes: ["volunteerId"]
+    },
+    {
+      model: Role,
+      as: "role",
+      attributes: ["name", "involves", "colour"]
+    }
+  ]
+};
+
+const CREATOR = {
+  model: Admin,
+  as: "creator",
+  include: [
+    {
+      model: User,
+      as: "user",
+      attributes: ["firstName", "lastName", "email"]
+    }
+  ]
+};
+
+const REPEATED = {
+  model: RepeatedShift,
+  as: "repeated"
+};
+
 (ShiftRepository.add = async function(
   shift,
   creatorId,
@@ -161,43 +202,7 @@ ShiftRepository.getAllWithRequirements = function(whereTrue) {
   var deferred = Q.defer();
   Shift.findAll({
     where: whereTrue,
-    include: [
-      {
-        model: ShiftRequirement,
-        as: "requirements",
-        attributes: ["numberRequired", "expectedShortage"],
-        include: [
-          {
-            model: Booking,
-            as: "bookings",
-            required: false,
-            where: sequelize.where(
-              sequelize.col("requirements.roleName"),
-              "=",
-              sequelize.col("requirements->bookings.roleName")
-            ),
-            attributes: ["volunteerId"]
-          },
-          {
-            model: Role,
-            as: "role",
-            attributes: ["name", "involves", "colour"]
-          }
-        ]
-      },
-      {
-        model: Admin,
-        as: "creator",
-        include: [
-          {
-            model: User,
-            as: "user",
-            attributes: ["firstName", "lastName", "email"]
-          }
-        ]
-      },
-      "repeated"
-    ],
+    include: [REQUIREMENTS_WITH_BOOKINGS, CREATOR, REPEATED],
     order: [[sequelize.literal("date, start"), "asc"]]
   })
     .then(shifts => {
@@ -221,46 +226,16 @@ ShiftRepository.getAll = function(attributes) {
   return deferred.promise;
 };
 
-ShiftRepository.getById = function(id) {
+ShiftRepository.getById = function(id, include) {
   var deferred = Q.defer();
 
-  Shift.findOne({ where: { id: id },
-    include: [
-      {
-        model: ShiftRequirement,
-        as: "requirements",
-        attributes: ["numberRequired", "expectedShortage"],
-        include: [
-          {
-            model: Booking,
-            as: "bookings",
-            required: false,
-            where: sequelize.where(
-              sequelize.col("requirements.roleName"),
-              "=",
-              sequelize.col("requirements->bookings.roleName")
-            ),
-            attributes: ["volunteerId"]
-          },
-          {
-            model: Role,
-            as: "role",
-            attributes: ["name", "involves", "colour"]
-          }
-        ]
-      },
-      {
-        model: Admin,
-        as: "creator",
-        include: [
-          {
-            model: User,
-            as: "user",
-            attributes: ["firstName", "lastName", "email"]
-          }
-        ]
-      },
-      "repeated"]
+  if (!include) {
+    include = [REQUIREMENTS_WITH_BOOKINGS, CREATOR, REPEATED];
+  }
+
+  Shift.findOne({
+    where: { id: id },
+    include: include
   })
     .then(shift => deferred.resolve(shift))
     .catch(err => deferred.reject(err));

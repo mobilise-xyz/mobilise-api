@@ -3,14 +3,15 @@ const roleRepository = require("../repositories").RoleRepository;
 const bookingRepository = require("../repositories").BookingRepository;
 const volunteerRepository = require("../repositories").VolunteerRepository;
 const adminRepository = require("../repositories").AdminRepository;
-const isWeekend = require("../utils/date").isWeekend;
+const Volunteer = require("../models").Volunteer;
+const User = require("../models").User;
 const moment = require("moment");
-const Op = require("../models").Sequelize.Op;
 const shiftStartsAfter = require("../utils/utils").shiftStartsAfter;
-const volunteerIsAvailableForShift = require("../utils/availability")
-  .volunteerIsAvailableForShift;
-const volunteerBookedOnShift = require("../utils/availability")
-  .volunteerBookedOnShift;
+const isWeekend = require("../utils/date").isWeekend;
+const {
+  volunteerIsAvailableForShift,
+  volunteerBookedOnShift
+} = require("../utils/availability");
 const nodemailer = require("nodemailer");
 const Nexmo = require("nexmo");
 
@@ -72,7 +73,37 @@ var ShiftController = function(
 
   this.deleteById = function(req, res) {
     shiftRepository
-      .removeById(req.params.id)
+      .getById(req.params.id, [
+        {
+          model: Volunteer,
+          as: "volunteers",
+          include: [
+            {
+              model: User,
+              as: "user",
+              include: ["contactPreferences"]
+            }
+          ]
+        }
+      ])
+      .then(shift => {
+        if (!shift) {
+          res.status(400).send({ message: "No such shift" });
+          return;
+        }
+        var emailClient = createEmailClient();
+        var textClient = createTextClient();
+        shift.volunteers.forEach(volunteer => {
+          var message = constructCancelShiftMessage(volunteer, shift);
+          if (volunteer.user.contactPreferences.email) {
+            sendEmail(emailClient, volunteer.user, "Shift cancelled", message);
+          }
+          if (volunteer.user.contactPreferences.text) {
+            sendText(textClient, volunteer.user, message);
+          }
+        });
+        return shiftRepository.removeById(req.params.id);
+      })
       .then(shift =>
         res.status(200).send({ message: "Successfully deleted", shift: shift })
       )
@@ -107,7 +138,7 @@ var ShiftController = function(
             .status(400)
             .send({ message: "Only a volunteer can cancel a booking" });
         } else {
-          const message = constructCancelMessage(
+          const message = constructCancelBookingMessage(
             creator,
             volunteer,
             shift,
@@ -429,11 +460,23 @@ function createTextClient() {
   });
 }
 
-function constructCancelMessage(admin, volunteer, shift, reason) {
+function constructCancelShiftMessage(volunteer, shift) {
+  var message = `Hello ${volunteer.user.firstName},\n\n`;
+  message += `Shift has been cancelled:\n\n`;
+  message += `Title: ${shift.title}\n`;
+  message += `Description: ${shift.description}\n`;
+  message += `When: ${moment(shift.date).format("LL")} from ${formatTime(
+    shift.start
+  )} to ${formatTime(shift.stop)}\n\n`;
+  message += `Go to site: ${APP_LINK}`;
+  return message;
+}
+
+function constructCancelBookingMessage(admin, volunteer, shift, reason) {
   var message = `Hello ${admin.user.firstName},\n\n`;
   message += `${
     volunteer.user.firstName
-  } has cancelled their booking for a shift.\n`;
+  } has cancelled their booking for a shift.\n\n`;
   message += `Title: ${shift.title}\n`;
   message += `Description: ${shift.description}\n`;
   message += `When: ${moment(shift.date).format("LL")} from ${formatTime(
