@@ -81,7 +81,7 @@ var VolunteerController = function(volunteerRepository, shiftRepository) {
         var metricStat;
         var totalHoursFromLastWeek;
         contributions["shiftsCompleted"] = shiftsCompleted;
-        contributions["hours"] = Math.round(hours);
+        contributions["hours"] = roundIfNotInteger(hours, 1);
         metricRepository
           .get()
           .then(metric => {
@@ -138,7 +138,7 @@ var VolunteerController = function(volunteerRepository, shiftRepository) {
               rank: j + 1,
               uid: volunteer.userId,
               name: `${volunteer.user.firstName} ${volunteer.user.lastName}`,
-              number: volunteer[fields[i]].toFixed(1)
+              number: roundIfNotInteger(volunteer[fields[i]], 1)
             });
           }
         })
@@ -276,5 +276,9 @@ var VolunteerController = function(volunteerRepository, shiftRepository) {
       .catch(err => res.status(500).send(err));
   };
 };
+
+function roundIfNotInteger(num, numDP) {
+  return Number.isInteger(num) ? num : num.toFixed(numDP);
+}
 
 module.exports = new VolunteerController(volunteerRepository, shiftRepository);
