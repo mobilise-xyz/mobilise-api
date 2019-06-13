@@ -29,9 +29,13 @@ module.exports = (sequelize, DataTypes) => {
       foreignKey: "repeatedId"
     });
     Booking.belongsTo(models.Shift, {
-      as: 'shift',
-      foreignKey: 'shiftId'
-    })
+      as: "shift",
+      foreignKey: "shiftId"
+    });
+    Booking.belongsTo(models.Volunteer, {
+      as: "volunteer",
+      foreignKey: "volunteerId"
+    });
   };
   return Booking;
 };

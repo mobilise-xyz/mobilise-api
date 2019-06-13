@@ -8,7 +8,7 @@ const moment = require("moment");
 const volunteerIsAvailableForShift = require("../utils/availability")
   .volunteerIsAvailableForShift;
 
-const EXPECTED_SHORTAGE_THRESHOLD = 6;
+const EXPECTED_SHORTAGE_THRESHOLD = 2;
 
 var VolunteerController = function(volunteerRepository, shiftRepository) {
   this.list = function(req, res) {
