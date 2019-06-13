@@ -1,4 +1,5 @@
 const Op = require("../models").Sequelize.Op;
+
 function shiftStartsAfter(date, time) {
   return {
     [Op.or]: [

@@ -5,7 +5,7 @@ var ShiftRepositoryInterface = {
   updateRoles: function(shift, rolesRequired) {},
   getAllWithRequirements: function() {},
   getAll: function(attributes) {},
-  getById: function(id) {},
+  getById: function(id, include) {},
   removeById: function(id) {}
 };
 
