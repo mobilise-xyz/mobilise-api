@@ -2,6 +2,7 @@ const Shift = require("../models").Shift;
 const Role = require("../models").Role;
 const Admin = require("../models").Admin;
 const User = require("../models").User;
+const Volunteer = require("../models").Volunteer;
 const RepeatedShift = require("../models").RepeatedShift;
 const ShiftRequirement = require("../models").ShiftRequirement;
 const Booking = require("../models").Booking;
@@ -13,46 +14,66 @@ const ShiftRepositoryInterface = require("./interfaces/shiftRepositoryInterface"
 
 var ShiftRepository = Object.create(ShiftRepositoryInterface);
 
-const REQUIREMENTS_WITH_BOOKINGS = {
-  model: ShiftRequirement,
-  as: "requirements",
-  attributes: ["numberRequired", "expectedShortage"],
-  include: [
-    {
-      model: Booking,
-      as: "bookings",
-      required: false,
-      where: sequelize.where(
-        sequelize.col("requirements.roleName"),
-        "=",
-        sequelize.col("requirements->bookings.roleName")
-      ),
-      attributes: ["volunteerId"]
-    },
-    {
-      model: Role,
-      as: "role",
-      attributes: ["name", "involves", "colour"]
-    }
-  ]
-};
+function VOLUNTEER() {
+  return {
+    model: Volunteer,
+    as: "volunteer",
+    attributes: ["userId"],
+    include: [
+      {
+        model: User,
+        as: "user"
+      }
+    ]
+  };
+}
 
-const CREATOR = {
-  model: Admin,
-  as: "creator",
-  include: [
-    {
-      model: User,
-      as: "user",
-      attributes: ["firstName", "lastName", "email"]
-    }
-  ]
-};
+function REQUIREMENTS_WITH_BOOKINGS(withVolunteers = false) {
+  return {
+    model: ShiftRequirement,
+    as: "requirements",
+    attributes: ["numberRequired", "expectedShortage"],
+    include: [
+      {
+        model: Booking,
+        as: "bookings",
+        required: false,
+        where: sequelize.where(
+          sequelize.col("requirements.roleName"),
+          "=",
+          sequelize.col("requirements->bookings.roleName")
+        ),
+        include: withVolunteers ? [VOLUNTEER()] : []
+      },
+      {
+        model: Role,
+        as: "role",
+        attributes: ["name", "involves", "colour"]
+      }
+    ]
+  };
+}
 
-const REPEATED = {
-  model: RepeatedShift,
-  as: "repeated"
-};
+function CREATOR() {
+  return {
+    model: Admin,
+    as: "creator",
+    include: [
+      {
+        model: User,
+        as: "user",
+        attributes: ["firstName", "lastName", "email"]
+      }
+    ]
+  };
+}
+
+function REPEATED() {
+  return {
+    model: RepeatedShift,
+    as: "repeated"
+  };
+}
 
 (ShiftRepository.add = async function(
   shift,
@@ -198,11 +219,18 @@ ShiftRepository.addAll = function(shifts, rolesRequired) {
   return deferred.promise;
 };
 
-ShiftRepository.getAllWithRequirements = function(whereTrue) {
+ShiftRepository.getAllWithRequirements = function(
+  whereTrue,
+  withVolunteers = false
+) {
   var deferred = Q.defer();
   Shift.findAll({
     where: whereTrue,
-    include: [REQUIREMENTS_WITH_BOOKINGS, CREATOR, REPEATED],
+    include: [
+      REQUIREMENTS_WITH_BOOKINGS(withVolunteers),
+      CREATOR(),
+      REPEATED()
+    ],
     order: [[sequelize.literal("date, start"), "asc"]]
   })
     .then(shifts => {
@@ -230,7 +258,7 @@ ShiftRepository.getById = function(id, include) {
   var deferred = Q.defer();
 
   if (!include) {
-    include = [REQUIREMENTS_WITH_BOOKINGS, CREATOR, REPEATED];
+    include = [REQUIREMENTS_WITH_BOOKINGS(), CREATOR(), REPEATED()];
   }
 
   Shift.findOne({

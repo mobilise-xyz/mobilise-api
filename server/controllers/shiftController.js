@@ -41,6 +41,7 @@ var ShiftController = function(
   bookingRepository
 ) {
   this.list = function(req, res) {
+    var withVolunteers = req.user.isAdmin;
     var after = req.query.after;
     var whereTrue = {};
     if (after) {
@@ -51,7 +52,7 @@ var ShiftController = function(
     }
 
     shiftRepository
-      .getAllWithRequirements(whereTrue)
+      .getAllWithRequirements(whereTrue, withVolunteers)
       .then(shifts => res.status(200).send(shifts))
       .catch(err => res.status(500).send(err));
   };
