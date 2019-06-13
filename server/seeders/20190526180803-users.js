@@ -32,6 +32,18 @@ module.exports = {
           createdAt: Seeded.volunteers[1].createdAt,
           updatedAt: Seeded.volunteers[1].updatedAt
         },
+        {
+          id: Seeded.volunteers[2].UUID,
+          firstName: Seeded.volunteers[2].firstName,
+          lastName: Seeded.volunteers[2].lastName,
+          email: Seeded.volunteers[2].email,
+          telephone: Seeded.volunteers[2].telephone,
+          password: bcrypt.hashSync(Seeded.volunteers[2].password, bcrypt.genSaltSync(8), null),
+          isAdmin: Seeded.volunteers[2].isAdmin,
+          dob: Seeded.volunteers[2].dob,
+          createdAt: Seeded.volunteers[2].createdAt,
+          updatedAt: Seeded.volunteers[2].updatedAt
+        },
 
         // Admins
         {
@@ -67,6 +79,7 @@ module.exports = {
         id: [
           Seeded.volunteers[0].UUID,
           Seeded.volunteers[1].UUID, 
+          Seeded.volunteers[2].UUID,
           Seeded.admins[0].UUID,
           Seeded.admins[1].UUID
         ]
