@@ -83,7 +83,7 @@ var StatsController = function() {
             lastWeekIncrease: lastWeekIncrease
           });
         }
-        res.status(200).send({ message: "Success" });
+        res.status(200).send({ message: "Computation Successful" });
       });
   };
 };

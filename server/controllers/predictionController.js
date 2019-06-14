@@ -7,9 +7,9 @@ var PredictionController = function() {
     ) {
       res.status(401).send({ message: "Unauthorised request" });
     } else {
-      Predictor.computeExpectedShortages();
-
-      res.status(200).send({ message: "Computation Initiated Successfully" });
+      Predictor.computeExpectedShortages().then(res => {
+        res.status(200).send({ message: "Computation Successful" });
+      });
     }
   };
 };
