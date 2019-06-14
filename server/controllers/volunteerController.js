@@ -99,10 +99,13 @@ var VolunteerController = function(volunteerRepository, shiftRepository) {
             contributions["metric"] = {
               name: metricStat.name,
               verb: metricStat.verb,
-              value: Math.round(
-                metricStat.value *
-                  (volunteer.lastWeekHours / totalHoursFromLastWeek)
-              )
+              value:
+                totalHoursFromLastWeek != 0
+                  ? Math.round(
+                      metricStat.value *
+                        (volunteer.lastWeekHours / totalHoursFromLastWeek)
+                    )
+                  : 0
             };
             res.status(200).send({
               contributions: contributions
