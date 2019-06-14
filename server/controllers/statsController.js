@@ -7,7 +7,7 @@ var StatsController = function() {
     if (
       process.env.COMPUTATION_TRIGGER_KEY != req.body.COMPUTATION_TRIGGER_KEY
     ) {
-      res.status(401).send({ message: "Unauthorised request" });
+      res.status(400).send({ message: "Unauthorised request" });
       return;
     }
 
