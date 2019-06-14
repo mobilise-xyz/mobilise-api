@@ -4,6 +4,12 @@ const volunteerRepository = require("../repositories").VolunteerRepository;
 
 var StatsController = function() {
   this.computeHallOfFame = function(req, res) {
+    if (
+      process.env.COMPUTATION_TRIGGER_KEY !== req.body.key
+    ) {
+      res.status(401).send({ message: "Unauthorised request" });
+      return;
+    }
 
     var date = moment().format("YYYY-MM-DD");
     var time = moment().format("HH:mm");
