@@ -12,6 +12,11 @@ const {
   volunteerIsAvailableForShift,
   volunteerBookedOnShift
 } = require("../utils/availability");
+const {
+  REQUIREMENTS_WITH_BOOKINGS,
+  CREATOR,
+  REPEATED
+} = require("../sequelizeUtils/shiftInclude");
 const nodemailer = require("nodemailer");
 const Nexmo = require("nexmo");
 
@@ -52,7 +57,11 @@ var ShiftController = function(
     }
 
     shiftRepository
-      .getAllWithRequirements(whereTrue, withVolunteers)
+      .getAllWithRequirements(whereTrue, [
+        REQUIREMENTS_WITH_BOOKINGS(withVolunteers),
+        CREATOR(),
+        REPEATED()
+      ])
       .then(shifts => res.status(200).send(shifts))
       .catch(err => res.status(500).send(err));
   };

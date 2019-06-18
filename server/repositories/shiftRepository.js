@@ -5,11 +5,6 @@ const Q = require("q");
 const sequelize = require("sequelize");
 const moment = require("moment");
 const ShiftRepositoryInterface = require("./interfaces/shiftRepositoryInterface");
-const {
-  REQUIREMENTS_WITH_BOOKINGS,
-  CREATOR,
-  REPEATED
-} = require("../sequelizeUtils/shiftInclude");
 
 var ShiftRepository = Object.create(ShiftRepositoryInterface);
 
@@ -151,18 +146,11 @@ ShiftRepository.addAll = function(shifts, rolesRequired) {
   return deferred.promise;
 };
 
-ShiftRepository.getAllWithRequirements = function(
-  whereTrue,
-  withVolunteers = false
-) {
+ShiftRepository.getAllWithRequirements = function(whereTrue, include) {
   var deferred = Q.defer();
   Shift.findAll({
     where: whereTrue,
-    include: [
-      REQUIREMENTS_WITH_BOOKINGS(withVolunteers),
-      CREATOR(),
-      REPEATED()
-    ],
+    include: include,
     order: [[sequelize.literal("date, start"), "asc"]]
   })
     .then(shifts => {
@@ -188,10 +176,6 @@ ShiftRepository.getAll = function(attributes) {
 
 ShiftRepository.getById = function(id, include) {
   var deferred = Q.defer();
-
-  if (!include) {
-    include = [REQUIREMENTS_WITH_BOOKINGS(), CREATOR(), REPEATED()];
-  }
 
   Shift.findOne({
     where: { id: id },
