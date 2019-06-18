@@ -25,7 +25,7 @@ UserRepository.add = function(user, hash, phone) {
 UserRepository.getByEmail = function(email) {
   var deferred = Q.defer();
 
-  User.findOne({ where: { email: email }, include: ['contactPreferences']  })
+  User.findOne({ where: { email: email }, include: ["contactPreferences"] })
     .then(user => deferred.resolve(user))
     .catch(error => deferred.reject(error));
 
@@ -35,7 +35,7 @@ UserRepository.getByEmail = function(email) {
 UserRepository.getById = function(id) {
   var deferred = Q.defer();
 
-  User.findOne({ where: { id: id }, include: ['contactPreferences'] })
+  User.findOne({ where: { id: id }, include: ["contactPreferences"] })
     .then(user => deferred.resolve(user))
     .catch(error => deferred.reject(error));
 

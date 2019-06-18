@@ -1,6 +1,6 @@
 var AdminRepositoryInterface = {
   add: function(admin) {},
-  getById: function (id) {}
+  getById: function(id) {}
 };
 
 module.exports = AdminRepositoryInterface;

@@ -1,87 +1,19 @@
 const Shift = require("../models").Shift;
-const Role = require("../models").Role;
-const Admin = require("../models").Admin;
-const User = require("../models").User;
-const Volunteer = require("../models").Volunteer;
-const RepeatedShift = require("../models").RepeatedShift;
 const ShiftRequirement = require("../models").ShiftRequirement;
-const Booking = require("../models").Booking;
 const getNextDate = require("../utils/date").getNextDate;
 const Q = require("q");
 const sequelize = require("sequelize");
 const moment = require("moment");
 const ShiftRepositoryInterface = require("./interfaces/shiftRepositoryInterface");
+const {
+  REQUIREMENTS_WITH_BOOKINGS,
+  CREATOR,
+  REPEATED
+} = require("../sequelizeUtils/shiftInclude");
 
 var ShiftRepository = Object.create(ShiftRepositoryInterface);
 
-function VOLUNTEER() {
-  return {
-    model: Volunteer,
-    as: "volunteer",
-    attributes: ["userId"],
-    include: [
-      {
-        model: User,
-        as: "user",
-        attributes: ["firstName", "lastName"]
-      }
-    ]
-  };
-}
-
-function REQUIREMENTS_WITH_BOOKINGS(withVolunteers = false) {
-  return {
-    model: ShiftRequirement,
-    as: "requirements",
-    attributes: ["numberRequired", "expectedShortage"],
-    include: [
-      {
-        model: Booking,
-        as: "bookings",
-        required: false,
-        where: sequelize.where(
-          sequelize.col("requirements.roleName"),
-          "=",
-          sequelize.col("requirements->bookings.roleName")
-        ),
-        include: withVolunteers ? [VOLUNTEER()] : []
-      },
-      {
-        model: Role,
-        as: "role",
-        attributes: ["name", "involves", "colour"]
-      }
-    ]
-  };
-}
-
-function CREATOR() {
-  return {
-    model: Admin,
-    as: "creator",
-    include: [
-      {
-        model: User,
-        as: "user",
-        attributes: ["firstName", "lastName", "email"]
-      }
-    ]
-  };
-}
-
-function REPEATED() {
-  return {
-    model: RepeatedShift,
-    as: "repeated"
-  };
-}
-
-(ShiftRepository.add = async function(
-  shift,
-  creatorId,
-  rolesRequired,
-  repeatedId
-) {
+(ShiftRepository.add = async function(shift, creatorId, rolesRequired) {
   var deferred = Q.defer();
   var createdShift;
   if (!rolesRequired) {
@@ -94,8 +26,7 @@ function REPEATED() {
     date: shift.date,
     start: shift.start,
     stop: shift.stop,
-    address: shift.address,
-    repeatedId: repeatedId
+    address: shift.address
   })
     .then(async shift => {
       createdShift = shift;

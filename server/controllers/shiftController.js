@@ -198,6 +198,13 @@ var ShiftController = function(
           return;
         }
 
+        if (shiftRequirementIsFull(shift, req.body.roleName)) {
+          res
+            .status(400)
+            .send({ message: "Shift for that role is full!" + req.params.id });
+          return;
+        }
+
         if (!req.body.repeatedType || req.body.repeatedType === "Never") {
           return bookingRepository.add(shift, req.user.id, req.body.roleName);
         }
@@ -524,4 +531,13 @@ async function checkRoles(rolesRequired, roleRepository) {
   }
 
   return { errs, rolesRequired };
+}
+
+function shiftRequirementIsFull(shift, roleName) {
+  shift.requirements.forEach(requirement => {
+    if (requirement.role.name === roleName) {
+      return requirement.bookings.length >= requirement.numberRequired;
+    }
+  });
+  return false;
 }

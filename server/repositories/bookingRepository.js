@@ -11,7 +11,7 @@ const BookingRepositoryInterface = require("./interfaces/bookingRepositoryInterf
 
 var BookingRepository = Object.create(BookingRepositoryInterface);
 
-BookingRepository.add = function (shift, volunteerId, roleName) {
+BookingRepository.add = function(shift, volunteerId, roleName) {
   var deferred = Q.defer();
   Booking.create({
     shiftId: shift.id,
@@ -24,7 +24,7 @@ BookingRepository.add = function (shift, volunteerId, roleName) {
   return deferred.promise;
 };
 
-BookingRepository.addRepeated = async function (
+BookingRepository.addRepeated = async function(
   shift,
   volunteerId,
   roleName,
@@ -46,7 +46,7 @@ BookingRepository.addRepeated = async function (
   if (successful) {
     // Create repeated booking
     RepeatedShift.findOne({
-      where: {id: shift.repeatedId},
+      where: { id: shift.repeatedId },
       include: [
         {
           model: Shift,
@@ -79,7 +79,7 @@ BookingRepository.addRepeated = async function (
         while (
           (startDate.isBefore(lastDate) || startDate.isSame(lastDate)) &&
           shiftIndex !== shifts.length
-          ) {
+        ) {
           // Find the next booking for this repeated shift
           var nextShiftDate = moment(shifts[shiftIndex].date, "YYYY-MM-DD");
 
@@ -93,7 +93,7 @@ BookingRepository.addRepeated = async function (
           while (
             shiftIndex !== shifts.length - 1 &&
             startDate.isAfter(nextShiftDate)
-            ) {
+          ) {
             shiftIndex += 1;
             nextShiftDate = moment(shifts[shiftIndex].date, "YYYY-MM-DD");
           }
@@ -127,7 +127,7 @@ BookingRepository.addRepeated = async function (
   return deferred.promise;
 };
 
-BookingRepository.getAll = function () {
+BookingRepository.getAll = function() {
   var deferred = Q.defer();
 
   Booking.findAll()
@@ -137,28 +137,30 @@ BookingRepository.getAll = function () {
   return deferred.promise;
 };
 
-BookingRepository.getAllWithShifts = function () {
+BookingRepository.getAllWithShifts = function() {
   var deferred = Q.defer();
 
-  Booking.findAll({include: ["shift"]})
+  Booking.findAll({ include: ["shift"] })
     .then(bookings => deferred.resolve(bookings))
     .catch(err => deferred.reject(err));
 
   return deferred.promise;
 };
 
-BookingRepository.getByVolunteerId = function (volunteerId, whereShift) {
+BookingRepository.getByVolunteerId = function(volunteerId, whereShift) {
   var deferred = Q.defer();
   Booking.findAll({
     where: {
       volunteerId: volunteerId
     },
-    include: [{
-      model: Shift,
-      as: "shift",
-      where: whereShift,
-      required: true
-    }]
+    include: [
+      {
+        model: Shift,
+        as: "shift",
+        where: whereShift,
+        required: true
+      }
+    ]
   })
     .then(bookings => deferred.resolve(bookings))
     .catch(err => deferred.reject(err));
@@ -181,7 +183,7 @@ BookingRepository.delete = function(shiftId, volunteerId) {
   return deferred.promise;
 };
 
-BookingRepository.getById = function (shiftId, volunteerId) {
+BookingRepository.getById = function(shiftId, volunteerId) {
   var deferred = Q.defer();
 
   Booking.findOne({
@@ -189,7 +191,7 @@ BookingRepository.getById = function (shiftId, volunteerId) {
       shiftId: shiftId,
       volunteerId: volunteerId
     },
-    include: ['shift']
+    include: ["shift"]
   })
     .then(booking => deferred.resolve(booking))
     .catch(err => deferred.reject(err));
