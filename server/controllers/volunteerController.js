@@ -3,6 +3,7 @@ const shiftRepository = require("../repositories").ShiftRepository;
 const bookingRepository = require("../repositories").BookingRepository;
 const metricRepository = require("../repositories").MetricRepository;
 const moment = require("moment");
+const Op = require("../models").Sequelize.Op;
 const { volunteerIsAvailableForShift } = require("../utils/availability");
 const {
   REQUIREMENTS_WITH_BOOKINGS,
@@ -214,7 +215,6 @@ var VolunteerController = function(volunteerRepository, shiftRepository) {
       })
       .then(bookings => {
         var shiftIds = bookings.map(booking => booking.shiftId);
-
         if (req.query.booked) {
           whereTrue["id"] = { [Op.in]: shiftIds };
           return shiftRepository
@@ -241,6 +241,7 @@ var VolunteerController = function(volunteerRepository, shiftRepository) {
               return result;
             });
         }
+        console.log(whereTrue);
         whereTrue["id"] = { [Op.notIn]: shiftIds };
         return shiftRepository
           .getAll(null, whereTrue, [
