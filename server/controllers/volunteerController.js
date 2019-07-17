@@ -2,16 +2,14 @@ const volunteerRepository = require("../repositories").VolunteerRepository;
 const shiftRepository = require("../repositories").ShiftRepository;
 const bookingRepository = require("../repositories").BookingRepository;
 const metricRepository = require("../repositories").MetricRepository;
-const Op = require("../models").Sequelize.Op;
-const shiftStartsAfter = require("../utils/utils").shiftStartsAfter;
 const moment = require("moment");
-const volunteerIsAvailableForShift = require("../utils/availability")
-  .volunteerIsAvailableForShift;
+const { volunteerIsAvailableForShift } = require("../utils/availability");
 const {
   REQUIREMENTS_WITH_BOOKINGS,
   CREATOR,
   REPEATED_SHIFT
 } = require("../sequelizeUtils/include");
+const { SHIFT_BEFORE, SHIFT_AFTER } = require("../sequelizeUtils/where");
 const EXPECTED_SHORTAGE_THRESHOLD = 2;
 
 var VolunteerController = function(volunteerRepository, shiftRepository) {
@@ -48,27 +46,10 @@ var VolunteerController = function(volunteerRepository, shiftRepository) {
           const date = now.format("YYYY-MM-DD");
           const time = now.format("HH:mm");
           volunteer = vol;
-          return bookingRepository.getByVolunteerId(vol.userId, {
-            [Op.or]: [
-              {
-                date: {
-                  [Op.lt]: date
-                }
-              },
-              {
-                [Op.and]: [
-                  {
-                    date: {
-                      [Op.eq]: date
-                    },
-                    stop: {
-                      [Op.lte]: time
-                    }
-                  }
-                ]
-              }
-            ]
-          });
+          return bookingRepository.getByVolunteerId(
+            vol.userId,
+            SHIFT_BEFORE(date, time)
+          );
         }
       })
       .then(bookings => {
@@ -219,7 +200,7 @@ var VolunteerController = function(volunteerRepository, shiftRepository) {
       var afterMoment = moment(after);
       var date = afterMoment.format("YYYY-MM-DD");
       var time = afterMoment.format("HH:mm");
-      whereTrue = shiftStartsAfter(date, time);
+      whereTrue = SHIFT_AFTER(date, time);
     }
     volunteerRepository
       .getById(req.params.id)

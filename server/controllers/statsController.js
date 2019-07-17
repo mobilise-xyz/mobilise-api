@@ -1,12 +1,10 @@
 const moment = require("moment");
-const Op = require("../models").Sequelize.Op;
+const { SHIFT_BETWEEEN } = require("../sequelizeUtils/where");
 const volunteerRepository = require("../repositories").VolunteerRepository;
 
 var StatsController = function() {
   this.computeHallOfFame = function(req, res) {
-    if (
-      process.env.COMPUTATION_TRIGGER_KEY !== req.body.key
-    ) {
+    if (process.env.COMPUTATION_TRIGGER_KEY !== req.body.key) {
       res.status(401).send({ message: "Unauthorised request" });
       return;
     }
@@ -18,50 +16,7 @@ var StatsController = function() {
       .format("YYYY-MM-DD");
 
     volunteerRepository
-      .getAllWithShifts({
-        [Op.or]: [
-          {
-            date: {
-              [Op.gt]: lastWeek
-            }
-          },
-          {
-            [Op.and]: [
-              {
-                date: {
-                  [Op.eq]: lastWeek
-                },
-                start: {
-                  [Op.gte]: time
-                }
-              }
-            ]
-          }
-        ],
-        [Op.and]: {
-          // Started after last week
-          // Stopped before now
-          [Op.or]: [
-            {
-              date: {
-                [Op.lt]: date
-              }
-            },
-            {
-              [Op.and]: [
-                {
-                  date: {
-                    [Op.eq]: date
-                  },
-                  stop: {
-                    [Op.lte]: time
-                  }
-                }
-              ]
-            }
-          ]
-        }
-      })
+      .getAllWithShifts(SHIFT_BETWEEEN(lastWeek, time, date, time))
       .then(async volunteers => {
         for (var i = 0; i < volunteers.length; i++) {
           var volunteer = volunteers[i];

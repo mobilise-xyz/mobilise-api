@@ -15,7 +15,8 @@ const {
 const {
   REQUIREMENTS_WITH_BOOKINGS,
   CREATOR,
-  REPEATED_SHIFT
+  REPEATED_SHIFT,
+  VOLUNTEERS
 } = require("../sequelizeUtils/include");
 const nodemailer = require("nodemailer");
 const Nexmo = require("nexmo");
@@ -83,19 +84,7 @@ var ShiftController = function(
 
   this.deleteById = function(req, res) {
     shiftRepository
-      .getById(req.params.id, [
-        {
-          model: Volunteer,
-          as: "volunteers",
-          include: [
-            {
-              model: User,
-              as: "user",
-              include: ["contactPreferences"]
-            }
-          ]
-        }
-      ])
+      .getById(req.params.id, [VOLUNTEERS()])
       .then(shift => {
         if (!shift) {
           res.status(400).send({ message: "No such shift" });

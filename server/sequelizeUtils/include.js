@@ -24,6 +24,20 @@ function VOLUNTEER() {
   };
 }
 
+function VOLUNTEERS() {
+  return {
+    model: Volunteer,
+    as: "volunteers",
+    include: [
+      {
+        model: User,
+        as: "user",
+        include: ["contactPreferences"]
+      }
+    ]
+  };
+}
+
 function SHIFTS_WITH_BOOKINGS(startDate, endDate, order) {
   return {
     model: Shift,
@@ -129,6 +143,7 @@ function CONTACT_PREFERENCES() {
 
 module.exports = {
   VOLUNTEER,
+  VOLUNTEERS,
   REQUIREMENTS_WITH_BOOKINGS,
   SHIFTS_WITH_BOOKINGS,
   CREATOR,
