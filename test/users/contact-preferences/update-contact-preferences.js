@@ -1,9 +1,9 @@
 var request = require('supertest');
 var app = require('../../../app');
-
+var { describe, it } = require("mocha")
 const Seeded = require('../../../server/utils/seeded');
 
-test = {
+const test = {
   contactPreferences: {
     email: true,
     text: true
