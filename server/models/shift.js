@@ -1,79 +1,77 @@
 "use strict";
 module.exports = (sequelize, DataTypes) => {
-  const {STRING, TIME, UUIDV4, UUID, DATEONLY} = DataTypes;
   const Shift = sequelize.define(
     "Shift",
     {
       id: {
         allowNull: false,
         primaryKey: true,
-        type: UUID,
-        defaultValue: UUIDV4
+        type: DataTypes.UUID,
+        defaultValue: DataTypes.UUIDV4
       },
       creatorId: {
         allowNull: false,
-        type: UUID
+        type: DataTypes.UUID
       },
       title: {
-        type: STRING,
+        type: DataTypes.STRING,
         allowNull: false
       },
       description: {
-        type: STRING,
+        type: DataTypes.STRING,
         allowNull: false
       },
       date: {
-        type: DATEONLY,
+        type: DataTypes.DATEONLY,
         allowNull: false
       },
       start: {
-        type: TIME,
+        type: DataTypes.TIME,
         allowNull: false
       },
       stop: {
-        type: TIME,
+        type: DataTypes.TIME,
         allowNull: false
       },
       address: {
-        type: STRING,
+        type: DataTypes.STRING,
         allowNull: false
       },
       repeatedId: {
-        type: UUID
+        type: DataTypes.UUID
       }
     },
     {}
   );
   Shift.associate = function(models) {
-    const {Booking, ShiftRequirement, Admin, Role, RepeatedShift, Volunteer} = models;
-    Shift.belongsToMany(Role, {
-      through: ShiftRequirement,
+    Shift.belongsToMany(models.Role, {
+      through: models.ShiftRequirement,
       as: "roles",
       foreignKey: "shiftId"
     });
 
-    Shift.belongsTo(RepeatedShift, {
+    Shift.belongsTo(models.RepeatedShift, {
       as: "repeated",
       foreignKey: "repeatedId"
     });
 
-    Shift.hasMany(ShiftRequirement, {
+    Shift.hasMany(models.ShiftRequirement, {
       as: "requirements",
       foreignKey: "shiftId"
     });
 
-    Shift.belongsToMany(Volunteer, {
-      through: Booking,
+    Shift.belongsToMany(models.Volunteer, {
+      through: models.Booking,
       as: "volunteers",
       foreignKey: "shiftId"
     });
 
-    Shift.hasMany(Booking, {
+    Shift.hasMany(models.Booking, {
       as: "bookings",
       foreignKey: "shiftId"
     });
 
-    Shift.belongsTo(Admin, {
+    Shift.belongsTo(models.Admin, {
       as: "creator",
       foreignKey: "creatorId"
     });

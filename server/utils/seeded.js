@@ -1,7 +1,7 @@
 const moment = require('moment');
 
 // This is used for shifts, so that they don't disappear after you pass the date.
-const futureDate = moment().add(7, 'days').format('YYYY-MM-DD');
+const futureDate = moment().add(7, 'days').format('YYYY-MM-DD')
 
 const roles = [
   {

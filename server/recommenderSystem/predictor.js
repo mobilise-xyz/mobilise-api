@@ -1,14 +1,21 @@
 const Q = require("q");
 const shiftRepository = require("../repositories").ShiftRepository;
-const { ShiftRequirement } = require("../models");
+const ShiftRequirement = require("../models").ShiftRequirement;
 const volunteerRepository = require("../repositories").VolunteerRepository;
-const { volunteerIsAvailableForShiftStart, getSlotForTime, getDayOfWeekForDate, getCumulativeAvailability } = require("../utils/availability");
+const getCumulativeAvailability = require("../utils/availability")
+  .getCumulativeAvailability;
+const volunteerIsAvailableForShiftStart = require("../utils/availability")
+  .volunteerIsAvailableForShiftStart;
+const getSlotForTime = require("../utils/availability").getSlotForTime;
+const getDayOfWeekForDate = require("../utils/availability")
+  .getDayOfWeekForDate;
 const Op = require("../models").Sequelize.Op;
 const {
   REQUIREMENTS_WITH_BOOKINGS
 } = require("../sequelizeUtils/include");
 
 var Predictor = function(shiftRepository) {
+  this.shiftRepository = shiftRepository;
 
   this.computeExpectedShortages = async function(whereTrue) {
     var deferred = Q.defer();
@@ -42,7 +49,7 @@ var Predictor = function(shiftRepository) {
               userId: { [Op.in]: volunteerIds }
             });
 
-            // Find booked volunteers who were available for shift
+            // Find booked volunters who were available for shift
             var availableVolunteers = volunteers.filter(volunteer =>
               volunteerIsAvailableForShiftStart(volunteer, shift)
             );

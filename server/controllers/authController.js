@@ -7,8 +7,8 @@ const moment = require("moment");
 const bcrypt = require("bcryptjs");
 const config = require("../config/config.js");
 const jwt = require("jsonwebtoken");
-const { PhoneNumberFormat, PhoneNumberUtil } = require('google-libphonenumber');
-const phoneUtil = PhoneNumberUtil.getInstance();
+const PNF = require('google-libphonenumber').PhoneNumberFormat;
+const phoneUtil = require('google-libphonenumber').PhoneNumberUtil.getInstance();
 
 var AuthController = function(
   userRepository,
@@ -31,7 +31,7 @@ var AuthController = function(
               .status(400)
               .send({ message: "Invalid UK phone number" });
           } else {
-            const formattedNumber = phoneUtil.format(number, PhoneNumberFormat.E164);
+            const formattedNumber = phoneUtil.format(number, PNF.E164);
             return userRepository.add(req.body, hash, formattedNumber);
           }
         }
@@ -87,7 +87,7 @@ var AuthController = function(
           lastLogin: currentDate
         });
       })
-      .then(() => {
+      .then(result => {
         res.status(200).json({
           message: "Successful login!",
           uid: loggedInUser.id,

@@ -1,4 +1,4 @@
-const { Metric } = require("../models");
+const Metric = require("../models").Metric;
 const Q = require("q");
 const MetricRepositoryInterface = require("./interfaces/metricRepositoryInterface");
 

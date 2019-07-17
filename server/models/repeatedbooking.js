@@ -1,29 +1,27 @@
 "use strict";
 module.exports = (sequelize, DataTypes) => {
-  const {UUIDV4, DATEONLY, UUID, STRING} = DataTypes;
   const RepeatedBooking = sequelize.define(
     "RepeatedBooking",
     {
       id: {
         allowNull: false,
         primaryKey: true,
-        type: UUID,
-        defaultValue: UUIDV4
+        type: DataTypes.UUID,
+        defaultValue: DataTypes.UUIDV4
       },
       type: {
-        type: STRING,
+        type: DataTypes.STRING,
         allowNull: false
       },
       untilDate: {
-        type: DATEONLY,
+        type: DataTypes.DATEONLY,
         allowNull: false
       }
     },
     {}
   );
   RepeatedBooking.associate = function(models) {
-    const { Booking } = models;
-    RepeatedBooking.hasMany(Booking, {
+    RepeatedBooking.hasMany(models.Booking, {
       as: "bookings",
       foreignKey: "repeatedId"
     });

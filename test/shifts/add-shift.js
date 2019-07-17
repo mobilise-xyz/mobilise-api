@@ -13,7 +13,7 @@ const test = {
     repeatedType: 'Never',
     address: 'SW72AZ'
   }
-};
+}
 
 describe("Add shifts", function() {
   it("Does not allow unauthorised request to add shift", function(done) {

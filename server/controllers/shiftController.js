@@ -4,7 +4,7 @@ const bookingRepository = require("../repositories").BookingRepository;
 const volunteerRepository = require("../repositories").VolunteerRepository;
 const adminRepository = require("../repositories").AdminRepository;
 const moment = require("moment");
-const { isWeekend } = require("../utils/date");
+const isWeekend = require("../utils/date").isWeekend;
 const {
   volunteerIsAvailableForShift,
   volunteerBookedOnShift
@@ -255,7 +255,7 @@ var ShiftController = function(
         }
         return shiftRepository.update(shift, req.body);
       })
-      .then(() => {
+      .then(shift => {
         res.status(200).send({ message: "Shift updated" });
       })
       .catch(err => res.status(500).send(err));
@@ -334,7 +334,7 @@ var ShiftController = function(
           });
         }
       })
-      .then(() => {
+      .then(_ => {
         res
           .status(200)
           .send({ message: "Sending alerts to available volunteers" });
@@ -532,8 +532,7 @@ async function checkRoles(rolesRequired, roleRepository) {
 function shiftRequirementIsFull(shift, roleName) {
   shift.requirements.forEach(requirement => {
     if (requirement.role.name === roleName) {
-      const { bookings } = requirement;
-      return bookings.length >= requirement.numberRequired;
+      return requirement.bookings.length >= requirement.numberRequired;
     }
   });
   return false;

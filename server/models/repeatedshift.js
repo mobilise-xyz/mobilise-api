@@ -1,21 +1,20 @@
 "use strict";
 module.exports = (sequelize, DataTypes) => {
-  const { STRING, UUIDV4, UUID, DATEONLY } = DataTypes;
   const RepeatedShift = sequelize.define(
     "RepeatedShift",
     {
       id: {
         allowNull: false,
         primaryKey: true,
-        type: UUID,
-        defaultValue: UUIDV4
+        type: DataTypes.UUID,
+        defaultValue: DataTypes.UUIDV4
       },
       type: {
-        type: STRING,
+        type: DataTypes.STRING,
         allowNull: false
       },
       untilDate: {
-        type: DATEONLY,
+        type: DataTypes.DATEONLY,
         allowNull: false
       }
     },

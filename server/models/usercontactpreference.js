@@ -1,28 +1,27 @@
 'use strict';
 
 module.exports = (sequelize, DataTypes) => {
-  const { BOOLEAN, UUID } = DataTypes;
   const UserContactPreference = sequelize.define('UserContactPreference', {
     userId: {
-      type: UUID,
+      type: DataTypes.UUID,
       allowNull: false,
       primaryKey: true
     },
     email: {
-      type: BOOLEAN,
+      type: DataTypes.BOOLEAN,
       allowNull: false,
       defaultValue: false
     },
     text: {
-      type: BOOLEAN,
+      type: DataTypes.BOOLEAN,
       allowNull: false,
       defaultValue: false
     }
   }, {});
 
   UserContactPreference.associate = function(models) {
-    const { User } = models;
-    UserContactPreference.belongsTo(User, {
+    
+    UserContactPreference.belongsTo(models.User, {
       as: "user",
       foreignKey: "userId"
     })

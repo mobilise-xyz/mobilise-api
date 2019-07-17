@@ -24,16 +24,15 @@ module.exports = (sequelize, DataTypes) => {
     {}
   );
   Booking.associate = function(models) {
-    const { RepeatedBooking, Shift, Volunteer } = models;
-    Booking.belongsTo(RepeatedBooking, {
+    Booking.belongsTo(models.RepeatedBooking, {
       as: "repeated",
       foreignKey: "repeatedId"
     });
-    Booking.belongsTo(Shift, {
+    Booking.belongsTo(models.Shift, {
       as: "shift",
       foreignKey: "shiftId"
     });
-    Booking.belongsTo(Volunteer, {
+    Booking.belongsTo(models.Volunteer, {
       as: "volunteer",
       foreignKey: "volunteerId"
     });

@@ -1,5 +1,5 @@
 const moment = require("moment");
-const { SHIFT_BETWEEN } = require("../sequelizeUtils/where");
+const { SHIFT_BETWEEEN } = require("../sequelizeUtils/where");
 const volunteerRepository = require("../repositories").VolunteerRepository;
 
 var StatsController = function() {
@@ -16,7 +16,7 @@ var StatsController = function() {
       .format("YYYY-MM-DD");
 
     volunteerRepository
-      .getAllWithShifts(SHIFT_BETWEEN(lastWeek, time, date, time))
+      .getAllWithShifts(SHIFT_BETWEEEN(lastWeek, time, date, time))
       .then(async volunteers => {
         for (var i = 0; i < volunteers.length; i++) {
           var volunteer = volunteers[i];

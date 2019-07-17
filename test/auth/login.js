@@ -2,7 +2,7 @@ var request = require("supertest");
 var app = require("../../app");
 var chai = require("chai");
 
-var { expect } = chai;
+var expect = chai.expect;
 
 const Seeded = require("../../server/utils/seeded");
 

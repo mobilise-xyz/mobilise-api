@@ -1,6 +1,6 @@
 var request = require('supertest');
 var app = require('../../app');
-const { Role } = require('../../server/models');
+const Role = require('../../server/models').Role;
 
 const Seeded = require('../../server/utils/seeded');
 

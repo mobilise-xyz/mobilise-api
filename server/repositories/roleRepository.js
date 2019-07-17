@@ -1,4 +1,4 @@
-const { Role } = require("../models");
+const Role = require("../models").Role;
 const Q = require("q");
 
 const RoleRepositoryInterface = require("./interfaces/roleRepositoryInterface");
