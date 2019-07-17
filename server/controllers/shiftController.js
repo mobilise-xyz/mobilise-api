@@ -3,10 +3,7 @@ const roleRepository = require("../repositories").RoleRepository;
 const bookingRepository = require("../repositories").BookingRepository;
 const volunteerRepository = require("../repositories").VolunteerRepository;
 const adminRepository = require("../repositories").AdminRepository;
-const Volunteer = require("../models").Volunteer;
-const User = require("../models").User;
 const moment = require("moment");
-const shiftStartsAfter = require("../utils/utils").shiftStartsAfter;
 const isWeekend = require("../utils/date").isWeekend;
 const {
   volunteerIsAvailableForShift,
@@ -18,6 +15,7 @@ const {
   REPEATED_SHIFT,
   VOLUNTEERS
 } = require("../sequelizeUtils/include");
+const { SHIFT_AFTER } = require("../sequelizeUtils/where");
 const nodemailer = require("nodemailer");
 const Nexmo = require("nexmo");
 
@@ -54,7 +52,7 @@ var ShiftController = function(
       var afterMoment = moment(after);
       var date = afterMoment.format("YYYY-MM-DD");
       var time = afterMoment.format("HH:mm");
-      whereTrue = shiftStartsAfter(date, time);
+      whereTrue = SHIFT_AFTER(date, time);
     }
 
     shiftRepository
