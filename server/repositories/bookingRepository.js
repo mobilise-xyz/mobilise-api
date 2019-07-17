@@ -1,7 +1,5 @@
 const Booking = require("../models").Booking;
-const Shift = require("../models").Shift;
 const RepeatedShift = require("../models").RepeatedShift;
-const Op = require("../models").Sequelize.Op;
 const RepeatedBooking = require("../models").RepeatedBooking;
 const Q = require("q");
 const getNextDate = require("../utils/date").getNextDate;
