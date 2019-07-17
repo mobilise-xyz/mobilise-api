@@ -8,7 +8,7 @@ const ShiftRepositoryInterface = require("./interfaces/shiftRepositoryInterface"
 
 var ShiftRepository = Object.create(ShiftRepositoryInterface);
 
-(ShiftRepository.add = async function(shift, creatorId, rolesRequired) {
+ShiftRepository.add = async function(shift, creatorId, rolesRequired) {
   var deferred = Q.defer();
   var createdShift;
   if (!rolesRequired) {
@@ -42,8 +42,9 @@ var ShiftRepository = Object.create(ShiftRepositoryInterface);
     })
     .catch(err => deferred.reject(err));
   return deferred.promise;
-}),
-  (ShiftRepository.addRepeated = async function(
+};
+
+ShiftRepository.addRepeated = async function(
     shift,
     creatorId,
     rolesRequired,
@@ -88,7 +89,7 @@ var ShiftRepository = Object.create(ShiftRepositoryInterface);
       });
 
     return deferred.promise;
-  });
+};
 
 ShiftRepository.updateRoles = function(shift, rolesRequired) {
   var deferred = Q.defer();
