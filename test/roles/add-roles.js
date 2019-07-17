@@ -1,6 +1,6 @@
 var request = require('supertest');
 var app = require('../../app');
-const Role = require('../../server/models').Role;
+const { Role } = require('../../server/models');
 
 const Seeded = require('../../server/utils/seeded');
 
@@ -9,13 +9,13 @@ const test = {
     name: 'Test Role',
     involves: 'Testing'
   }
-}
+};
 
 describe('Add roles', function() {
 
   after( function() {
     Role.destroy({where: {name: test.role.name}})
-  })
+  });
 
   it('Does not allow unauthorised request to add role', function(done) {
     request(app)

@@ -1,8 +1,5 @@
-const Booking = require("../models").Booking;
-const Shift = require("../models").Shift;
-const RepeatedShift = require("../models").RepeatedShift;
-const Op = require("../models").Sequelize.Op;
-const RepeatedBooking = require("../models").RepeatedBooking;
+const {Booking, RepeatedShift} = require("../models");
+const { RepeatedBooking } = require("../models");
 const Q = require("q");
 const getNextDate = require("../utils/date").getNextDate;
 const sequelize = require("sequelize");
@@ -86,7 +83,8 @@ BookingRepository.addRepeated = async function(
             // The bookings in the shift are only ones with the volunteer
             // id so therefore if the length is not 0, then the volunteer
             // has a booking for this shift. So skip over it.
-            if (shifts[shiftIndex].bookings.length === 0) {
+            const { bookings } = shifts[shiftIndex];
+            if (bookings.length === 0) {
               bookings.push({
                 shiftId: shifts[shiftIndex].id,
                 repeatedId: repeatedId,

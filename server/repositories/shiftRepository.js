@@ -1,6 +1,5 @@
-const Shift = require("../models").Shift;
-const ShiftRequirement = require("../models").ShiftRequirement;
-const getNextDate = require("../utils/date").getNextDate;
+const { Shift, ShiftRequirement, RepeatedShift } = require("../models");
+const { getNextDate } = require("../utils/date");
 const Q = require("q");
 const sequelize = require("sequelize");
 const moment = require("moment");
@@ -37,12 +36,12 @@ var ShiftRepository = Object.create(ShiftRepositoryInterface);
       });
       return ShiftRequirement.bulkCreate(shiftRequirements);
     })
-    .then(_ => {
+    .then(() => {
       deferred.resolve(createdShift);
     })
     .catch(err => deferred.reject(err));
   return deferred.promise;
-}),
+})
   (ShiftRepository.addRepeated = async function(
     shift,
     creatorId,
@@ -95,7 +94,7 @@ ShiftRepository.updateRoles = function(shift, rolesRequired) {
   ShiftRequirement.destroy({
     where: { shiftId: shift.id }
   })
-    .then(_ => {
+    .then(() => {
       var shiftRequirements = [];
       // Add the roles to shift
       rolesRequired.forEach(roleRequired => {
@@ -108,7 +107,7 @@ ShiftRepository.updateRoles = function(shift, rolesRequired) {
       });
       return ShiftRequirement.bulkCreate(shiftRequirements);
     })
-    .then(_ => deferred.resolve(shift))
+    .then(() => deferred.resolve(shift))
     .catch(err => deferred.reject(err));
   return deferred.promise;
 };
@@ -140,7 +139,7 @@ ShiftRepository.addAll = function(shifts, rolesRequired) {
       });
       return ShiftRequirement.bulkCreate(shiftRequirements);
     })
-    .then(_ => deferred.resolve(allShifts))
+    .then(() => deferred.resolve(allShifts))
     .catch(err => deferred.reject(err));
 
   return deferred.promise;

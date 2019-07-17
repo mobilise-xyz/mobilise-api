@@ -1,6 +1,6 @@
 const Op = require("../models").Sequelize.Op;
 
-function SHIFT_BETWEEEN(startDate, startTime, endDate, endTime) {
+function SHIFT_BETWEEN(startDate, startTime, endDate, endTime) {
   return {
     // Started after startDate and startTime
     [Op.or]: [
@@ -96,7 +96,7 @@ function SHIFT_AFTER(date, time) {
 }
 
 module.exports = {
-  SHIFT_BETWEEEN,
+  SHIFT_BETWEEN,
   SHIFT_BEFORE,
   SHIFT_AFTER
 };

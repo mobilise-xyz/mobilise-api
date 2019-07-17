@@ -8,7 +8,7 @@ test = {
     email: true,
     text: true
   }
-}
+};
 
 describe('Updating contact information', function() {
   

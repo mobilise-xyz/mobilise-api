@@ -1,4 +1,4 @@
-const Volunteer = require("../models").Volunteer;
+const { Volunteer } = require("../models");
 const Q = require("q");
 const VolunteerRepositoryInterface = require("./interfaces/volunteerRepositoryInterface");
 const { USER, SHIFTS } = require("../sequelizeUtils/include");

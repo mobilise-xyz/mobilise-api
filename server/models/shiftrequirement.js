@@ -1,35 +1,37 @@
 "use strict";
 module.exports = (sequelize, DataTypes) => {
+  const { STRING, FLOAT, UUID, INTEGER } = DataTypes;
   const ShiftRequirement = sequelize.define(
     "ShiftRequirement",
     {
       shiftId: {
         allowNull: false,
-        type: DataTypes.UUID,
+        type: UUID,
         primaryKey: true
       },
       roleName: {
         allowNull: false,
         primaryKey: true,
-        type: DataTypes.STRING
+        type: STRING
       },
-      numberRequired: DataTypes.INTEGER,
-      expectedShortage: DataTypes.FLOAT
+      numberRequired: INTEGER,
+      expectedShortage: FLOAT
     },
     {}
   );
   ShiftRequirement.associate = function(models) {
-    ShiftRequirement.hasMany(models.Booking, {
+    const { Shift, Booking, Role } = models;
+    ShiftRequirement.hasMany(Booking, {
       as: "bookings",
       foreignKey: "shiftId"
     });
 
-    ShiftRequirement.belongsTo(models.Role, {
+    ShiftRequirement.belongsTo(Role, {
       as: "role",
       foreignKey: "roleName"
     });
 
-    ShiftRequirement.belongsTo(models.Shift, {
+    ShiftRequirement.belongsTo(Shift, {
       as: "shift",
       foreignKey: "shiftId"
     });

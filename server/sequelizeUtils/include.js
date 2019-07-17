@@ -1,13 +1,6 @@
-const Role = require("../models").Role;
-const Admin = require("../models").Admin;
-const User = require("../models").User;
-const Shift = require("../models").Shift;
-const Volunteer = require("../models").Volunteer;
-const ShiftRequirement = require("../models").ShiftRequirement;
-const UserContactPreference = require("../models").UserContactPreference;
-const Booking = require("../models").Booking;
-const RepeatedShift = require("../models").RepeatedShift;
+const { Role, Admin, User, Shift, Volunteer, ShiftRequirement, UserContactPreference, Booking, RepeatedShift } = require("../models");
 const sequelize = require("sequelize");
+const Op = require("../models").Sequelize.Op;
 
 function VOLUNTEER() {
   return {
@@ -142,7 +135,6 @@ function CONTACT_PREFERENCES() {
 }
 
 module.exports = {
-  VOLUNTEER,
   VOLUNTEERS,
   REQUIREMENTS_WITH_BOOKINGS,
   SHIFTS_WITH_BOOKINGS,

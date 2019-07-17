@@ -86,7 +86,7 @@ var VolunteerController = function(volunteerRepository, shiftRepository) {
               name: metricStat.name,
               verb: metricStat.verb,
               value:
-                totalHoursFromLastWeek != 0
+                totalHoursFromLastWeek !== 0
                   ? Math.round(
                       metricStat.value *
                         (volunteer.lastWeekHours / totalHoursFromLastWeek)
@@ -99,7 +99,7 @@ var VolunteerController = function(volunteerRepository, shiftRepository) {
           });
       })
       .catch(err => res.status(500).send(err));
-  }),
+  })
     (this.getActivity = function(req, res) {
       // Check bearer token id matches parameter id
       if (req.user.id !== req.params.id) {
@@ -158,7 +158,7 @@ var VolunteerController = function(volunteerRepository, shiftRepository) {
         } else {
           volunteerRepository
             .updateAvailability(req.params.id, req.body.availability)
-            .then(result =>
+            .then(() =>
               res.status(201).send({
                 message: "Availability Updated Successfuly"
               })
@@ -215,7 +215,8 @@ var VolunteerController = function(volunteerRepository, shiftRepository) {
       })
       .then(bookings => {
         var shiftIds = bookings.map(booking => booking.shiftId);
-        if (req.query.booked) {
+        const { booked } = req.query;
+        if (booked) {
           whereTrue["id"] = { [Op.in]: shiftIds };
           return shiftRepository
             .getAll(null, whereTrue, [
@@ -229,7 +230,8 @@ var VolunteerController = function(volunteerRepository, shiftRepository) {
                 var shift = s.toJSON();
                 var requirements = [];
                 shift.requirements.forEach(requirement => {
-                  requirement.bookings.forEach(booking => {
+                  const { bookings } = requirement;
+                  bookings.forEach(booking => {
                     if (booking.volunteerId === volunteer.userId) {
                       requirements.push(requirement);
                     }

@@ -35,7 +35,7 @@ function getSlotForTime(time) {
   return 1;
 }
 
-// Accepts date in YYYY-MM-DD formate
+// Accepts date in YYYY-MM-DD format
 function getDayOfWeekForDate(date) {
   return moment(date, "YYYY-MM-DD").toDate().getDay();
 }
@@ -43,8 +43,9 @@ function getDayOfWeekForDate(date) {
 function volunteerBookedOnShift(volunteer, shift) {
   for (var i = 0; i < shift.requirements.length; i++) {
     var requirement = shift.requirements[i];
-    for (var j = 0; j < requirement.bookings.length; j++) {
-      if (requirement.bookings[j].volunteerId === volunteer.userId) {
+    const { bookings } = requirement;
+    for (var j = 0; j < bookings.length; j++) {
+      if (bookings[j].volunteerId === volunteer.userId) {
         return true;
       }
     }
@@ -68,7 +69,7 @@ async function getCumulativeAvailability() {
         [0,0,0],
         [0,0,0],
         [0,0,0]
-      ]
+      ];
 
       // Loop through list of volunteers and build the array of cumulative availabilities
       var i;
@@ -92,7 +93,7 @@ async function getCumulativeAvailability() {
       return array;
     })
     .then(result => deferred.resolve(result))
-    .catch(error => deferred.reject(error))
+    .catch(error => deferred.reject(error));
 
   return deferred.promise;
 }

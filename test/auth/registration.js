@@ -4,7 +4,7 @@ var chai = require('chai');
 
 var User = require('../../server/models').User;
 
-var expect = chai.expect;
+var { expect } = chai;
 
 const test = {
   volunteer: {

@@ -1,62 +1,64 @@
 "use strict";
 module.exports = (sequelize, DataTypes) => {
+  const { UUID, DATE, BOOLEAN, UUIDV4, STRING, DATEONLY } = DataTypes;
   const User = sequelize.define(
     "User",
     {
       id: {
         allowNull: false,
         primaryKey: true,
-        type: DataTypes.UUID,
-        defaultValue: DataTypes.UUIDV4
+        type: UUID,
+        defaultValue: UUIDV4
       },
       firstName: {
-        type: DataTypes.STRING,
+        type: STRING,
         allowNull: false
       },
       lastName: {
-        type: DataTypes.STRING,
+        type: STRING,
         allowNull: false
       },
       isAdmin: {
-        type: DataTypes.BOOLEAN,
+        type: BOOLEAN,
         defaultValue: false
       },
       email: {
-        type: DataTypes.STRING,
+        type: STRING,
         allowNull: false,
         unique: true
       },
       telephone: {
-        type: DataTypes.STRING,
+        type: STRING,
         allowNull: false
       },
       password: {
-        type: DataTypes.STRING,
+        type: STRING,
         allowNull: false
       },
       dob: {
-        type: DataTypes.DATEONLY,
+        type: DATEONLY,
         allowNull: false
       },
       lastLogin: {
-        type: DataTypes.DATE,
+        type: DATE,
         allowNull: true
       }
     },
     {}
   );
   User.associate = function(models) {
-    User.hasOne(models.Volunteer, {
+    const { Volunteer, Admin, UserContactPreference } = models;
+    User.hasOne(Volunteer, {
       as: "volunteer",
       foreignKey: "userId"
     });
 
-    User.hasOne(models.Admin, {
+    User.hasOne(Admin, {
       as: "admin",
       foreignKey: "userId"
     });
 
-    User.hasOne(models.UserContactPreference, {
+    User.hasOne(UserContactPreference, {
       as: "contactPreferences",
       foreignKey: "userId"
     });

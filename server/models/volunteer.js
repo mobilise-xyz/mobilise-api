@@ -1,34 +1,36 @@
 "use strict";
 module.exports = (sequelize, DataTypes) => {
+  const { INTEGER, ARRAY, UUID, STRING, FLOAT, CHAR } = DataTypes;
   const Volunteer = sequelize.define(
     "Volunteer",
     {
       userId: {
         allowNull: false,
         primaryKey: true,
-        type: DataTypes.UUID
+        type: UUID
       },
-      roles: DataTypes.ARRAY(DataTypes.STRING),
+      roles: ARRAY(STRING),
       availability: {
-        type: DataTypes.ARRAY(DataTypes.ARRAY(DataTypes.CHAR(1))),
+        type: ARRAY(ARRAY(CHAR(1))),
         allowNull: false,
         defaultValue: Array(7).fill(["0", "0", "0"])
       },
       lastWeekShifts: {
-        type: DataTypes.INTEGER
+        type: INTEGER
       },
       lastWeekHours: {
-        type: DataTypes.FLOAT
+        type: FLOAT
       },
       lastWeekIncrease: {
-        type: DataTypes.FLOAT
+        type: FLOAT
       }
     },
     {}
   );
 
   Volunteer.associate = function(models) {
-    Volunteer.belongsTo(models.User, {
+    const { Shift, Booking, User } = models;
+    Volunteer.belongsTo(User, {
       as: "user",
       foreignKey: {
         name: "userId",
@@ -37,14 +39,14 @@ module.exports = (sequelize, DataTypes) => {
       onDelete: "CASCADE"
     });
 
-    Volunteer.hasMany(models.Booking, {
+    Volunteer.hasMany(Booking, {
       as: "bookings",
       foreignKey: "volunteerId"
     });
 
-    Volunteer.belongsToMany(models.Shift, {
+    Volunteer.belongsToMany(Shift, {
       as: "shifts",
-      through: models.Booking,
+      through: Booking,
       foreignKey: "volunteerId"
     });
   };
