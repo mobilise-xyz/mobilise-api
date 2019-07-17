@@ -1,5 +1,6 @@
 const {Role, Admin, User, Shift, Volunteer, ShiftRequirement, UserContactPreference, Booking, RepeatedShift} = require("../models");
 const sequelize = require("sequelize");
+const Op = require("../models").Sequelize.Op;
 
 function VOLUNTEER() {
   return {
@@ -30,7 +31,7 @@ function VOLUNTEERS() {
   };
 }
 
-function SHIFTS_WITH_BOOKINGS(startDate, endDate, order) {
+function SHIFTS_WITH_BOOKINGS(startDate, endDate, order, volunteerId) {
   return {
     model: Shift,
     as: "shifts",

@@ -3,7 +3,7 @@
 const Seeded = require('../utils/seeded');
 
 module.exports = {
-  up: (queryInterface, Sequelize) => {
+  up: (queryInterface) => {
     return queryInterface.bulkInsert('Admins', [
       {
         userId: Seeded.admins[0].UUID,
@@ -18,7 +18,7 @@ module.exports = {
   ], {});
   },
 
-  down: (queryInterface, Sequelize) => {
+  down: (queryInterface) => {
     return queryInterface.bulkDelete('Admins', {
       userId : [
         Seeded.admins[0].UUID,

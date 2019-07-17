@@ -4,7 +4,7 @@ var bcrypt = require('bcryptjs');
 const Seeded = require('../utils/seeded');
 
 module.exports = {
-  up: (queryInterface, Sequelize) => {
+  up: (queryInterface) => {
       return queryInterface.bulkInsert('Users', [
 
         // Volunteers
@@ -74,7 +74,7 @@ module.exports = {
     
   },
 
-  down: (queryInterface, Sequelize) => {
+  down: (queryInterface) => {
       return queryInterface.bulkDelete('Users', {
         id: [
           Seeded.volunteers[0].UUID,

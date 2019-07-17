@@ -1,4 +1,5 @@
-const {Shift, ShiftRequirement} = require("../models");
+/* eslint-disable require-atomic-updates */
+const {Shift, ShiftRequirement, RepeatedShift} = require("../models");
 const getNextDate = require("../utils/date").getNextDate;
 const Q = require("q");
 const sequelize = require("sequelize");
@@ -95,7 +96,7 @@ ShiftRepository.updateRoles = function(shift, rolesRequired) {
   ShiftRequirement.destroy({
     where: { shiftId: shift.id }
   })
-    .then(_ => {
+    .then(() => {
       var shiftRequirements = [];
       // Add the roles to shift
       rolesRequired.forEach(roleRequired => {

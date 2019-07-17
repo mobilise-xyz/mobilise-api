@@ -1,3 +1,4 @@
+/* eslint-disable no-unused-vars */
 var ShiftRepositoryInterface = {
   add: function(shift, creatorId, rolesRequired, repeatedId) {},
   addRepeated: function(shift, creatorId, rolesRequired, type) {},

@@ -422,7 +422,7 @@ function repeatedTypeIsValid(type, startDate) {
     default:
       break;
   }
-  return REPEATED_TYPES.hasOwnProperty(type);
+  return REPEATED_TYPES.prototype.hasOwnProperty.call(type);
 }
 
 function sendEmail(emailClient, user, title, message) {

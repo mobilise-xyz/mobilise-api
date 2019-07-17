@@ -1,3 +1,4 @@
+/* eslint-disable no-unused-vars */
 var MetricRepositoryInterface = {
   set: function(name, verb, value) {},
   get: function() {}

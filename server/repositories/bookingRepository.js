@@ -47,7 +47,7 @@ BookingRepository.addRepeated = async function(
       include: [
         SHIFTS_WITH_BOOKINGS(shift.date, untilDate, [
           [sequelize.literal("date, start"), "asc"]
-        ])
+        ], volunteerId)
       ]
     })
       .then(result => {

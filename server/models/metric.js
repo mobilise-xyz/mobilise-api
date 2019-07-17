@@ -15,7 +15,7 @@ module.exports = (sequelize, DataTypes) => {
       type: DataTypes.INTEGER
     }
   }, {});
-  Metric.associate = function(models) {
+  Metric.associate = function() {
     // associations can be defined here
   };
   return Metric;
