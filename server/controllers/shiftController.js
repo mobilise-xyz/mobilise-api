@@ -255,7 +255,7 @@ var ShiftController = function(
         }
         return shiftRepository.update(shift, req.body);
       })
-      .then(shift => {
+      .then(() => {
         res.status(200).send({ message: "Shift updated" });
       })
       .catch(err => res.status(500).send(err));
@@ -334,7 +334,7 @@ var ShiftController = function(
           });
         }
       })
-      .then(_ => {
+      .then(() => {
         res
           .status(200)
           .send({ message: "Sending alerts to available volunteers" });

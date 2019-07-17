@@ -37,7 +37,7 @@ var ShiftRepository = Object.create(ShiftRepositoryInterface);
       });
       return ShiftRequirement.bulkCreate(shiftRequirements);
     })
-    .then(_ => {
+    .then(() => {
       deferred.resolve(createdShift);
     })
     .catch(err => deferred.reject(err));
@@ -108,7 +108,7 @@ ShiftRepository.updateRoles = function(shift, rolesRequired) {
       });
       return ShiftRequirement.bulkCreate(shiftRequirements);
     })
-    .then(_ => deferred.resolve(shift))
+    .then(() => deferred.resolve(shift))
     .catch(err => deferred.reject(err));
   return deferred.promise;
 };
@@ -140,7 +140,7 @@ ShiftRepository.addAll = function(shifts, rolesRequired) {
       });
       return ShiftRequirement.bulkCreate(shiftRequirements);
     })
-    .then(_ => deferred.resolve(allShifts))
+    .then(() => deferred.resolve(allShifts))
     .catch(err => deferred.reject(err));
 
   return deferred.promise;

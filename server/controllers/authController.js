@@ -87,7 +87,7 @@ var AuthController = function(
           lastLogin: currentDate
         });
       })
-      .then(result => {
+      .then(() => {
         res.status(200).json({
           message: "Successful login!",
           uid: loggedInUser.id,

@@ -86,7 +86,7 @@ var VolunteerController = function(volunteerRepository, shiftRepository) {
               name: metricStat.name,
               verb: metricStat.verb,
               value:
-                totalHoursFromLastWeek != 0
+                totalHoursFromLastWeek !== 0
                   ? Math.round(
                       metricStat.value *
                         (volunteer.lastWeekHours / totalHoursFromLastWeek)
@@ -158,7 +158,7 @@ var VolunteerController = function(volunteerRepository, shiftRepository) {
         } else {
           volunteerRepository
             .updateAvailability(req.params.id, req.body.availability)
-            .then(result =>
+            .then(() =>
               res.status(201).send({
                 message: "Availability Updated Successfuly"
               })
