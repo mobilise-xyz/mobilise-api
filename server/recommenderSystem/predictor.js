@@ -1,14 +1,8 @@
 const Q = require("q");
 const shiftRepository = require("../repositories").ShiftRepository;
-const ShiftRequirement = require("../models").ShiftRequirement;
+const {ShiftRequirement} = require("../models");
 const volunteerRepository = require("../repositories").VolunteerRepository;
-const getCumulativeAvailability = require("../utils/availability")
-  .getCumulativeAvailability;
-const volunteerIsAvailableForShiftStart = require("../utils/availability")
-  .volunteerIsAvailableForShiftStart;
-const getSlotForTime = require("../utils/availability").getSlotForTime;
-const getDayOfWeekForDate = require("../utils/availability")
-  .getDayOfWeekForDate;
+const {getCumulativeAvailability, volunteerIsAvailableForShiftStart, getSlotForTime, getDayOfWeekForDate} = require("../utils/availability");
 const Op = require("../models").Sequelize.Op;
 const {
   REQUIREMENTS_WITH_BOOKINGS

@@ -1,5 +1,4 @@
-const Shift = require("../models").Shift;
-const ShiftRequirement = require("../models").ShiftRequirement;
+const {Shift, ShiftRequirement} = require("../models");
 const getNextDate = require("../utils/date").getNextDate;
 const Q = require("q");
 const sequelize = require("sequelize");

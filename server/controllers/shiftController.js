@@ -531,8 +531,9 @@ async function checkRoles(rolesRequired, roleRepository) {
 
 function shiftRequirementIsFull(shift, roleName) {
   shift.requirements.forEach(requirement => {
-    if (requirement.role.name === roleName) {
-      return requirement.bookings.length >= requirement.numberRequired;
+    const {numberRequired, bookings, role} = requirement;
+    if (role.name === roleName) {
+      return bookings.length >= numberRequired;
     }
   });
   return false;

@@ -1,8 +1,6 @@
-const Booking = require("../models").Booking;
-const RepeatedShift = require("../models").RepeatedShift;
-const RepeatedBooking = require("../models").RepeatedBooking;
+const {Booking, RepeatedShift, RepeatedBooking} = require("../models");
 const Q = require("q");
-const getNextDate = require("../utils/date").getNextDate;
+const {getNextDate} = require("../utils/date");
 const sequelize = require("sequelize");
 const moment = require("moment");
 const BookingRepositoryInterface = require("./interfaces/bookingRepositoryInterface");
@@ -63,7 +61,8 @@ BookingRepository.addRepeated = async function(
           shiftIndex !== shifts.length
         ) {
           // Find the next booking for this repeated shift
-          var nextShiftDate = moment(shifts[shiftIndex].date, "YYYY-MM-DD");
+          const {date, bookings: bookings1, id} = shifts[shiftIndex];
+          var nextShiftDate = moment(date, "YYYY-MM-DD");
 
           while (startDate.isBefore(nextShiftDate)) {
             // Increment with respect to the next
@@ -77,16 +76,16 @@ BookingRepository.addRepeated = async function(
             startDate.isAfter(nextShiftDate)
           ) {
             shiftIndex += 1;
-            nextShiftDate = moment(shifts[shiftIndex].date, "YYYY-MM-DD");
+            nextShiftDate = moment(date, "YYYY-MM-DD");
           }
 
           if (startDate.isSame(nextShiftDate)) {
             // The bookings in the shift are only ones with the volunteer
             // id so therefore if the length is not 0, then the volunteer
             // has a booking for this shift. So skip over it.
-            if (shifts[shiftIndex].bookings.length === 0) {
+            if (bookings1.length === 0) {
               bookings.push({
-                shiftId: shifts[shiftIndex].id,
+                shiftId: id,
                 repeatedId: repeatedId,
                 roleName: roleName,
                 volunteerId: volunteerId

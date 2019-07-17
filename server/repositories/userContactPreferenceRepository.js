@@ -1,4 +1,4 @@
-const UserContactPreference = require("../models").UserContactPreference;
+const {UserContactPreference} = require("../models");
 const Q = require("q");
 const UserContactPreferenceRepositoryInterface = require("./interfaces/userContactPreferenceRepositoryInterface");
 
