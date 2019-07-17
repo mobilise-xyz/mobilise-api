@@ -10,7 +10,7 @@ const volunteerIsAvailableForShift = require("../utils/availability")
 const {
   REQUIREMENTS_WITH_BOOKINGS,
   CREATOR,
-  REPEATED
+  REPEATED_SHIFT
 } = require("../sequelizeUtils/include");
 const EXPECTED_SHORTAGE_THRESHOLD = 2;
 
@@ -240,7 +240,7 @@ var VolunteerController = function(volunteerRepository, shiftRepository) {
             .getAll(null, whereTrue, [
               REQUIREMENTS_WITH_BOOKINGS(),
               CREATOR(),
-              REPEATED()
+              REPEATED_SHIFT()
             ])
             .then(shifts => {
               var result = [];
@@ -265,7 +265,7 @@ var VolunteerController = function(volunteerRepository, shiftRepository) {
           .getAll(null, whereTrue, [
             REQUIREMENTS_WITH_BOOKINGS(),
             CREATOR(),
-            REPEATED()
+            REPEATED_SHIFT()
           ])
           .then(shifts => {
             var result = [];

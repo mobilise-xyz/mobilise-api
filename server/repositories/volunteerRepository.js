@@ -1,9 +1,7 @@
 const Volunteer = require("../models").Volunteer;
-const Shift = require("../models").Shift;
-const User = require("../models").User;
 const Q = require("q");
 const VolunteerRepositoryInterface = require("./interfaces/volunteerRepositoryInterface");
-
+const { USER, SHIFTS } = require("../sequelizeUtils/include");
 var VolunteerRepository = Object.create(VolunteerRepositoryInterface);
 
 VolunteerRepository.add = function(volunteer) {
@@ -32,13 +30,7 @@ VolunteerRepository.getTop = function(orderBy, limit) {
   var deferred = Q.defer();
 
   Volunteer.findAll({
-    include: [
-      {
-        model: User,
-        as: "user",
-        include: ["contactPreferences"]
-      }
-    ],
+    include: [USER()],
     order: orderBy,
     limit: limit
   })
@@ -53,13 +45,7 @@ VolunteerRepository.getAll = function(whereTrue) {
 
   Volunteer.findAll({
     where: whereTrue,
-    include: [
-      {
-        model: User,
-        as: "user",
-        include: ["contactPreferences"]
-      }
-    ]
+    include: [USER()]
   })
     .then(volunteers => deferred.resolve(volunteers))
     .catch(err => deferred.reject(err));
@@ -71,14 +57,7 @@ VolunteerRepository.getAllWithShifts = function(whereShift) {
   var deferred = Q.defer();
 
   Volunteer.findAll({
-    include: [
-      {
-        model: Shift,
-        as: "shifts",
-        required: false,
-        where: whereShift
-      }
-    ]
+    include: [SHIFTS(false, whereShift)]
   })
     .then(volunteers => deferred.resolve(volunteers))
     .catch(err => deferred.reject(err));
@@ -91,13 +70,7 @@ VolunteerRepository.getById = function(id) {
 
   Volunteer.findOne({
     where: { userId: id },
-    include: [
-      {
-        model: User,
-        as: "user",
-        include: ["contactPreferences"]
-      }
-    ]
+    include: [USER()]
   })
     .then(volunteer => deferred.resolve(volunteer))
     .catch(err => deferred.reject(err));

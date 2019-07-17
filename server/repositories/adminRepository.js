@@ -1,8 +1,7 @@
 const Admin = require("../models").Admin;
-const User = require("../models").User;
 const Q = require("q");
 const AdminRepositoryInterface = require("./interfaces/adminRepositoryInterface");
-
+const { USER } = require("../sequelizeUtils/include");
 var AdminRepository = Object.create(AdminRepositoryInterface);
 
 AdminRepository.add = function(admin) {
@@ -23,13 +22,7 @@ AdminRepository.getById = function(id) {
     where: {
       userId: id
     },
-    include: [
-      {
-        model: User,
-        as: "user",
-        include: ["contactPreferences"]
-      }
-    ]
+    include: [USER()]
   })
     .then(admin => deferred.resolve(admin))
     .catch(error => deferred.reject(error));

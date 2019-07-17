@@ -15,7 +15,7 @@ const {
 const {
   REQUIREMENTS_WITH_BOOKINGS,
   CREATOR,
-  REPEATED
+  REPEATED_SHIFT
 } = require("../sequelizeUtils/include");
 const nodemailer = require("nodemailer");
 const Nexmo = require("nexmo");
@@ -60,7 +60,7 @@ var ShiftController = function(
       .getAll(null, whereTrue, [
         REQUIREMENTS_WITH_BOOKINGS(withVolunteers),
         CREATOR(),
-        REPEATED()
+        REPEATED_SHIFT()
       ])
       .then(shifts => res.status(200).send(shifts))
       .catch(err => res.status(500).send(err));

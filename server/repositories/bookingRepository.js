@@ -8,6 +8,7 @@ const getNextDate = require("../utils/date").getNextDate;
 const sequelize = require("sequelize");
 const moment = require("moment");
 const BookingRepositoryInterface = require("./interfaces/bookingRepositoryInterface");
+const { SHIFT, SHIFTS_WITH_BOOKINGS } = require("../sequelizeUtils/include");
 
 var BookingRepository = Object.create(BookingRepositoryInterface);
 
@@ -48,26 +49,9 @@ BookingRepository.addRepeated = async function(
     RepeatedShift.findOne({
       where: { id: shift.repeatedId },
       include: [
-        {
-          model: Shift,
-          as: "shifts",
-          where: {
-            date: {
-              [Op.between]: [shift.date, untilDate]
-            }
-          },
-          include: [
-            {
-              model: Booking,
-              as: "bookings",
-              required: false,
-              where: {
-                volunteerId: volunteerId
-              }
-            }
-          ],
-          order: [[sequelize.literal("date, start"), "asc"]]
-        }
+        SHIFTS_WITH_BOOKINGS(shift.date, untilDate, [
+          [sequelize.literal("date, start"), "asc"]
+        ])
       ]
     })
       .then(result => {
@@ -140,7 +124,7 @@ BookingRepository.getAll = function() {
 BookingRepository.getAllWithShifts = function() {
   var deferred = Q.defer();
 
-  Booking.findAll({ include: ["shift"] })
+  Booking.findAll({ include: [SHIFT()] })
     .then(bookings => deferred.resolve(bookings))
     .catch(err => deferred.reject(err));
 
@@ -153,14 +137,7 @@ BookingRepository.getByVolunteerId = function(volunteerId, whereShift) {
     where: {
       volunteerId: volunteerId
     },
-    include: [
-      {
-        model: Shift,
-        as: "shift",
-        where: whereShift,
-        required: true
-      }
-    ]
+    include: [SHIFT(true, whereShift)]
   })
     .then(bookings => deferred.resolve(bookings))
     .catch(err => deferred.reject(err));
@@ -191,7 +168,7 @@ BookingRepository.getById = function(shiftId, volunteerId) {
       shiftId: shiftId,
       volunteerId: volunteerId
     },
-    include: ["shift"]
+    include: [SHIFT()]
   })
     .then(booking => deferred.resolve(booking))
     .catch(err => deferred.reject(err));
