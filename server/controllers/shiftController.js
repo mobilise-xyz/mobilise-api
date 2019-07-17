@@ -16,7 +16,7 @@ const {
   REQUIREMENTS_WITH_BOOKINGS,
   CREATOR,
   REPEATED
-} = require("../sequelizeUtils/shiftInclude");
+} = require("../sequelizeUtils/include");
 const nodemailer = require("nodemailer");
 const Nexmo = require("nexmo");
 
@@ -57,7 +57,7 @@ var ShiftController = function(
     }
 
     shiftRepository
-      .getAllWithRequirements(whereTrue, [
+      .getAll(null, whereTrue, [
         REQUIREMENTS_WITH_BOOKINGS(withVolunteers),
         CREATOR(),
         REPEATED()

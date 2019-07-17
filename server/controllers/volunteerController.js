@@ -11,7 +11,7 @@ const {
   REQUIREMENTS_WITH_BOOKINGS,
   CREATOR,
   REPEATED
-} = require("../sequelizeUtils/shiftInclude");
+} = require("../sequelizeUtils/include");
 const EXPECTED_SHORTAGE_THRESHOLD = 2;
 
 var VolunteerController = function(volunteerRepository, shiftRepository) {
@@ -237,7 +237,7 @@ var VolunteerController = function(volunteerRepository, shiftRepository) {
         if (req.query.booked) {
           whereTrue["id"] = { [Op.in]: shiftIds };
           return shiftRepository
-            .getAllWithRequirements(whereTrue, [
+            .getAll(null, whereTrue, [
               REQUIREMENTS_WITH_BOOKINGS(),
               CREATOR(),
               REPEATED()
@@ -262,7 +262,7 @@ var VolunteerController = function(volunteerRepository, shiftRepository) {
         }
         whereTrue["id"] = { [Op.notIn]: shiftIds };
         return shiftRepository
-          .getAllWithRequirements(whereTrue, [
+          .getAll(null, whereTrue, [
             REQUIREMENTS_WITH_BOOKINGS(),
             CREATOR(),
             REPEATED()

@@ -12,7 +12,7 @@ const getDayOfWeekForDate = require("../utils/availability")
 const Op = require("../models").Sequelize.Op;
 const {
   REQUIREMENTS_WITH_BOOKINGS
-} = require("../sequelizeUtils/shiftInclude");
+} = require("../sequelizeUtils/include");
 
 var Predictor = function(shiftRepository) {
   this.shiftRepository = shiftRepository;
@@ -25,7 +25,7 @@ var Predictor = function(shiftRepository) {
     var updatedShiftRequirements = [];
 
     await shiftRepository
-      .getAllWithRequirements(whereTrue, [REQUIREMENTS_WITH_BOOKINGS()])
+      .getAll(null, whereTrue, [REQUIREMENTS_WITH_BOOKINGS()])
       .then(async shifts => {
         var i;
         for (i = 0; i < shifts.length; i++) {

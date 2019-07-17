@@ -3,8 +3,7 @@ var ShiftRepositoryInterface = {
   addRepeated: function(shift, creatorId, rolesRequired, type) {},
   update: function(shift, body) {},
   updateRoles: function(shift, rolesRequired) {},
-  getAllWithRequirements: function(whereTrue, include) {},
-  getAll: function(attributes) {},
+  getAll: function(attributes, whereTrue, include) {},
   getById: function(id, include) {},
   removeById: function(id) {}
 };

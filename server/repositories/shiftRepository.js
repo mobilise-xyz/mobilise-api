@@ -146,9 +146,10 @@ ShiftRepository.addAll = function(shifts, rolesRequired) {
   return deferred.promise;
 };
 
-ShiftRepository.getAllWithRequirements = function(whereTrue, include) {
+ShiftRepository.getAll = function(attributes, whereTrue, include) {
   var deferred = Q.defer();
   Shift.findAll({
+    attributes: attributes,
     where: whereTrue,
     include: include,
     order: [[sequelize.literal("date, start"), "asc"]]
@@ -156,19 +157,6 @@ ShiftRepository.getAllWithRequirements = function(whereTrue, include) {
     .then(shifts => {
       deferred.resolve(shifts);
     })
-    .catch(err => deferred.reject(err));
-
-  return deferred.promise;
-};
-
-ShiftRepository.getAll = function(attributes) {
-  var deferred = Q.defer();
-
-  Shift.findAll({
-    attributes: attributes,
-    order: [[sequelize.literal("date, start"), "asc"]]
-  })
-    .then(shifts => deferred.resolve(shifts))
     .catch(err => deferred.reject(err));
 
   return deferred.promise;
