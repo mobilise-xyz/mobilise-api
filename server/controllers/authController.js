@@ -56,7 +56,7 @@ var AuthController = function (
       })
       .then(user =>
         res.status(201).json({
-          message: "Success! User created",
+          message: "Successful! User created",
           user: {
             id: user.id,
             firstName: user.firstName,
@@ -93,10 +93,12 @@ var AuthController = function (
       .then(() => {
         res.status(200).json({
           message: "Successful login!",
-          uid: loggedInUser.id,
-          isAdmin: loggedInUser.isAdmin,
-          lastLogin: lastLogin,
-          token: generateToken(loggedInUser)
+          user: {
+            uid: loggedInUser.id,
+            isAdmin: loggedInUser.isAdmin,
+            lastLogin: lastLogin,
+            token: generateToken(loggedInUser)
+          }
         });
       })
       .catch(err => res.status(500).send(err));

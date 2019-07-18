@@ -21,11 +21,13 @@ describe("Login user", function() {
           done(error);
         }
 
+        const { user } = response.body;
+
         // Ensure that we return the JSON Web Token back
-        expect(response.body).to.have.property("token");
-        expect(response.body).to.have.property("uid");
-        expect(response.body).to.have.property("lastLogin");
-        expect(response.body.isAdmin).to.equal(false);
+        expect(user).to.have.property("token");
+        expect(user).to.have.property("uid");
+        expect(user).to.have.property("lastLogin");
+        expect(user.isAdmin).to.equal(false);
         done();
       });
   });
@@ -44,11 +46,13 @@ describe("Login user", function() {
           done(error);
         }
 
+        const { user } = response.body;
+
         // Ensure that we return the JSON Web Token back
-        expect(response.body).to.have.property("token");
-        expect(response.body).to.have.property("uid");
-        expect(response.body).to.have.property("lastLogin");
-        expect(response.body.isAdmin).to.equal(true);
+        expect(user).to.have.property("token");
+        expect(user).to.have.property("uid");
+        expect(user).to.have.property("lastLogin");
+        expect(user.isAdmin).to.equal(true);
         done();
       });
   });
