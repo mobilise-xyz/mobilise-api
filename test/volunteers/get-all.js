@@ -25,7 +25,7 @@ describe("Volunteers' Catalogue", function() {
         // Use bearer token to get shifts
         request(app)
           .get(`/volunteers/`)
-          .set("Authorization", "Bearer " + response.body.token)
+          .set("Authorization", "Bearer " + response.body.user.token)
           .set("Accept", "application/json")
           .expect(401, done);
       });
@@ -44,7 +44,7 @@ describe("Volunteers' Catalogue", function() {
         // Use bearer token to get shifts
         request(app)
           .get(`/volunteers/`)
-          .set("Authorization", "Bearer " + response.body.token)
+          .set("Authorization", "Bearer " + response.body.user.token)
           .set("Accept", "application/json")
           .expect(200, done);
       });

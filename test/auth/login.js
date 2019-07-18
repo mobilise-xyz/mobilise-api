@@ -20,7 +20,6 @@ describe("Login user", function() {
         if (error) {
           done(error);
         }
-
         const { user } = response.body;
 
         // Ensure that we return the JSON Web Token back

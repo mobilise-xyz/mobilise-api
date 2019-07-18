@@ -47,7 +47,7 @@ describe('Delete a role', function() {
             }
           )
           .set('Accept', 'application/json')
-          .set('Authorization', 'Bearer '+response.body.token)
+          .set('Authorization', 'Bearer '+response.body.user.token)
           .expect(401, done);
       });
   });
@@ -74,7 +74,7 @@ describe('Delete a role', function() {
             }
           )
           .set('Accept', 'application/json')
-          .set('Authorization', 'Bearer '+response.body.token)
+          .set('Authorization', 'Bearer '+response.body.user.token)
           .expect(200, done);
       });
   })

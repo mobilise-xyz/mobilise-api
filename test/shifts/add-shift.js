@@ -56,7 +56,7 @@ describe("Add shifts", function() {
             repeatedType: test.shift.repeatedType,
             address: test.shift.address
           })
-          .set("Authorization", "Bearer " + response.body.token)
+          .set("Authorization", "Bearer " + response.body.user.token)
           .set("Accept", "application/json")
           .expect(401, done);
       });
@@ -85,7 +85,7 @@ describe("Add shifts", function() {
             repeatedType: test.shift.repeatedType,
             address: test.shift.address
           })
-          .set("Authorization", "Bearer " + response.body.token)
+          .set("Authorization", "Bearer " + response.body.user.token)
           .set("Accept", "application/json")
           .expect(201, done);
       });
@@ -114,7 +114,7 @@ describe("Add shifts", function() {
             repeatedType: test.shift.repeatedType,
             address: test.shift.address
           })
-          .set("Authorization", "Bearer " + response.body.token)
+          .set("Authorization", "Bearer " + response.body.user.token)
           .set("Accept", "application/json")
           .expect(400, done);
       });

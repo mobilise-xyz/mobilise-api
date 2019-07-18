@@ -34,7 +34,7 @@ describe('Updating contact information', function() {
         .send({
             contactPreferences: test.contactPreferences
         })
-        .set('Authorization', 'Bearer '+response.body.token)
+        .set('Authorization', 'Bearer '+response.body.user.token)
         .set('Accept', 'application/json')
         .expect(401, done);
       })
@@ -55,7 +55,7 @@ describe('Updating contact information', function() {
           .send({
               contactPreferences: test.contactPreferences
           })
-          .set('Authorization', 'Bearer '+response.body.token)
+          .set('Authorization', 'Bearer '+response.body.user.token)
           .set('Accept', 'application/json')
           .expect(401, done);
       })
@@ -76,7 +76,7 @@ describe('Updating contact information', function() {
           .send({
             contactPreferences: test.contactPreferences
           })
-          .set('Authorization', 'Bearer '+response.body.token)
+          .set('Authorization', 'Bearer '+response.body.user.token)
           .set('Accept', 'application/json')
           .expect(401, done);
       })
@@ -97,7 +97,7 @@ describe('Updating contact information', function() {
           .send({
             contactPreferences: test.contactPreferences
           })
-          .set('Authorization', 'Bearer '+response.body.token)
+          .set('Authorization', 'Bearer '+response.body.user.token)
           .set('Accept', 'application/json')
           .expect(401, done);
       })
@@ -118,7 +118,7 @@ describe('Updating contact information', function() {
           .send({
             contactPreferences: test.contactPreferences
           })
-          .set('Authorization', 'Bearer '+response.body.token)
+          .set('Authorization', 'Bearer '+response.body.user.token)
           .set('Accept', 'application/json')
           .expect(200, done);
       })
@@ -139,7 +139,7 @@ describe('Updating contact information', function() {
           .send({
             contactPreferences: test.contactPreferences
           })
-          .set('Authorization', 'Bearer '+response.body.token)
+          .set('Authorization', 'Bearer '+response.body.user.token)
           .set('Accept', 'application/json')
           .expect(200, done);
       })

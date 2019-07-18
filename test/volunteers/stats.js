@@ -25,7 +25,7 @@ describe("Volunteers' Stats", function() {
         // Use bearer token to get shifts
         request(app)
           .get(`/volunteers/${Seeded.volunteers[1].UUID}/stats`)
-          .set("Authorization", "Bearer " + response.body.token)
+          .set("Authorization", "Bearer " + response.body.user.token)
           .set("Accept", "application/json")
           .expect(401, done);
       });
@@ -45,7 +45,7 @@ describe("Volunteers' Stats", function() {
         // Use bearer token to get shifts
         request(app)
           .get(`/volunteers/${Seeded.volunteers[0].UUID}/stats`)
-          .set("Authorization", "Bearer " + response.body.token)
+          .set("Authorization", "Bearer " + response.body.user.token)
           .set("Accept", "application/json")
           .expect(200, done);
       });

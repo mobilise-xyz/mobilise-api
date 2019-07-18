@@ -25,7 +25,7 @@ describe("Retrieving Volunteer Availability", function() {
         // Use bearer token to get shifts
         request(app)
           .get(`/volunteers/${Seeded.volunteers[1].UUID}/availability`)
-          .set("Authorization", "Bearer " + response.body.token)
+          .set("Authorization", "Bearer " + response.body.user.token)
           .set("Accept", "application/json")
           .expect(401, done);
       });
@@ -45,7 +45,7 @@ describe("Retrieving Volunteer Availability", function() {
         // Use bearer token to get shifts
         request(app)
           .get(`/volunteers/${Seeded.volunteers[0].UUID}/availability`)
-          .set("Authorization", "Bearer " + response.body.token)
+          .set("Authorization", "Bearer " + response.body.user.token)
           .set("Accept", "application/json")
           .expect(200, done);
       });

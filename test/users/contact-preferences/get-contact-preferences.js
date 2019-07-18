@@ -26,7 +26,7 @@ describe('Getting contact preferences', function() {
       .then((response) => {
           request(app)
           .get(`/users/${Seeded.volunteers[0].UUID}/contact-preferences`)
-          .set('Authorization', 'Bearer '+response.body.token)
+          .set('Authorization', 'Bearer '+response.body.user.token)
           .set('Accept', 'application/json')
           .expect(200, done);
       })
@@ -46,7 +46,7 @@ describe('Getting contact preferences', function() {
       .then((response) => {
           request(app)
           .get(`/users/${Seeded.admins[0].UUID}/contact-preferences`)
-          .set('Authorization', 'Bearer '+response.body.token)
+          .set('Authorization', 'Bearer '+response.body.user.token)
           .set('Accept', 'application/json')
           .expect(200, done);
       })
@@ -66,7 +66,7 @@ describe('Getting contact preferences', function() {
       .then((response) => {
           request(app)
           .get(`/users/${Seeded.volunteers[0].UUID}/contact-preferences`)
-          .set('Authorization', 'Bearer '+response.body.token)
+          .set('Authorization', 'Bearer '+response.body.user.token)
           .set('Accept', 'application/json')
           .expect(200, done);
       })
@@ -86,7 +86,7 @@ describe('Getting contact preferences', function() {
       .then((response) => {
           request(app)
           .get(`/users/${Seeded.admins[0].UUID}/contact-preferences`)
-          .set('Authorization', 'Bearer '+response.body.token)
+          .set('Authorization', 'Bearer '+response.body.user.token)
           .set('Accept', 'application/json')
           .expect(200, done);
       })

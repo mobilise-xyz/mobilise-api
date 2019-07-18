@@ -29,7 +29,7 @@ describe('Get roles', function() {
         // Use bearer token to get roles
         request(app)
         .get('/roles')
-        .set('Authorization', 'Bearer '+response.body.token)
+        .set('Authorization', 'Bearer '+response.body.user.token)
         .set('Accept', 'application/json')
         .expect(200, done);
       });

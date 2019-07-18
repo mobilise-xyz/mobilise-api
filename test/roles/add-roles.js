@@ -54,7 +54,7 @@ describe('Add roles', function () {
             }
           )
           .set('Accept', 'application/json')
-          .set('Authorization', 'Bearer ' + response.body.token)
+          .set('Authorization', 'Bearer ' + response.body.user.token)
           .expect(401, done);
       })
   });
@@ -82,7 +82,7 @@ describe('Add roles', function () {
             }
           )
           .set('Accept', 'application/json')
-          .set('Authorization', 'Bearer ' + response.body.token)
+          .set('Authorization', 'Bearer ' + response.body.user.token)
           .expect(201, done);
       });
   });
@@ -110,7 +110,7 @@ describe('Add roles', function () {
             }
           )
           .set('Accept', 'application/json')
-          .set('Authorization', 'Bearer ' + response.body.token)
+          .set('Authorization', 'Bearer ' + response.body.user.token)
           .expect(400, done);
       });
   })
