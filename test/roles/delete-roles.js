@@ -1,7 +1,7 @@
 var request = require('supertest');
 var app = require('../../app');
-const Role = require('../../server/models').Role;
-var { describe, it, after } = require("mocha")
+const {Role} = require('../../server/models');
+var { describe, it, after } = require("mocha");
 
 const Seeded = require('../../server/utils/seeded');
 
@@ -13,7 +13,7 @@ describe('Delete a role', function() {
       involves: Seeded.roles[0].involves,
       colour: Seeded.roles[0].colour
     })
-  })
+  });
 
   it('Does not allow unauthorised request to delete a role', function(done) {
     request(app)

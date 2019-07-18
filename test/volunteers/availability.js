@@ -1,9 +1,9 @@
 var request = require("supertest");
 var app = require("../../app");
-var { describe, it } = require("mocha")
+var { describe, it } = require("mocha");
 const Seeded = require('../../server/utils/seeded');
 
-describe("Volunteers' Availability", function() {
+describe("Retrieving Volunteer Availability", function() {
 
   it("Does not allow unauthorised requests to get availability", function(done) {
     request(app)
@@ -51,3 +51,4 @@ describe("Volunteers' Availability", function() {
       });
   });
 });
+

@@ -10,26 +10,26 @@ const jwt = require("jsonwebtoken");
 const {PhoneNumberFormat: PNF, PhoneNumberUtil} = require('google-libphonenumber');
 const phoneUtil = PhoneNumberUtil.getInstance();
 
-var AuthController = function(
+var AuthController = function (
   userRepository,
   volunteerRepository,
   adminRepository
 ) {
-  this.registerUser = function(req, res) {
+  this.registerUser = function (req, res) {
     userRepository
       .getByEmail(req.body.email)
       .then(user => {
         if (user) {
           res
             .status(400)
-            .send({ message: "An account with that email already exists" });
+            .json({message: "An account with that email already exists"});
         } else {
           var hash = hashedPassword(req.body.password);
           const number = phoneUtil.parse(req.body.telephone, 'GB');
           if (!phoneUtil.isValidNumber(number)) {
             res
               .status(400)
-              .send({ message: "Invalid UK phone number" });
+              .json({message: "Invalid UK phone number"});
           } else {
             const formattedNumber = phoneUtil.format(number, PNF.E164);
             return userRepository.add(req.body, hash, formattedNumber);
@@ -39,9 +39,9 @@ var AuthController = function(
       .then(async user => {
         // Add user to volunteer or admin table
         if (!user.isAdmin) {
-          await volunteerRepository.add({ userId: user.id });
+          await volunteerRepository.add({userId: user.id});
         } else {
-          await adminRepository.add({ userId: user.id });
+          await adminRepository.add({userId: user.id});
         }
 
         return user;
@@ -55,19 +55,22 @@ var AuthController = function(
         return user;
       })
       .then(user =>
-        res.status(201).send({
-          id: user.id,
-          firstName: user.firstName,
-          lastName: user.lastName,
-          email: user.email,
-          isAdmin: user.isAdmin,
-          dob: user.dob
+        res.status(201).json({
+          message: "Success! User created",
+          user: {
+            id: user.id,
+            firstName: user.firstName,
+            lastName: user.lastName,
+            email: user.email,
+            isAdmin: user.isAdmin,
+            dob: user.dob
+          }
         })
       )
-      .catch(error => res.status(500).send(error));
+      .catch(error => res.status(500).json({message: error}));
   };
 
-  this.loginUser = function(req, res) {
+  this.loginUser = function (req, res) {
     var lastLogin;
     var loggedInUser;
     userRepository
@@ -77,7 +80,7 @@ var AuthController = function(
         if (user && validatePassword(req.body.password, user.password)) {
           return user;
         } else {
-          res.status(400).json({ message: "Invalid username/password" });
+          res.status(400).json({message: "Invalid username/password"});
         }
       })
       .then(user => {
@@ -122,6 +125,6 @@ function generateToken(user) {
       id: user.id
     },
     config["jwt-secret"],
-    { expiresIn: tokenConfig.timeout * 60 }
+    {expiresIn: tokenConfig.timeout * 60}
   );
 }

@@ -1,6 +1,6 @@
 var request = require('supertest');
 var app = require('../../../app');
-var { describe, it } = require("mocha")
+var { describe, it } = require("mocha");
 const Seeded = require('../../../server/utils/seeded');
 
 const test = {
@@ -8,7 +8,7 @@ const test = {
     email: true,
     text: true
   }
-}
+};
 
 describe('Updating contact information', function() {
   

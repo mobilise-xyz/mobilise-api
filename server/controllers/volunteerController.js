@@ -19,14 +19,14 @@ var VolunteerController = function(volunteerRepository, shiftRepository) {
     if (!req.user.isAdmin) {
       res
         .status(401)
-        .send({ message: "Only admins can access volunteer catalogue" });
+        .json({ message: "Only admins can access volunteer catalogue" });
       return;
     }
 
     volunteerRepository
       .getAll()
-      .then(volunteers => res.status(200).send(volunteers))
-      .catch(err => res.status(500).send(err));
+      .then(volunteers => res.status(200).json({message: "Success", volunteers}))
+      .catch(err => res.status(500).json({message: err}));
   };
 
   this.getStats = function(req, res) {

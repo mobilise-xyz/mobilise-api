@@ -1,7 +1,7 @@
 var request = require('supertest');
 var app = require('../../app');
-const Role = require('../../server/models').Role;
-var { describe, it, after } = require("mocha")
+const {Role} = require('../../server/models');
+var { describe, it, after } = require("mocha");
 
 const Seeded = require('../../server/utils/seeded');
 
@@ -10,15 +10,15 @@ const test = {
     name: 'Test Role',
     involves: 'Testing'
   }
-}
+};
 
-describe('Add roles', function() {
+describe('Add roles', function () {
 
-  after( function() {
-    Role.destroy({where: {name: test.role.name}})
-  })
+  after(function () {
+    Role.destroy({ where: { name: test.role.name } })
+  });
 
-  it('Does not allow unauthorised request to add role', function(done) {
+  it('Does not allow unauthorised request to add role', function (done) {
     request(app)
       .post('/roles')
       .send(
@@ -31,7 +31,7 @@ describe('Add roles', function() {
       .expect(401, done);
   });
 
-  it('Does not allow volunteer to add role', function(done){
+  it('Does not allow volunteer to add role', function (done) {
     // Acquire bearer token
     request(app)
       .post('/auth/login')
@@ -54,12 +54,12 @@ describe('Add roles', function() {
             }
           )
           .set('Accept', 'application/json')
-          .set('Authorization', 'Bearer '+response.body.token)
+          .set('Authorization', 'Bearer ' + response.body.token)
           .expect(401, done);
       })
-  })
+  });
 
-  it('Allows admin to add new role', function(done){
+  it('Allows admin to add new role', function (done) {
     // Acquire bearer token
     request(app)
       .post('/auth/login')
@@ -82,12 +82,12 @@ describe('Add roles', function() {
             }
           )
           .set('Accept', 'application/json')
-          .set('Authorization', 'Bearer '+response.body.token)
+          .set('Authorization', 'Bearer ' + response.body.token)
           .expect(201, done);
       });
-  })
+  });
 
-  it('Does not allow admin to add existing role', function(done){
+  it('Does not allow admin to add existing role', function (done) {
     // Acquire bearer token
     request(app)
       .post('/auth/login')
@@ -110,9 +110,8 @@ describe('Add roles', function() {
             }
           )
           .set('Accept', 'application/json')
-          .set('Authorization', 'Bearer '+response.body.token)
+          .set('Authorization', 'Bearer ' + response.body.token)
           .expect(400, done);
       });
   })
-
 });
