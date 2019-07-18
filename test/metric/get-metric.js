@@ -4,16 +4,16 @@ var { describe, it } = require("mocha");
 
 const Seeded = require('../../server/utils/seeded');
 
-describe('Get roles', function() {
+describe('Get metric', function() {
 
-  it('Does not allow unauthorised request to get roles', function(done) {
+  it('Does not allow unauthorised request to get metric', function(done) {
     request(app)
-      .get('/roles')
+      .get('/metric')
       .set('Accept', 'application/json')
       .expect(401, done);
   });
 
-  it('Allows authorised request to get roles', function(done) {
+  it('Allows authorised request to get metric', function(done) {
     // Acquire bearer token
     request(app)
       .post('/auth/login')
@@ -28,11 +28,10 @@ describe('Get roles', function() {
       .then(response => {
         // Use bearer token to get roles
         request(app)
-        .get('/roles')
-        .set('Authorization', 'Bearer '+response.body.user.token)
-        .set('Accept', 'application/json')
-        .expect(200, done);
+          .get('/metric')
+          .set('Authorization', 'Bearer '+response.body.user.token)
+          .set('Accept', 'application/json')
+          .expect(200, done);
       });
   });
-
 });
