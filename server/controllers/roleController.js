@@ -45,12 +45,12 @@ var RoleController = function (roleRepository) {
   this.remove = function (req, res) {
     // Check if admin
     if (!req.user.isAdmin) {
-      res.status(401).send({message: "Only admins can remove roles"});
+      res.status(401).json({message: "Only admins can remove roles"});
     } else {
       roleRepository
         .removeByName(req.body.name)
         .then(() => {
-          res.status(200).send({message: "Successfully removed role"});
+          res.status(200).json({message: "Successfully removed role"});
         })
         .catch(error => res.status(500).json({message: error}));
     }

@@ -61,8 +61,8 @@ var ShiftController = function(
         CREATOR(),
         REPEATED_SHIFT()
       ])
-      .then(shifts => res.status(200).send(shifts))
-      .catch(err => res.status(500).send(err));
+      .then(shifts => res.status(200).json({message: "Success!", shifts}))
+      .catch(err => res.status(500).json({message: err}));
   };
 
   this.listTitles = function(req, res) {
@@ -75,9 +75,9 @@ var ShiftController = function(
             titles.push(shift.title);
           }
         });
-        res.status(200).send(titles);
+        res.status(200).json({message: "Success!", titles});
       })
-      .catch(err => res.status(500).send(err));
+      .catch(err => res.status(500).json({message: err}));
   };
 
   this.deleteById = function(req, res) {
