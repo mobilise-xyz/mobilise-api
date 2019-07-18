@@ -19,14 +19,14 @@ var VolunteerController = function(volunteerRepository, shiftRepository) {
     if (!req.user.isAdmin) {
       res
         .status(401)
-        .send({ message: "Only admins can access volunteer catalogue" });
+        .json({ message: "Only admins can access volunteer catalogue" });
       return;
     }
 
     volunteerRepository
       .getAll()
-      .then(volunteers => res.status(200).send(volunteers))
-      .catch(err => res.status(500).send(err));
+      .then(volunteers => res.status(200).json({message: "Success", volunteers}))
+      .catch(err => res.status(500).json({message: err}));
   };
 
   this.getStats = function(req, res) {
@@ -75,7 +75,8 @@ var VolunteerController = function(volunteerRepository, shiftRepository) {
               metricStat = metric;
               return volunteerRepository.getTotalHoursFromLastWeek();
             } else {
-              res.status(200).send({
+              res.status(200).json({
+                message: "Success!",
                 contributions: contributions
               });
             }
@@ -93,7 +94,8 @@ var VolunteerController = function(volunteerRepository, shiftRepository) {
                     )
                   : 0
             };
-            res.status(200).send({
+            res.status(200).json({
+              message: "Success!",
               contributions: contributions
             });
           });
@@ -104,11 +106,12 @@ var VolunteerController = function(volunteerRepository, shiftRepository) {
   this.getActivity = function(req, res) {
       // Check bearer token id matches parameter id
       if (req.user.id !== req.params.id) {
-        res.status(401).send({ message: "You can only view your own stats." });
+        res.status(401).json({ message: "You can only view your own stats." });
         return;
       }
 
-      res.status(200).send({
+      res.status(200).json({
+        message: "Success!",
         myActivity: []
       });
   };
@@ -136,9 +139,9 @@ var VolunteerController = function(volunteerRepository, shiftRepository) {
       response[fields[i]] = ranking;
     }
     if (errs.length > 0) {
-      res.status(500).send(errs);
+      res.status(500).json({message: errs});
     } else {
-      res.status(200).send({ hallOfFame: response });
+      res.status(200).send({ message: "Success!", hallOfFame: response });
     }
   };
 
@@ -147,7 +150,7 @@ var VolunteerController = function(volunteerRepository, shiftRepository) {
     if (req.user.id !== req.params.id) {
       res
         .status(401)
-        .send({ message: "You can only update your own availability." });
+        .json({ message: "You can only update your own availability." });
       return;
     }
 
@@ -155,19 +158,19 @@ var VolunteerController = function(volunteerRepository, shiftRepository) {
       .getById(req.params.id)
       .then(volunteer => {
         if (!volunteer) {
-          res.status(400).send({ message: "No volunteer with that id" });
+          res.status(400).json({ message: "No volunteer with that id" });
         } else {
           volunteerRepository
             .updateAvailability(req.params.id, req.body.availability)
             .then(() =>
-              res.status(201).send({
+              res.status(201).json({
                 message: "Availability Updated Successfuly"
               })
             )
-            .catch(error => res.status(400).send(error));
+            .catch(error => res.status(400).json({message: error}));
         }
       })
-      .catch(error => res.status(500).send(error));
+      .catch(error => res.status(500).json({message: error}));
   };
 
   this.getAvailability = function(req, res) {
@@ -175,7 +178,7 @@ var VolunteerController = function(volunteerRepository, shiftRepository) {
     if (req.user.id !== req.params.id) {
       res
         .status(401)
-        .send({ message: "You can only update your own availability." });
+        .json({ message: "You can only update your own availability." });
       return;
     }
 
@@ -183,15 +186,15 @@ var VolunteerController = function(volunteerRepository, shiftRepository) {
       .getById(req.params.id)
       .then(volunteer => {
         if (!volunteer) {
-          res.status(400).send({ message: "No volunteer with that id" });
+          res.status(400).json({ message: "No volunteer with that id" });
         } else {
           volunteerRepository
             .getAvailability(req.params.id)
-            .then(result => res.status(200).send(result))
-            .catch(error => res.status(400).send(error));
+            .then(result => res.status(200).json({message: "Success!", availability: result}))
+            .catch(error => res.status(400).json({message: error}));
         }
       })
-      .catch(error => res.status(500).send(error));
+      .catch(error => res.status(500).json({message: error}));
   };
 
   this.listShiftsByVolunteerId = function(req, res) {
@@ -208,7 +211,7 @@ var VolunteerController = function(volunteerRepository, shiftRepository) {
       .getById(req.params.id)
       .then(vol => {
         if (!vol) {
-          res.status(400).send({ message: "No volunteer with that id" });
+          res.status(400).json({ message: "No volunteer with that id" });
         } else {
           volunteer = vol;
           return bookingRepository.getByVolunteerId(vol.userId);
@@ -270,8 +273,8 @@ var VolunteerController = function(volunteerRepository, shiftRepository) {
             return result;
           });
       })
-      .then(shifts => res.status(200).send(shifts))
-      .catch(err => res.status(500).send(err));
+      .then(shifts => res.status(200).json({message: "Success!", shifts}))
+      .catch(err => res.status(500).json({message: err}));
   };
 };
 

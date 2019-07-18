@@ -1,11 +1,9 @@
 var request = require('supertest');
 var app = require('../../app');
 var chai = require('chai');
-var { describe, it, after } = require("mocha")
-
-var User = require('../../server/models').User;
-
-var expect = chai.expect;
+var { describe, it, after } = require("mocha");
+var {User} = require('../../server/models');
+var {expect} = chai;
 
 const test = {
   volunteer: {
@@ -27,13 +25,13 @@ const test = {
     isAdmin: true,
     telephone: '07979797979'
   }
-}
+};
 
 describe('Register Volunteer', function() {
 
   after( function() {
     User.destroy({where: {email: test.volunteer.email}})
-  })
+  });
 
   it('Can register a volunteer', function(done) {
     request(app)
@@ -54,24 +52,24 @@ describe('Register Volunteer', function() {
         if (error) {
           done(error);
         }
-
-        expect(response.body.email).to.equal(test.volunteer.email);
-        expect(response.body.firstName).to.equal(test.volunteer.firstName);
-        expect(response.body.lastName).to.equal(test.volunteer.lastName);
-        expect(response.body.dob).to.equal(test.volunteer.dob);
-        expect(response.body.isAdmin).to.equal(test.volunteer.isAdmin);
+        const { user } = response.body;
+        expect(user.email).to.equal(test.volunteer.email);
+        expect(user.firstName).to.equal(test.volunteer.firstName);
+        expect(user.lastName).to.equal(test.volunteer.lastName);
+        expect(user.dob).to.equal(test.volunteer.dob);
+        expect(user.isAdmin).to.equal(test.volunteer.isAdmin);
         
         done();
       })
   });
 
-})
+});
 
 describe('Register Admin', function() {
 
   after( function() {
     User.destroy({where: {email: test.admin.email}})
-  })
+  });
 
   it('Can register an admin', function(done) {
     request(app)
@@ -94,14 +92,15 @@ describe('Register Admin', function() {
           done(error);
         }
 
-        expect(response.body.email).to.equal(test.admin.email);
-        expect(response.body.firstName).to.equal(test.admin.firstName);
-        expect(response.body.lastName).to.equal(test.admin.lastName);
-        expect(response.body.dob).to.equal(test.admin.dob);
-        expect(response.body.isAdmin).to.equal(test.admin.isAdmin);
+        const { user } = response.body;
+        expect(user.email).to.equal(test.admin.email);
+        expect(user.firstName).to.equal(test.admin.firstName);
+        expect(user.lastName).to.equal(test.admin.lastName);
+        expect(user.dob).to.equal(test.admin.dob);
+        expect(user.isAdmin).to.equal(test.admin.isAdmin);
         
         done();
       })
   });
 
-})
+});

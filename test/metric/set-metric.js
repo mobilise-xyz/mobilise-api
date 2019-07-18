@@ -1,31 +1,34 @@
 var request = require('supertest');
 var app = require('../../app');
-const {Role} = require('../../server/models');
-var { describe, it, after } = require("mocha");
+var { describe, it } = require("mocha");
 
 const Seeded = require('../../server/utils/seeded');
 
-describe('Delete a role', function() {
+const test = {
+  metric: {
+    name: 'people',
+    verb: 'fed',
+    value: 311313
+  }
+};
 
-  after(function() {
-    Role.create({
-      name: Seeded.roles[0].name,
-      involves: Seeded.roles[0].involves,
-      colour: Seeded.roles[0].colour
-    })
-  });
+describe('Update metric', function() {
 
-  it('Does not allow unauthorised request to delete a role', function(done) {
+  it('Does not allow unauthorised request to update metric', function(done) {
     request(app)
-      .delete('/roles')
-      .send({
-        name: Seeded.roles[0].name
-      })
+      .post('/metric')
+      .send(
+        {
+          name: test.metric.name,
+          verb: test.metric.verb,
+          value: test.metric.value
+        }
+      )
       .set('Accept', 'application/json')
       .expect(401, done);
   });
 
-  it('Does not allow volunteer to delete existing role', function(done){
+  it('Does not allow volunteer to update metric', function(done) {
     // Acquire bearer token
     request(app)
       .post('/auth/login')
@@ -38,21 +41,23 @@ describe('Delete a role', function() {
       .set('Accept', 'application/json')
       .expect(200)
       .then(response => {
-        // Use bearer token to add role
+        // Use bearer token to get roles
         request(app)
-          .delete('/roles')
+          .post('/metric')
           .send(
             {
-              name: Seeded.roles[0].name,
+              name: test.metric.name,
+              verb: test.metric.verb,
+              value: test.metric.value
             }
           )
-          .set('Accept', 'application/json')
           .set('Authorization', 'Bearer '+response.body.user.token)
-          .expect(401, done);
+          .set('Accept', 'application/json')
+          .expect(400, done);
       });
   });
 
-  it('Allows admin to delete existing role', function(done){
+  it('Allows admin to update metric', function(done) {
     // Acquire bearer token
     request(app)
       .post('/auth/login')
@@ -65,18 +70,20 @@ describe('Delete a role', function() {
       .set('Accept', 'application/json')
       .expect(200)
       .then(response => {
-        // Use bearer token to add role
+        // Use bearer token to get roles
         request(app)
-          .delete('/roles')
+          .post('/metric')
           .send(
             {
-              name: Seeded.roles[0].name,
+              name: test.metric.name,
+              verb: test.metric.verb,
+              value: test.metric.value
             }
           )
-          .set('Accept', 'application/json')
           .set('Authorization', 'Bearer '+response.body.user.token)
+          .set('Accept', 'application/json')
           .expect(200, done);
       });
-  })
+  });
 
 });

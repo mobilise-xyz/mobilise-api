@@ -141,6 +141,13 @@ module.exports = {
         }
       ]
     }
-  ]
-}
+  ],
+  metric: {
+    name: "meals",
+    verb: "rescued",
+    value: 30193,
+    createdAt: '2019-06-06',
+    updatedAt: '2019-06-06'
+  }
+};
 

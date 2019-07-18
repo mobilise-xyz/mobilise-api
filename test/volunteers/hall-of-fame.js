@@ -1,6 +1,6 @@
 var request = require("supertest");
 var app = require("../../app");
-var { describe, it } = require("mocha")
+var { describe, it } = require("mocha");
 const Seeded = require('../../server/utils/seeded');
 
 describe("Volunteers' Hall of Fame", function() {
@@ -26,7 +26,7 @@ describe("Volunteers' Hall of Fame", function() {
         // Use bearer token to get shifts
         request(app)
           .get(`/volunteers/hall-of-fame`)
-          .set("Authorization", "Bearer " + response.body.token)
+          .set("Authorization", "Bearer " + response.body.user.token)
           .set("Accept", "application/json")
           .expect(200, done);
       });
@@ -46,7 +46,7 @@ describe("Volunteers' Hall of Fame", function() {
         // Use bearer token to get shifts
         request(app)
           .get(`/volunteers/hall-of-fame`)
-          .set("Authorization", "Bearer " + response.body.token)
+          .set("Authorization", "Bearer " + response.body.user.token)
           .set("Accept", "application/json")
           .expect(200, done);
       });

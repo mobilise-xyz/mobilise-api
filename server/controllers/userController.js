@@ -9,7 +9,7 @@ var UserController = function(userRepository) {
     // 1) Request made by admin
     // 2) Request made by volunteer for their own info
     if (!req.user.isAdmin && req.user.id !== req.params.id) {
-      res.status(401).send({ message: "Unauthorised request" });
+      res.status(401).json({ message: "Unauthorised request" });
       return;
     }
 
@@ -17,17 +17,20 @@ var UserController = function(userRepository) {
       .getById(req.params.id)
       .then(user => {
         if (!user) {
-          res.status(400).send({ message: "No user with that id" });
+          res.status(400).json({ message: "No user with that id" });
         } else {
-          res.status(200).send({
-            id: user.id,
-            firstName: user.firstName,
-            lastName: user.lastName,
-            contactPreferences: user.contactPreferences
+          res.status(200).json({
+            message: "Success!",
+            user: {
+              id: user.id,
+              firstName: user.firstName,
+              lastName: user.lastName,
+              contactPreferences: user.contactPreferences
+            }
           });
         }
       })
-      .catch(error => res.status(500).send(error));
+      .catch(error => res.status(500).json({message: error}));
   };
 
   this.getContactPreferences = function(req, res) {
@@ -37,10 +40,10 @@ var UserController = function(userRepository) {
         if (!result) {
           res.status(400).send({ message: "No user with that id" });
         } else {
-          res.status(200).send(result);
+          res.status(200).json({ message: "Success!", contactPreferences: result});
         }
       })
-      .catch(error => res.status(500).send(error));
+      .catch(error => res.status(500).json({message: error}));
   };
 
   this.updateContactPreferences = function(req, res) {
@@ -58,10 +61,10 @@ var UserController = function(userRepository) {
         if (!result) {
           res.status(400).send({ message: "No user with that id" });
         } else {
-          res.status(200).send(result);
+          res.status(200).send({ message: "Success! Updated contact preferences", contactPreferences: result});
         }
       })
-      .catch(error => res.status(500).send(error));
+      .catch(error => res.status(500).json({message: error}));
   };
 };
 

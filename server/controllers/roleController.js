@@ -1,11 +1,11 @@
 const roleRepository = require("../repositories").RoleRepository;
 
-var RoleController = function(roleRepository) {
+var RoleController = function (roleRepository) {
 // Create a new role
-  this.create = function(req, res) {
+  this.create = function (req, res) {
     // Check if admin
     if (!req.user.isAdmin) {
-      res.status(401).send({ message: "Only admins can add roles" });
+      res.status(401).json({message: "Only admins can add roles"});
       return;
     }
     // Check if valid hex string
@@ -13,7 +13,7 @@ var RoleController = function(roleRepository) {
       if (!/^#[0-9A-F]{6}$/i.test(req.body.colour)) {
         res
           .status(400)
-          .send({ message: req.body.colour + " is not a valid hex colour" });
+          .json({message: req.body.colour + " is not a valid hex colour"});
         return;
       }
     }
@@ -24,35 +24,35 @@ var RoleController = function(roleRepository) {
         if (role) {
           res
             .status(400)
-            .send({ message: "Role with that name already exists" });
+            .json({message: "Role with that name already exists"});
         } else {
           return roleRepository.add(req.body);
         }
       })
-      .then(role => res.status(201).send(role))
-      .catch(error => res.status(500).send(error));
+      .then(role => res.status(201).json({message: "Success! Role created.", role}))
+      .catch(error => res.status(500).json({message: error}));
   };
 
   // Retrieve all existing roles
-  this.list = function(req, res) {
+  this.list = function (req, res) {
     return roleRepository
       .getAll()
-      .then(roles => res.status(200).send(roles))
-      .catch(error => res.status(500).send(error));
+      .then(roles => res.status(200).json({message: "Success!", roles}))
+      .catch(error => res.status(500).json({message: error}));
   };
 
   // Removing a role
-  this.remove = function(req, res) {
+  this.remove = function (req, res) {
     // Check if admin
     if (!req.user.isAdmin) {
-      res.status(401).send({ message: "Only admins can remove roles" });
+      res.status(401).json({message: "Only admins can remove roles"});
     } else {
       roleRepository
         .removeByName(req.body.name)
         .then(() => {
-          res.status(200).send({ message: "Successfully removed role" });
+          res.status(200).json({message: "Successfully removed role"});
         })
-        .catch(error => res.status(500).send(error));
+        .catch(error => res.status(500).json({message: error}));
     }
   };
 };

@@ -1,9 +1,9 @@
 var request = require("supertest");
 var app = require("../../app");
-var { describe, it } = require("mocha")
+var { describe, it } = require("mocha");
 const Seeded = require('../../server/utils/seeded');
 
-describe("Volunteers' Availability", function() {
+describe("Retrieving Volunteer Availability", function() {
 
   it("Does not allow unauthorised requests to get availability", function(done) {
     request(app)
@@ -25,7 +25,7 @@ describe("Volunteers' Availability", function() {
         // Use bearer token to get shifts
         request(app)
           .get(`/volunteers/${Seeded.volunteers[1].UUID}/availability`)
-          .set("Authorization", "Bearer " + response.body.token)
+          .set("Authorization", "Bearer " + response.body.user.token)
           .set("Accept", "application/json")
           .expect(401, done);
       });
@@ -45,9 +45,10 @@ describe("Volunteers' Availability", function() {
         // Use bearer token to get shifts
         request(app)
           .get(`/volunteers/${Seeded.volunteers[0].UUID}/availability`)
-          .set("Authorization", "Bearer " + response.body.token)
+          .set("Authorization", "Bearer " + response.body.user.token)
           .set("Accept", "application/json")
           .expect(200, done);
       });
   });
 });
+

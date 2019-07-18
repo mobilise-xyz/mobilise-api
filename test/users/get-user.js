@@ -1,6 +1,6 @@
 var request = require('supertest');
 var app = require('../../app');
-var { describe, it } = require("mocha")
+var { describe, it } = require("mocha");
 const Seeded = require('../../server/utils/seeded');
 
 describe('Retrieving users', function() {
@@ -26,7 +26,7 @@ describe('Retrieving users', function() {
       .then((response) => {
           request(app)
           .get(`/users/${Seeded.volunteers[1].UUID}`)
-          .set('Authorization', 'Bearer '+response.body.token)
+          .set('Authorization', 'Bearer '+response.body.user.token)
           .set('Accept', 'application/json')
           .expect(401, done);
       })
@@ -46,7 +46,7 @@ describe('Retrieving users', function() {
       .then((response) => {
           request(app)
           .get(`/users/${Seeded.admins[0].UUID}`)
-          .set('Authorization', 'Bearer '+response.body.token)
+          .set('Authorization', 'Bearer '+response.body.user.token)
           .set('Accept', 'application/json')
           .expect(401, done);
       })
@@ -66,7 +66,7 @@ describe('Retrieving users', function() {
       .then((response) => {
           request(app)
           .get(`/users/${Seeded.volunteers[0].UUID}`)
-          .set('Authorization', 'Bearer '+response.body.token)
+          .set('Authorization', 'Bearer '+response.body.user.token)
           .set('Accept', 'application/json')
           .expect(200, done);
       })
@@ -86,7 +86,7 @@ describe('Retrieving users', function() {
       .then((response) => {
           request(app)
           .get(`/users/${Seeded.volunteers[0].UUID}`)
-          .set('Authorization', 'Bearer '+response.body.token)
+          .set('Authorization', 'Bearer '+response.body.user.token)
           .set('Accept', 'application/json')
           .expect(200, done);
       })
@@ -106,7 +106,7 @@ describe('Retrieving users', function() {
       .then((response) => {
           request(app)
           .get(`/users/${Seeded.admins[0].UUID}`)
-          .set('Authorization', 'Bearer '+response.body.token)
+          .set('Authorization', 'Bearer '+response.body.user.token)
           .set('Accept', 'application/json')
           .expect(200, done);
       })
@@ -126,7 +126,7 @@ describe('Retrieving users', function() {
       .then((response) => {
           request(app)
           .get(`/users/${Seeded.admins[1].UUID}`)
-          .set('Authorization', 'Bearer '+response.body.token)
+          .set('Authorization', 'Bearer '+response.body.user.token)
           .set('Accept', 'application/json')
           .expect(200, done);
       })

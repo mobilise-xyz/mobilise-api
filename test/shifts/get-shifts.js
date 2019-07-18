@@ -1,6 +1,6 @@
 var request = require("supertest");
 var app = require("../../app");
-var { describe, it } = require("mocha")
+var { describe, it } = require("mocha");
 const Seeded = require('../../server/utils/seeded');
 
 describe("Get Shifts", function() {
@@ -26,7 +26,7 @@ describe("Get Shifts", function() {
         // Use bearer token to get shifts
         request(app)
           .get("/shifts")
-          .set("Authorization", "Bearer " + response.body.token)
+          .set("Authorization", "Bearer " + response.body.user.token)
           .set("Accept", "application/json")
           .expect(200, done);
       });
