@@ -12,7 +12,8 @@ module.exports = (sequelize, DataTypes) => {
     {}
   );
   Admin.associate = function(models) {
-    Admin.belongsTo(models.User, {
+    const {Shift, User} = models;
+    Admin.belongsTo(User, {
       foreignKey: {
         name: "userId",
         allowNull: false
@@ -20,12 +21,12 @@ module.exports = (sequelize, DataTypes) => {
       onDelete: "CASCADE"
     });
 
-    Admin.hasMany(models.Shift, {
+    Admin.hasMany(Shift, {
       as: "shifts",
       foreignKey: "creatorId"
     });
 
-    Admin.belongsTo(models.User, {
+    Admin.belongsTo(User, {
       as: "user",
       foreignKey: "userId"
     });

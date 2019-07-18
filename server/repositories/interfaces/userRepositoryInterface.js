@@ -1,3 +1,4 @@
+/* eslint-disable no-unused-vars */
 var UserRepositoryInterface = {
   add: function(user, hash, phone) {},
   getByEmail: function(email) {},

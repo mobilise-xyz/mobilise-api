@@ -21,7 +21,7 @@ module.exports = {
     }
   },
 
-  down: async (queryInterface, Sequelize) => {
+  down: async (queryInterface) => {
     try {
       await queryInterface.removeColumn('Volunteers', 'lastWeekShifts');
       await queryInterface.removeColumn('Volunteers', 'lastWeekHours');

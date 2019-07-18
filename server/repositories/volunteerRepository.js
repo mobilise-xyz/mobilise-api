@@ -1,9 +1,7 @@
-const Volunteer = require("../models").Volunteer;
-const Shift = require("../models").Shift;
-const User = require("../models").User;
+const {Volunteer} = require("../models");
 const Q = require("q");
 const VolunteerRepositoryInterface = require("./interfaces/volunteerRepositoryInterface");
-
+const { USER, SHIFTS } = require("../sequelizeUtils/include");
 var VolunteerRepository = Object.create(VolunteerRepositoryInterface);
 
 VolunteerRepository.add = function(volunteer) {
@@ -21,7 +19,7 @@ VolunteerRepository.add = function(volunteer) {
 VolunteerRepository.getTotalHoursFromLastWeek = function() {
   var deferred = Q.defer();
 
-  Volunteer.sum('lastWeekHours')
+  Volunteer.sum("lastWeekHours")
     .then(hours => deferred.resolve(hours))
     .catch(error => deferred.reject(error));
 
@@ -32,13 +30,7 @@ VolunteerRepository.getTop = function(orderBy, limit) {
   var deferred = Q.defer();
 
   Volunteer.findAll({
-    include: [
-      {
-        model: User,
-        as: "user",
-        include: ["contactPreferences"]
-      }
-    ],
+    include: [USER()],
     order: orderBy,
     limit: limit
   })
@@ -53,13 +45,7 @@ VolunteerRepository.getAll = function(whereTrue) {
 
   Volunteer.findAll({
     where: whereTrue,
-    include: [
-      {
-        model: User,
-        as: "user",
-        include: ["contactPreferences"]
-      }
-    ]
+    include: [USER()]
   })
     .then(volunteers => deferred.resolve(volunteers))
     .catch(err => deferred.reject(err));
@@ -71,12 +57,7 @@ VolunteerRepository.getAllWithShifts = function(whereShift) {
   var deferred = Q.defer();
 
   Volunteer.findAll({
-    include: [{
-      model: Shift,
-      as: "shifts",
-      required: false,
-      where: whereShift
-    }]
+    include: [SHIFTS(false, whereShift)]
   })
     .then(volunteers => deferred.resolve(volunteers))
     .catch(err => deferred.reject(err));
@@ -87,11 +68,10 @@ VolunteerRepository.getAllWithShifts = function(whereShift) {
 VolunteerRepository.getById = function(id) {
   var deferred = Q.defer();
 
-  Volunteer.findOne({ where: { userId: id }, include: [{
-    model: User,
-      as: "user",
-      include: ['contactPreferences']
-    }] })
+  Volunteer.findOne({
+    where: { userId: id },
+    include: [USER()]
+  })
     .then(volunteer => deferred.resolve(volunteer))
     .catch(err => deferred.reject(err));
 
@@ -104,7 +84,7 @@ VolunteerRepository.update = function(volunteer, body) {
     .then(result => deferred.resolve(result))
     .catch(error => deferred.reject(error));
   return deferred.promise;
-}
+};
 
 VolunteerRepository.updateAvailability = function(id, availability) {
   var deferred = Q.defer();
@@ -125,6 +105,5 @@ VolunteerRepository.getAvailability = function(id) {
 
   return deferred.promise;
 };
-
 
 module.exports = VolunteerRepository;

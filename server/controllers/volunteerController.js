@@ -2,12 +2,15 @@ const volunteerRepository = require("../repositories").VolunteerRepository;
 const shiftRepository = require("../repositories").ShiftRepository;
 const bookingRepository = require("../repositories").BookingRepository;
 const metricRepository = require("../repositories").MetricRepository;
-const Op = require("../models").Sequelize.Op;
-const shiftStartsAfter = require("../utils/utils").shiftStartsAfter;
 const moment = require("moment");
-const volunteerIsAvailableForShift = require("../utils/availability")
-  .volunteerIsAvailableForShift;
-
+const Op = require("../models").Sequelize.Op;
+const { volunteerIsAvailableForShift } = require("../utils/availability");
+const {
+  REQUIREMENTS_WITH_BOOKINGS,
+  CREATOR,
+  REPEATED_SHIFT
+} = require("../sequelizeUtils/include");
+const { SHIFT_BEFORE, SHIFT_AFTER } = require("../sequelizeUtils/where");
 const EXPECTED_SHORTAGE_THRESHOLD = 2;
 
 var VolunteerController = function(volunteerRepository, shiftRepository) {
@@ -26,7 +29,7 @@ var VolunteerController = function(volunteerRepository, shiftRepository) {
       .catch(err => res.status(500).send(err));
   };
 
-  (this.getStats = function(req, res) {
+  this.getStats = function(req, res) {
     // Check bearer token id matches parameter id
     if (req.user.id !== req.params.id) {
       res.status(401).send({ message: "You can only view your own stats." });
@@ -44,27 +47,10 @@ var VolunteerController = function(volunteerRepository, shiftRepository) {
           const date = now.format("YYYY-MM-DD");
           const time = now.format("HH:mm");
           volunteer = vol;
-          return bookingRepository.getByVolunteerId(vol.userId, {
-            [Op.or]: [
-              {
-                date: {
-                  [Op.lt]: date
-                }
-              },
-              {
-                [Op.and]: [
-                  {
-                    date: {
-                      [Op.eq]: date
-                    },
-                    stop: {
-                      [Op.lte]: time
-                    }
-                  }
-                ]
-              }
-            ]
-          });
+          return bookingRepository.getByVolunteerId(
+            vol.userId,
+            SHIFT_BEFORE(date, time)
+          );
         }
       })
       .then(bookings => {
@@ -100,7 +86,7 @@ var VolunteerController = function(volunteerRepository, shiftRepository) {
               name: metricStat.name,
               verb: metricStat.verb,
               value:
-                totalHoursFromLastWeek != 0
+                totalHoursFromLastWeek !== 0
                   ? Math.round(
                       metricStat.value *
                         (volunteer.lastWeekHours / totalHoursFromLastWeek)
@@ -113,8 +99,9 @@ var VolunteerController = function(volunteerRepository, shiftRepository) {
           });
       })
       .catch(err => res.status(500).send(err));
-  }),
-    (this.getActivity = function(req, res) {
+  };
+
+  this.getActivity = function(req, res) {
       // Check bearer token id matches parameter id
       if (req.user.id !== req.params.id) {
         res.status(401).send({ message: "You can only view your own stats." });
@@ -124,7 +111,7 @@ var VolunteerController = function(volunteerRepository, shiftRepository) {
       res.status(200).send({
         myActivity: []
       });
-    });
+  };
 
   this.getHallOfFame = async function(req, res) {
     var response = {};
@@ -172,7 +159,7 @@ var VolunteerController = function(volunteerRepository, shiftRepository) {
         } else {
           volunteerRepository
             .updateAvailability(req.params.id, req.body.availability)
-            .then(result =>
+            .then(() =>
               res.status(201).send({
                 message: "Availability Updated Successfuly"
               })
@@ -215,7 +202,7 @@ var VolunteerController = function(volunteerRepository, shiftRepository) {
       var afterMoment = moment(after);
       var date = afterMoment.format("YYYY-MM-DD");
       var time = afterMoment.format("HH:mm");
-      whereTrue = shiftStartsAfter(date, time);
+      whereTrue = SHIFT_AFTER(date, time);
     }
     volunteerRepository
       .getById(req.params.id)
@@ -229,11 +216,14 @@ var VolunteerController = function(volunteerRepository, shiftRepository) {
       })
       .then(bookings => {
         var shiftIds = bookings.map(booking => booking.shiftId);
-
         if (req.query.booked) {
           whereTrue["id"] = { [Op.in]: shiftIds };
           return shiftRepository
-            .getAllWithRequirements(whereTrue)
+            .getAll(null, whereTrue, [
+              REQUIREMENTS_WITH_BOOKINGS(),
+              CREATOR(),
+              REPEATED_SHIFT()
+            ])
             .then(shifts => {
               var result = [];
               shifts.forEach(s => {
@@ -252,9 +242,14 @@ var VolunteerController = function(volunteerRepository, shiftRepository) {
               return result;
             });
         }
+        console.log(whereTrue);
         whereTrue["id"] = { [Op.notIn]: shiftIds };
         return shiftRepository
-          .getAllWithRequirements(whereTrue)
+          .getAll(null, whereTrue, [
+            REQUIREMENTS_WITH_BOOKINGS(),
+            CREATOR(),
+            REPEATED_SHIFT()
+          ])
           .then(shifts => {
             var result = [];
             shifts.forEach(s => {

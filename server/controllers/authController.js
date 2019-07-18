@@ -7,8 +7,8 @@ const moment = require("moment");
 const bcrypt = require("bcryptjs");
 const config = require("../config/config.js");
 const jwt = require("jsonwebtoken");
-const PNF = require('google-libphonenumber').PhoneNumberFormat;
-const phoneUtil = require('google-libphonenumber').PhoneNumberUtil.getInstance();
+const {PhoneNumberFormat: PNF, PhoneNumberUtil} = require('google-libphonenumber');
+const phoneUtil = PhoneNumberUtil.getInstance();
 
 var AuthController = function(
   userRepository,
@@ -87,7 +87,7 @@ var AuthController = function(
           lastLogin: currentDate
         });
       })
-      .then(result => {
+      .then(() => {
         res.status(200).json({
           message: "Successful login!",
           uid: loggedInUser.id,

@@ -1,3 +1,4 @@
+/* eslint-disable no-unused-vars */
 var VolunteerRepositoryInterface = {
   add: function(volunteer) {},
   getAll: function() {},

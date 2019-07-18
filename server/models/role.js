@@ -1,22 +1,24 @@
 "use strict";
 module.exports = (sequelize, DataTypes) => {
+  const {STRING} = DataTypes;
   const Role = sequelize.define(
     "Role",
     {
       name: {
         allowNull: false,
         primaryKey: true,
-        type: DataTypes.STRING
+        type: STRING
       },
-      involves: DataTypes.STRING,
-      colour: DataTypes.STRING
+      involves: STRING,
+      colour: STRING
     },
     {}
   );
 
   Role.associate = function(models) {
-    Role.belongsToMany(models.Shift, {
-      through: models.ShiftRequirement,
+    const {Shift, ShiftRequirement} = models;
+    Role.belongsToMany(Shift, {
+      through: ShiftRequirement,
       as: "shifts",
       foreignKey: "roleName"
     });

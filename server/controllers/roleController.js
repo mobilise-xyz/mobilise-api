@@ -38,7 +38,7 @@ var RoleController = function(roleRepository) {
     return roleRepository
       .getAll()
       .then(roles => res.status(200).send(roles))
-      .catch(err => res.status(500).send(error));
+      .catch(error => res.status(500).send(error));
   };
 
   // Removing a role
@@ -49,7 +49,7 @@ var RoleController = function(roleRepository) {
     } else {
       roleRepository
         .removeByName(req.body.name)
-        .then(role => {
+        .then(() => {
           res.status(200).send({ message: "Successfully removed role" });
         })
         .catch(error => res.status(500).send(error));

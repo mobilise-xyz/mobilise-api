@@ -3,15 +3,19 @@ const roleRepository = require("../repositories").RoleRepository;
 const bookingRepository = require("../repositories").BookingRepository;
 const volunteerRepository = require("../repositories").VolunteerRepository;
 const adminRepository = require("../repositories").AdminRepository;
-const Volunteer = require("../models").Volunteer;
-const User = require("../models").User;
 const moment = require("moment");
-const shiftStartsAfter = require("../utils/utils").shiftStartsAfter;
 const isWeekend = require("../utils/date").isWeekend;
 const {
   volunteerIsAvailableForShift,
   volunteerBookedOnShift
 } = require("../utils/availability");
+const {
+  REQUIREMENTS_WITH_BOOKINGS,
+  CREATOR,
+  REPEATED_SHIFT,
+  VOLUNTEERS
+} = require("../sequelizeUtils/include");
+const { SHIFT_AFTER } = require("../sequelizeUtils/where");
 const nodemailer = require("nodemailer");
 const Nexmo = require("nexmo");
 
@@ -48,11 +52,15 @@ var ShiftController = function(
       var afterMoment = moment(after);
       var date = afterMoment.format("YYYY-MM-DD");
       var time = afterMoment.format("HH:mm");
-      whereTrue = shiftStartsAfter(date, time);
+      whereTrue = SHIFT_AFTER(date, time);
     }
 
     shiftRepository
-      .getAllWithRequirements(whereTrue, withVolunteers)
+      .getAll(null, whereTrue, [
+        REQUIREMENTS_WITH_BOOKINGS(withVolunteers),
+        CREATOR(),
+        REPEATED_SHIFT()
+      ])
       .then(shifts => res.status(200).send(shifts))
       .catch(err => res.status(500).send(err));
   };
@@ -74,19 +82,7 @@ var ShiftController = function(
 
   this.deleteById = function(req, res) {
     shiftRepository
-      .getById(req.params.id, [
-        {
-          model: Volunteer,
-          as: "volunteers",
-          include: [
-            {
-              model: User,
-              as: "user",
-              include: ["contactPreferences"]
-            }
-          ]
-        }
-      ])
+      .getById(req.params.id, [VOLUNTEERS()])
       .then(shift => {
         if (!shift) {
           res.status(400).send({ message: "No such shift" });
@@ -198,6 +194,13 @@ var ShiftController = function(
           return;
         }
 
+        if (shiftRequirementIsFull(shift, req.body.roleName)) {
+          res
+            .status(400)
+            .send({ message: "Shift for that role is full!" + req.params.id });
+          return;
+        }
+
         if (!req.body.repeatedType || req.body.repeatedType === "Never") {
           return bookingRepository.add(shift, req.user.id, req.body.roleName);
         }
@@ -252,7 +255,7 @@ var ShiftController = function(
         }
         return shiftRepository.update(shift, req.body);
       })
-      .then(shift => {
+      .then(() => {
         res.status(200).send({ message: "Shift updated" });
       })
       .catch(err => res.status(500).send(err));
@@ -331,7 +334,7 @@ var ShiftController = function(
           });
         }
       })
-      .then(_ => {
+      .then(() => {
         res
           .status(200)
           .send({ message: "Sending alerts to available volunteers" });
@@ -419,7 +422,7 @@ function repeatedTypeIsValid(type, startDate) {
     default:
       break;
   }
-  return REPEATED_TYPES.hasOwnProperty(type);
+  return REPEATED_TYPES.prototype.hasOwnProperty.call(type);
 }
 
 function sendEmail(emailClient, user, title, message) {
@@ -524,4 +527,14 @@ async function checkRoles(rolesRequired, roleRepository) {
   }
 
   return { errs, rolesRequired };
+}
+
+function shiftRequirementIsFull(shift, roleName) {
+  shift.requirements.forEach(requirement => {
+    const {numberRequired, bookings, role} = requirement;
+    if (role.name === roleName) {
+      return bookings.length >= numberRequired;
+    }
+  });
+  return false;
 }

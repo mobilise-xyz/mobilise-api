@@ -1,17 +1,14 @@
-const Booking = require("../models").Booking;
-const Shift = require("../models").Shift;
-const RepeatedShift = require("../models").RepeatedShift;
-const Op = require("../models").Sequelize.Op;
-const RepeatedBooking = require("../models").RepeatedBooking;
+const {Booking, RepeatedShift, RepeatedBooking} = require("../models");
 const Q = require("q");
-const getNextDate = require("../utils/date").getNextDate;
+const {getNextDate} = require("../utils/date");
 const sequelize = require("sequelize");
 const moment = require("moment");
 const BookingRepositoryInterface = require("./interfaces/bookingRepositoryInterface");
+const { SHIFT, SHIFTS_WITH_BOOKINGS } = require("../sequelizeUtils/include");
 
 var BookingRepository = Object.create(BookingRepositoryInterface);
 
-BookingRepository.add = function (shift, volunteerId, roleName) {
+BookingRepository.add = function(shift, volunteerId, roleName) {
   var deferred = Q.defer();
   Booking.create({
     shiftId: shift.id,
@@ -24,7 +21,7 @@ BookingRepository.add = function (shift, volunteerId, roleName) {
   return deferred.promise;
 };
 
-BookingRepository.addRepeated = async function (
+BookingRepository.addRepeated = async function(
   shift,
   volunteerId,
   roleName,
@@ -46,28 +43,11 @@ BookingRepository.addRepeated = async function (
   if (successful) {
     // Create repeated booking
     RepeatedShift.findOne({
-      where: {id: shift.repeatedId},
+      where: { id: shift.repeatedId },
       include: [
-        {
-          model: Shift,
-          as: "shifts",
-          where: {
-            date: {
-              [Op.between]: [shift.date, untilDate]
-            }
-          },
-          include: [
-            {
-              model: Booking,
-              as: "bookings",
-              required: false,
-              where: {
-                volunteerId: volunteerId
-              }
-            }
-          ],
-          order: [[sequelize.literal("date, start"), "asc"]]
-        }
+        SHIFTS_WITH_BOOKINGS(shift.date, untilDate, [
+          [sequelize.literal("date, start"), "asc"]
+        ], volunteerId)
       ]
     })
       .then(result => {
@@ -79,9 +59,10 @@ BookingRepository.addRepeated = async function (
         while (
           (startDate.isBefore(lastDate) || startDate.isSame(lastDate)) &&
           shiftIndex !== shifts.length
-          ) {
+        ) {
           // Find the next booking for this repeated shift
-          var nextShiftDate = moment(shifts[shiftIndex].date, "YYYY-MM-DD");
+          const {date, bookings: bookings1, id} = shifts[shiftIndex];
+          var nextShiftDate = moment(date, "YYYY-MM-DD");
 
           while (startDate.isBefore(nextShiftDate)) {
             // Increment with respect to the next
@@ -93,18 +74,18 @@ BookingRepository.addRepeated = async function (
           while (
             shiftIndex !== shifts.length - 1 &&
             startDate.isAfter(nextShiftDate)
-            ) {
+          ) {
             shiftIndex += 1;
-            nextShiftDate = moment(shifts[shiftIndex].date, "YYYY-MM-DD");
+            nextShiftDate = moment(date, "YYYY-MM-DD");
           }
 
           if (startDate.isSame(nextShiftDate)) {
             // The bookings in the shift are only ones with the volunteer
             // id so therefore if the length is not 0, then the volunteer
             // has a booking for this shift. So skip over it.
-            if (shifts[shiftIndex].bookings.length === 0) {
+            if (bookings1.length === 0) {
               bookings.push({
-                shiftId: shifts[shiftIndex].id,
+                shiftId: id,
                 repeatedId: repeatedId,
                 roleName: roleName,
                 volunteerId: volunteerId
@@ -127,7 +108,7 @@ BookingRepository.addRepeated = async function (
   return deferred.promise;
 };
 
-BookingRepository.getAll = function () {
+BookingRepository.getAll = function() {
   var deferred = Q.defer();
 
   Booking.findAll()
@@ -137,28 +118,23 @@ BookingRepository.getAll = function () {
   return deferred.promise;
 };
 
-BookingRepository.getAllWithShifts = function () {
+BookingRepository.getAllWithShifts = function() {
   var deferred = Q.defer();
 
-  Booking.findAll({include: ["shift"]})
+  Booking.findAll({ include: [SHIFT()] })
     .then(bookings => deferred.resolve(bookings))
     .catch(err => deferred.reject(err));
 
   return deferred.promise;
 };
 
-BookingRepository.getByVolunteerId = function (volunteerId, whereShift) {
+BookingRepository.getByVolunteerId = function(volunteerId, whereShift) {
   var deferred = Q.defer();
   Booking.findAll({
     where: {
       volunteerId: volunteerId
     },
-    include: [{
-      model: Shift,
-      as: "shift",
-      where: whereShift,
-      required: true
-    }]
+    include: [SHIFT(true, whereShift)]
   })
     .then(bookings => deferred.resolve(bookings))
     .catch(err => deferred.reject(err));
@@ -181,7 +157,7 @@ BookingRepository.delete = function(shiftId, volunteerId) {
   return deferred.promise;
 };
 
-BookingRepository.getById = function (shiftId, volunteerId) {
+BookingRepository.getById = function(shiftId, volunteerId) {
   var deferred = Q.defer();
 
   Booking.findOne({
@@ -189,7 +165,7 @@ BookingRepository.getById = function (shiftId, volunteerId) {
       shiftId: shiftId,
       volunteerId: volunteerId
     },
-    include: ['shift']
+    include: [SHIFT()]
   })
     .then(booking => deferred.resolve(booking))
     .catch(err => deferred.reject(err));

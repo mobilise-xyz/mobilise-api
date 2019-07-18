@@ -1,3 +1,4 @@
+/* eslint-disable no-unused-vars */
 var BookingRepositoryInterface = {
   getById: function(shiftId, volunteerId) {},
   getAll: function() {},
