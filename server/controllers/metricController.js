@@ -11,12 +11,12 @@ var MetricController = function(metricRepository) {
       req.body.name,
       req.body.verb,
       req.body.value
-    ).then(metric => res.status(200).json({message: "Successfully updated metric", metric: metric}))
+    ).then(metric => res.status(200).json({message: "Successfully updated metric", metric}))
       .catch(err => res.status(500).send(err));
   };
 
   this.get = function(req, res) {
-    metricRepository.get().then(metric => res.status(200).json({message: "Success!", metric: metric}))
+    metricRepository.get().then(metric => res.status(200).json({message: "Success!", metric}))
       .catch(err => res.status(500).send(err));
   }
 
