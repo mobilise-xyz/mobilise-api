@@ -79,10 +79,7 @@ ShiftRepository.addRepeated = async function(
     }
     ShiftRepository.addAll(shifts, rolesRequired)
       .then(shifts =>
-        deferred.resolve({
-          message: "Created recurring shift",
-          lastShift: shifts[shifts.length - 1]
-        })
+        deferred.resolve(shifts)
       )
       .catch(err => {
         deferred.reject(err);

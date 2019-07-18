@@ -15,7 +15,7 @@ const {
   REPEATED_SHIFT,
   VOLUNTEERS
 } = require("../sequelizeUtils/include");
-const { SHIFT_AFTER } = require("../sequelizeUtils/where");
+const {SHIFT_AFTER} = require("../sequelizeUtils/where");
 const nodemailer = require("nodemailer");
 const Nexmo = require("nexmo");
 
@@ -39,12 +39,12 @@ const REPEATED_TYPES = {
   Annually: ["Never", "Annually"]
 };
 
-var ShiftController = function(
+var ShiftController = function (
   shiftRepository,
   roleRepository,
   bookingRepository
 ) {
-  this.list = function(req, res) {
+  this.list = function (req, res) {
     var withVolunteers = req.user.isAdmin;
     var after = req.query.after;
     var whereTrue = {};
@@ -65,7 +65,7 @@ var ShiftController = function(
       .catch(err => res.status(500).json({message: err}));
   };
 
-  this.listTitles = function(req, res) {
+  this.listTitles = function (req, res) {
     shiftRepository
       .getAll(["title"])
       .then(shifts => {
@@ -80,12 +80,12 @@ var ShiftController = function(
       .catch(err => res.status(500).json({message: err}));
   };
 
-  this.deleteById = function(req, res) {
+  this.deleteById = function (req, res) {
     shiftRepository
       .getById(req.params.id, [VOLUNTEERS()])
       .then(shift => {
         if (!shift) {
-          res.status(400).send({ message: "No such shift" });
+          res.status(400).send({message: "No such shift"});
           return;
         }
         var emailClient = createEmailClient();
@@ -102,12 +102,12 @@ var ShiftController = function(
         return shiftRepository.removeById(req.params.id);
       })
       .then(shift =>
-        res.status(200).send({ message: "Successfully deleted", shift: shift })
+        res.status(200).json({message: "Successfully deleted", shift: shift})
       )
-      .catch(err => res.status(500).send(err));
+      .catch(err => res.status(500).json({message: err}));
   };
 
-  this.cancel = function(req, res) {
+  this.cancel = function (req, res) {
     var creator;
     var shift;
 
@@ -115,7 +115,7 @@ var ShiftController = function(
       .getById(req.params.id, req.user.id)
       .then(booking => {
         if (!booking) {
-          res.status(400).send({ message: "No such booking exists" });
+          res.status(400).json({message: "No such booking exists"});
         } else {
           shift = booking.shift;
           return adminRepository.getById(shift.creatorId);
@@ -123,7 +123,7 @@ var ShiftController = function(
       })
       .then(admin => {
         if (!admin) {
-          res.status(400).send({ message: "Shift has no creator" });
+          res.status(400).json({message: "Shift has no creator"});
         } else {
           creator = admin;
           return volunteerRepository.getById(req.user.id);
@@ -133,7 +133,7 @@ var ShiftController = function(
         if (!volunteer) {
           res
             .status(400)
-            .send({ message: "Only a volunteer can cancel a booking" });
+            .json({message: "Only a volunteer can cancel a booking"});
         } else {
           const message = constructCancelBookingMessage(
             creator,
@@ -155,14 +155,14 @@ var ShiftController = function(
       .then(booking =>
         res
           .status(200)
-          .send({ message: "Successfully cancelled booking", booking: booking })
+          .json({message: "Successfully cancelled booking", booking: booking})
       )
-      .catch(err => res.status(500).send(err));
+      .catch(err => res.status(500).json({message: err}));
   };
 
-  this.book = function(req, res) {
+  this.book = function (req, res) {
     if (req.user.isAdmin) {
-      res.status(400).send({ message: "Admin cannot book onto shift" });
+      res.status(400).json({message: "Admin cannot book onto shift"});
       return;
     }
 
@@ -170,7 +170,7 @@ var ShiftController = function(
       .getById(req.params.id, req.user.id)
       .then(booking => {
         if (booking) {
-          res.status(400).send({
+          res.status(400).json({
             message: "Booking already exists for this shift and volunteer"
           });
         } else {
@@ -181,7 +181,7 @@ var ShiftController = function(
         if (!role) {
           res
             .status(400)
-            .send({ message: "No role with name: " + req.body.roleName });
+            .json({message: "No role with name: " + req.body.roleName});
         } else {
           return shiftRepository.getById(req.params.id);
         }
@@ -190,14 +190,14 @@ var ShiftController = function(
         if (!shift) {
           res
             .status(400)
-            .send({ message: "No shift with id: " + req.params.id });
+            .json({message: "No shift with id: " + req.params.id});
           return;
         }
 
         if (shiftRequirementIsFull(shift, req.body.roleName)) {
           res
             .status(400)
-            .send({ message: "Shift for that role is full!" + req.params.id });
+            .json({message: "Shift for that role is full!" + req.params.id});
           return;
         }
 
@@ -207,7 +207,7 @@ var ShiftController = function(
         var startDate = moment(shift.date, "YYYY-MM-DD");
 
         if (!repeatedTypeIsValid(req.body.repeatedType, startDate)) {
-          res.status(400).send({
+          res.status(400).json({
             message: "Invalid repeated type: " + req.body.repeatedType
           });
           return;
@@ -217,7 +217,7 @@ var ShiftController = function(
         ) {
           res
             .status(400)
-            .send({ message: "Repeated type incompatible with shift" });
+            .json({message: "Repeated type incompatible with shift"});
           return;
         }
         // Book repeated shifts
@@ -232,17 +232,17 @@ var ShiftController = function(
       .then(booking => {
         res
           .status(200)
-          .send({ message: "Successfully created booking", booking: booking });
+          .json({message: "Successfully created booking", booking: booking});
       })
       .catch(err => {
         res.status(500).send(err);
       });
   };
 
-  this.update = function(req, res) {
+  this.update = function (req, res) {
     // Check if user is admin
     if (!req.user.isAdmin) {
-      res.status(401).send({ message: "Only admin can edit a shift" });
+      res.status(401).json({message: "Only admin can edit a shift"});
       return;
     }
     // Check shift exists
@@ -250,21 +250,21 @@ var ShiftController = function(
       .getById(req.params.id)
       .then(async shift => {
         if (!shift) {
-          res.status(400).send({ message: "Shift does not exist" });
+          res.status(400).json({message: "Shift does not exist"});
           return;
         }
         return shiftRepository.update(shift, req.body);
       })
       .then(() => {
-        res.status(200).send({ message: "Shift updated" });
+        res.status(200).json({message: "Shift updated"});
       })
-      .catch(err => res.status(500).send(err));
+      .catch(err => res.status(500).json({message: err}));
   };
 
-  this.updateRoles = function(req, res) {
+  this.updateRoles = function (req, res) {
     // Check if user is admin
     if (!req.user.isAdmin) {
-      res.status(401).send({ message: "Only admin can edit a shift" });
+      res.status(401).json({message: "Only admin can edit a shift"});
       return;
     }
     // Check shift exists
@@ -272,33 +272,33 @@ var ShiftController = function(
       .getById(req.params.id)
       .then(async shift => {
         if (!shift) {
-          res.status(400).send({ message: "Shift does not exist" });
+          res.status(400).json({message: "Shift does not exist"});
           return;
         }
         // Check the referenced roles
-        var { errs, rolesRequired } = await checkRoles(
+        var {errs, rolesRequired} = await checkRoles(
           req.body.rolesRequired,
           roleRepository
         );
         if (errs.length > 0) {
           res
             .status(400)
-            .send({ "Could not modify shift due to invalid roles": errs });
+            .send({"Could not modify shift due to invalid roles": errs});
           return;
         }
         return shiftRepository.updateRoles(shift, rolesRequired);
       })
       .then(shift => {
-        res.status(200).send(shift);
+        res.status(200).json({message: "Success! Updated shift!", shift});
       })
-      .catch(err => res.status(500).send(err));
+      .catch(err => res.status(500).send({message: err}));
   };
 
-  this.ping = function(req, res) {
+  this.ping = function (req, res) {
     if (!req.user.isAdmin) {
       res
         .status(401)
-        .send({ message: "Only an admin may ping all volunteers for shift" });
+        .json({message: "Only an admin may ping all volunteers for shift"});
       return;
     }
 
@@ -306,7 +306,7 @@ var ShiftController = function(
       .getById(req.params.id)
       .then(shift => {
         if (!shift) {
-          res.status(400).send({ message: "No shift with that id" });
+          res.status(400).json({message: "No shift with that id"});
         } else {
           const emailClient = createEmailClient();
           const textClient = createTextClient();
@@ -337,32 +337,32 @@ var ShiftController = function(
       .then(() => {
         res
           .status(200)
-          .send({ message: "Sending alerts to available volunteers" });
+          .json({message: "Sending alerts to available volunteers"});
       });
   };
 
-  this.create = async function(req, res) {
+  this.create = async function (req, res) {
     // Check if user is admin
     if (!req.user.isAdmin) {
-      res.status(401).send({ message: "Only admin can add shifts" });
+      res.status(401).json({message: "Only admin can add shifts"});
       return;
     }
     // Check the referenced roles
-    var { errs, rolesRequired } = await checkRoles(
+    var {errs, rolesRequired} = await checkRoles(
       req.body.rolesRequired,
       roleRepository
     );
     if (errs.length > 0) {
       res
         .status(400)
-        .send({ "Could not add shift due to invalid roles": errs });
+        .json({"Could not add shift due to invalid roles": errs});
       return;
     }
 
     if (
       !moment(req.body.start, "HH:mm").isBefore(moment(req.body.stop, "HH:mm"))
     ) {
-      res.status(400).send({
+      res.status(400).json({
         message: "Start time is not before end time"
       });
       return;
@@ -376,13 +376,13 @@ var ShiftController = function(
         .then(result => {
           res.status(201).send(result);
         })
-        .catch(err => res.status(500).send(err));
+        .catch(err => res.status(500).json({message: err}));
     } else {
       var startDate = moment(req.body.date, "YYYY-MM-DD");
       var untilDate = moment(req.body.untilDate, "YYYY-MM-DD");
 
       if (untilDate.isBefore(startDate)) {
-        res.status(400).send({
+        res.status(400).json({
           message: "Until date is before start date"
         });
         return;
@@ -390,7 +390,7 @@ var ShiftController = function(
 
       // Check if valid request
       if (!repeatedTypeIsValid(type, startDate)) {
-        res.status(400).send({
+        res.status(400).json({
           message:
             "Invalid repeatedType (check starting day if Weekends/Week Days): " +
             type
@@ -399,10 +399,10 @@ var ShiftController = function(
       }
       shiftRepository
         .addRepeated(req.body, req.user.id, rolesRequired, type)
-        .then(result => {
-          res.status(201).send(result);
+        .then(shifts => {
+          res.status(201).json({message: "Success! Created repeated shift!", lastShift: shifts[shifts.length - 1]});
         })
-        .catch(err => res.status(500).send(err));
+        .catch(err => res.status(500).json({message: err}));
     }
   };
 };
@@ -480,7 +480,7 @@ function constructCancelBookingMessage(admin, volunteer, shift, reason) {
   var message = `Hello ${admin.user.firstName},\n\n`;
   message += `${
     volunteer.user.firstName
-  } has cancelled their booking for a shift.\n\n`;
+    } has cancelled their booking for a shift.\n\n`;
   message += `Title: ${shift.title}\n`;
   message += `Description: ${shift.description}\n`;
   message += `When: ${moment(shift.date).format("LL")} from ${formatTime(
@@ -526,7 +526,7 @@ async function checkRoles(rolesRequired, roleRepository) {
     }
   }
 
-  return { errs, rolesRequired };
+  return {errs, rolesRequired};
 }
 
 function shiftRequirementIsFull(shift, roleName) {
