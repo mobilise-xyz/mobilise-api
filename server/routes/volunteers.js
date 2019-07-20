@@ -9,7 +9,10 @@ router.get("/", controller.list);
 router.get("/hall-of-fame", controller.getHallOfFame);
 
 /* Get all shifts for a volunteer */
-router.get("/:id/shifts", controller.listShiftsByVolunteerId);
+router.get("/:id/shifts", controller.listShiftsForVolunteer);
+
+/* Get all available shifts for a volunteer */
+router.get("/:id/availableShifts", controller.listAvailableShiftsForVolunteer);
 
 /* Get stats for a volunteer */
 router.get("/:id/stats", controller.getStats);

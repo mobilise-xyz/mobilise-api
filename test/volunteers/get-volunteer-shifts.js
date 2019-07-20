@@ -14,7 +14,7 @@ describe("Get booked shifts", function() {
 
   it("Does not allow unauthorised request to get shifts", function (done) {
     request(app)
-      .get(`/volunteers/${test.volunteer.UUID}/shifts?booked=true`)
+      .get(`/volunteers/${test.volunteer.UUID}/shifts`)
       .set("Accept", "application/json")
       .expect(401, done);
   });
@@ -32,7 +32,7 @@ describe("Get booked shifts", function() {
       .then(response => {
         // Use bearer token to get shifts
         request(app)
-          .get(`/volunteers/${test.volunteer.UUID}/shifts?booked=true`)
+          .get(`/volunteers/${test.volunteer.UUID}/shifts`)
           .set("Authorization", "Bearer " + response.body.user.token)
           .set("Accept", "application/json")
           .expect(200, done);
@@ -41,16 +41,16 @@ describe("Get booked shifts", function() {
 
 });
 
-describe("Get shifts that are not booked", function() {
+describe("Get available shifts", function() {
 
   it("Does not allow unauthorised request to get shifts", function (done) {
     request(app)
-      .get(`/volunteers/${test.volunteer.UUID}/shifts?booked=false`)
+      .get(`/volunteers/${test.volunteer.UUID}/availableShifts`)
       .set("Accept", "application/json")
       .expect(401, done);
   });
 
-  it("Allows volunteers to get shifts that have not been booked", function(done) {
+  it("Allows volunteers to get available shifts", function(done) {
     // Acquire bearer token
     request(app)
       .post("/auth/login")
@@ -63,7 +63,7 @@ describe("Get shifts that are not booked", function() {
       .then(response => {
         // Use bearer token to get shifts
         request(app)
-          .get(`/volunteers/${test.volunteer.UUID}/shifts?booked=false`)
+          .get(`/volunteers/${test.volunteer.UUID}/availableShifts`)
           .set("Authorization", "Bearer " + response.body.user.token)
           .set("Accept", "application/json")
           .expect(200, done);
