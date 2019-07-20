@@ -183,7 +183,7 @@ var ShiftController = function (
             .status(400)
             .json({message: "No role with name: " + req.body.roleName});
         } else {
-          return shiftRepository.getById(req.params.id);
+          return shiftRepository.getById(req.params.id, [REQUIREMENTS_WITH_BOOKINGS()]);
         }
       })
       .then(shift => {
@@ -193,14 +193,12 @@ var ShiftController = function (
             .json({message: "No shift with id: " + req.params.id});
           return;
         }
-
         if (shiftRequirementIsFull(shift, req.body.roleName)) {
           res
             .status(400)
             .json({message: "Shift for that role is full!" + req.params.id});
           return;
         }
-
         if (!req.body.repeatedType || req.body.repeatedType === "Never") {
           return bookingRepository.add(shift, req.user.id, req.body.roleName);
         }
