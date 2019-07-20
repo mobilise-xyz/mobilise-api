@@ -162,7 +162,7 @@ var ShiftController = function (
 
   this.book = function (req, res) {
     if (req.user.isAdmin) {
-      res.status(400).json({message: "Admin cannot book onto shift"});
+      res.status(401).json({message: "Admin cannot book onto shift"});
       return;
     }
 
