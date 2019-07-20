@@ -31,7 +31,7 @@ function VOLUNTEERS() {
   };
 }
 
-function SHIFTS_WITH_BOOKINGS(startDate, endDate, order, volunteerId) {
+function SHIFTS_WITH_BOOKINGS(startDate, endDate, order) {
   return {
     model: Shift,
     as: "shifts",
@@ -43,11 +43,7 @@ function SHIFTS_WITH_BOOKINGS(startDate, endDate, order, volunteerId) {
     include: [
       {
         model: Booking,
-        as: "bookings",
-        required: false,
-        where: {
-          volunteerId: volunteerId
-        }
+        as: "bookings"
       }
     ],
     order: order

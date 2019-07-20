@@ -47,10 +47,11 @@ BookingRepository.addRepeated = async function(
       include: [
         SHIFTS_WITH_BOOKINGS(shift.date, untilDate, [
           [sequelize.literal("date, start"), "asc"]
-        ], volunteerId)
+        ])
       ]
     })
       .then(result => {
+        console.log(result);
         var bookings = [];
         var shifts = result.shifts;
         var startDate = moment(shift.date, "YYYY-MM-DD");
@@ -61,8 +62,7 @@ BookingRepository.addRepeated = async function(
           shiftIndex !== shifts.length
         ) {
           // Find the next booking for this repeated shift
-          const {date, bookings: bookings1, id} = shifts[shiftIndex];
-          var nextShiftDate = moment(date, "YYYY-MM-DD");
+          var nextShiftDate = moment(shifts[shiftIndex].date, "YYYY-MM-DD");
 
           while (startDate.isBefore(nextShiftDate)) {
             // Increment with respect to the next
@@ -76,16 +76,20 @@ BookingRepository.addRepeated = async function(
             startDate.isAfter(nextShiftDate)
           ) {
             shiftIndex += 1;
-            nextShiftDate = moment(date, "YYYY-MM-DD");
+            nextShiftDate = moment(shifts[shiftIndex].date, "YYYY-MM-DD");
           }
 
           if (startDate.isSame(nextShiftDate)) {
-            // The bookings in the shift are only ones with the volunteer
-            // id so therefore if the length is not 0, then the volunteer
-            // has a booking for this shift. So skip over it.
-            if (bookings1.length === 0) {
+            var currentBookings = shifts[shiftIndex].bookings;
+            var alreadyBooked = false;
+            currentBookings.forEach(booking => {
+              if (booking.volunteerId === volunteerId) {
+                alreadyBooked = true;
+              }
+            });
+            if (!alreadyBooked) {
               bookings.push({
-                shiftId: id,
+                shiftId: shifts[shiftIndex].id,
                 repeatedId: repeatedId,
                 roleName: roleName,
                 volunteerId: volunteerId

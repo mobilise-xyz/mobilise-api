@@ -187,7 +187,7 @@ var ShiftController = function (
             .status(400)
             .json({message: "No role with name: " + req.body.roleName});
         } else {
-          return shiftRepository.getById(req.params.id, [REQUIREMENTS_WITH_BOOKINGS()]);
+          return shiftRepository.getById(req.params.id, [REQUIREMENTS_WITH_BOOKINGS(), REPEATED_SHIFT()]);
         }
       })
       .then(shift => {
@@ -416,6 +416,7 @@ module.exports = new ShiftController(
 );
 
 function repeatedTypeIsValid(type, startDate) {
+  console.log("HRERERR3");
   switch (type) {
     case "Weekdays":
       return !isWeekend(startDate);
@@ -424,7 +425,7 @@ function repeatedTypeIsValid(type, startDate) {
     default:
       break;
   }
-  return REPEATED_TYPES.prototype.hasOwnProperty.call(type);
+  return type in REPEATED_TYPES;
 }
 
 function sendEmail(emailClient, user, title, message) {
