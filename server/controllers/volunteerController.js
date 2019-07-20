@@ -197,7 +197,7 @@ var VolunteerController = function(volunteerRepository, shiftRepository) {
       .catch(error => res.status(500).json({message: error}));
   };
 
-  this.listShiftsByVolunteerId = function(req, res) {
+  this.listShiftsForVolunteer = function(req, res) {
     var volunteer;
     var after = req.query.after;
     var whereTrue = {};
@@ -219,33 +219,57 @@ var VolunteerController = function(volunteerRepository, shiftRepository) {
       })
       .then(bookings => {
         var shiftIds = bookings.map(booking => booking.shiftId);
-        if (req.query.booked) {
-          whereTrue["id"] = { [Op.in]: shiftIds };
-          return shiftRepository
-            .getAll(null, whereTrue, [
-              REQUIREMENTS_WITH_BOOKINGS(),
-              CREATOR(),
-              REPEATED_SHIFT()
-            ])
-            .then(shifts => {
-              var result = [];
-              shifts.forEach(s => {
-                var shift = s.toJSON();
-                var requirements = [];
-                shift.requirements.forEach(requirement => {
-                  requirement.bookings.forEach(booking => {
-                    if (booking.volunteerId === volunteer.userId) {
-                      requirements.push(requirement);
-                    }
-                  });
+        whereTrue["id"] = {[Op.in]: shiftIds};
+        return shiftRepository
+          .getAll(null, whereTrue, [
+            REQUIREMENTS_WITH_BOOKINGS(),
+            CREATOR(),
+            REPEATED_SHIFT()
+          ])
+          .then(shifts => {
+            var result = [];
+            shifts.forEach(s => {
+              var shift = s.toJSON();
+              var requirements = [];
+              shift.requirements.forEach(requirement => {
+                requirement.bookings.forEach(booking => {
+                  if (booking.volunteerId === volunteer.userId) {
+                    requirements.push(requirement);
+                  }
                 });
-                shift.requirements = requirements;
-                result.push(shift);
               });
-              return result;
+              shift.requirements = requirements;
+              result.push(shift);
             });
+            return result;
+          });
+      })
+      .then(shifts => res.status(200).json({message: "Success!", shifts}))
+      .catch(err => res.status(500).json({message: err}));
+  };
+
+  this.listAvailableShiftsForVolunteer = function(req, res) {
+    var volunteer;
+    var after = req.query.after;
+    var whereTrue = {};
+    if (after) {
+      var afterMoment = moment(after);
+      var date = afterMoment.format("YYYY-MM-DD");
+      var time = afterMoment.format("HH:mm");
+      whereTrue = SHIFT_AFTER(date, time);
+    }
+    volunteerRepository
+      .getById(req.params.id)
+      .then(vol => {
+        if (!vol) {
+          res.status(400).json({ message: "No volunteer with that id" });
+        } else {
+          volunteer = vol;
+          return bookingRepository.getByVolunteerId(vol.userId);
         }
-        console.log(whereTrue);
+      })
+      .then(bookings => {
+        var shiftIds = bookings.map(booking => booking.shiftId);
         whereTrue["id"] = { [Op.notIn]: shiftIds };
         return shiftRepository
           .getAll(null, whereTrue, [

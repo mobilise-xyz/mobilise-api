@@ -44,6 +44,7 @@ var ShiftController = function (
   roleRepository,
   bookingRepository
 ) {
+
   this.list = function (req, res) {
     var withVolunteers = req.user.isAdmin;
     var after = req.query.after;
@@ -61,7 +62,10 @@ var ShiftController = function (
         CREATOR(),
         REPEATED_SHIFT()
       ])
-      .then(shifts => res.status(200).json({message: "Success!", shifts}))
+      .then(shifts => {
+
+        res.status(200).json({message: "Success!", shifts})
+      })
       .catch(err => res.status(500).json({message: err}));
   };
 
