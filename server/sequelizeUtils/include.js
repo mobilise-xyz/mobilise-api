@@ -31,7 +31,7 @@ function VOLUNTEERS() {
   };
 }
 
-function SHIFTS_WITH_BOOKINGS(startDate, endDate, order) {
+function SHIFTS_WITH_REQUIREMENTS_WITH_BOOKINGS(startDate, endDate, order) {
   return {
     model: Shift,
     as: "shifts",
@@ -40,12 +40,28 @@ function SHIFTS_WITH_BOOKINGS(startDate, endDate, order) {
         [Op.between]: [startDate, endDate]
       }
     },
-    include: [
-      {
-        model: Booking,
-        as: "bookings"
-      }
-    ],
+    include: [{
+      model: ShiftRequirement,
+      as: "requirements",
+      attributes: ["numberRequired", "expectedShortage"],
+      include: [
+        {
+          model: Booking,
+          as: "bookings",
+          required: false,
+          where: sequelize.where(
+            sequelize.col("shifts->requirements.roleName"),
+            "=",
+            sequelize.col("shifts->requirements->bookings.roleName")
+          )
+        },
+        {
+          model: Role,
+          as: "role",
+          attributes: ["name", "involves", "colour"]
+        }
+      ]
+    }],
     order: order
   };
 }
@@ -131,10 +147,9 @@ function CONTACT_PREFERENCES() {
 }
 
 module.exports = {
-  VOLUNTEER,
   VOLUNTEERS,
   REQUIREMENTS_WITH_BOOKINGS,
-  SHIFTS_WITH_BOOKINGS,
+  SHIFTS_WITH_REQUIREMENTS_WITH_BOOKINGS,
   CREATOR,
   REPEATED_SHIFT,
   USER,

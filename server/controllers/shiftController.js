@@ -4,6 +4,8 @@ const bookingRepository = require("../repositories").BookingRepository;
 const volunteerRepository = require("../repositories").VolunteerRepository;
 const adminRepository = require("../repositories").AdminRepository;
 const moment = require("moment");
+const sequelize = require("sequelize");
+const {getNextDate} = require("../utils/date");
 const isWeekend = require("../utils/date").isWeekend;
 const {
   volunteerIsAvailableForShift,
@@ -11,6 +13,7 @@ const {
 } = require("../utils/availability");
 const {
   REQUIREMENTS_WITH_BOOKINGS,
+  SHIFTS_WITH_REQUIREMENTS_WITH_BOOKINGS,
   CREATOR,
   REPEATED_SHIFT,
   VOLUNTEERS
@@ -170,26 +173,7 @@ var ShiftController = function (
       return;
     }
 
-    bookingRepository
-      .getById(req.params.id, req.user.id)
-      .then(booking => {
-        if (booking) {
-          res.status(400).json({
-            message: "Booking already exists for this shift and volunteer"
-          });
-        } else {
-          return roleRepository.getByName(req.body.roleName);
-        }
-      })
-      .then(role => {
-        if (!role) {
-          res
-            .status(400)
-            .json({message: "No role with name: " + req.body.roleName});
-        } else {
-          return shiftRepository.getById(req.params.id, [REQUIREMENTS_WITH_BOOKINGS(), REPEATED_SHIFT()]);
-        }
-      })
+    shiftRepository.getById(req.params.id, [REQUIREMENTS_WITH_BOOKINGS(), REPEATED_SHIFT()])
       .then(shift => {
         if (!shift) {
           res
@@ -201,6 +185,12 @@ var ShiftController = function (
           res
             .status(400)
             .json({message: "Shift for that role is full!" + req.params.id});
+          return;
+        }
+        if (volunteerBookedOnShift(shift, req.body.roleName)) {
+          res
+            .status(400)
+            .json({message: "You have already booked this shift!" + req.params.id});
           return;
         }
         if (!req.body.repeatedType || req.body.repeatedType === "Never") {
@@ -222,14 +212,55 @@ var ShiftController = function (
             .json({message: "Repeated type incompatible with shift"});
           return;
         }
-        // Book repeated shifts
-        return bookingRepository.addRepeated(
-          shift,
-          req.user.id,
-          req.body.roleName,
-          req.body.repeatedType,
-          req.body.untilDate
-        );
+
+        return shiftRepository.getRepeatedById(shift.repeated.id, [SHIFTS_WITH_REQUIREMENTS_WITH_BOOKINGS(shift.date, req.body.untilDate,
+          [sequelize.literal("date, start"), "asc"])])
+          .then(shifts => {
+            return bookingRepository.createRepeatedId(req.body.repeatedType, req.body.untilDate)
+              .then(repeated => {
+                var bookings = [];
+                var lastDate = moment(req.body.untilDate, "YYYY-MM-DD");
+                var shiftIndex = 0;
+                while (
+                  (startDate.isBefore(lastDate) || startDate.isSame(lastDate)) &&
+                  shiftIndex !== shifts.length
+                  ) {
+                  // Find the next booking for this repeated shift
+                  var nextShiftDate = moment(shifts[shiftIndex].date, "YYYY-MM-DD");
+
+                  while (startDate.isBefore(nextShiftDate)) {
+                    // Increment with respect to the next
+                    startDate = getNextDate(startDate, req.body.repeatedType);
+                  }
+                  // If the booking increment is larger than shift increment
+                  // then get the shift that is either after or the same as the
+                  // booking
+                  while (
+                    shiftIndex !== shifts.length - 1 &&
+                    startDate.isAfter(nextShiftDate)
+                    ) {
+                    shiftIndex += 1;
+                    nextShiftDate = moment(shifts[shiftIndex].date, "YYYY-MM-DD");
+                  }
+
+                  if (startDate.isSame(nextShiftDate)) {
+                    const shift = shifts[shiftIndex];
+                    if (!shiftRequirementIsFull(shift, req.body.roleName)
+                      && !volunteerBookedOnShift({userId: req.user.id}, shift)) {
+                      bookings.push({
+                        shiftId: shift.id,
+                        repeatedId: repeated.id,
+                        roleName: req.body.roleName,
+                        volunteerId: req.user.id
+                      });
+                    }
+                  }
+                  // Consider next shift
+                  shiftIndex += 1;
+                }
+                return bookingRepository.addRepeated(bookings);
+              });
+          });
       })
       .then(booking => {
         res
@@ -416,7 +447,6 @@ module.exports = new ShiftController(
 );
 
 function repeatedTypeIsValid(type, startDate) {
-  console.log("HRERERR3");
   switch (type) {
     case "Weekdays":
       return !isWeekend(startDate);
