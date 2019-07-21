@@ -194,7 +194,12 @@ var ShiftController = function (
           return;
         }
         if (!req.body.repeatedType || req.body.repeatedType === "Never") {
-          return bookingRepository.add(shift, req.user.id, req.body.roleName);
+          return bookingRepository.add(shift, req.user.id, req.body.roleName)
+            .then(booking => {
+              res
+                .status(200)
+                .json({message: "Successfully created booking", booking: booking});
+            })
         }
         var startDate = moment(shift.date, "YYYY-MM-DD");
 
@@ -221,10 +226,7 @@ var ShiftController = function (
                 var bookings = [];
                 var lastDate = moment(req.body.untilDate, "YYYY-MM-DD");
                 var shiftIndex = 0;
-                while (
-                  (startDate.isBefore(lastDate) || startDate.isSame(lastDate)) &&
-                  shiftIndex !== shifts.length
-                  ) {
+                do  {
                   // Find the next booking for this repeated shift
                   var nextShiftDate = moment(shifts[shiftIndex].date, "YYYY-MM-DD");
 
@@ -257,15 +259,13 @@ var ShiftController = function (
                   }
                   // Consider next shift
                   shiftIndex += 1;
-                }
+                } while (
+                  (startDate.isBefore(lastDate) || startDate.isSame(lastDate)) &&
+                  shiftIndex !== shifts.length
+                  );
                 return bookingRepository.addRepeated(bookings);
               });
           });
-      })
-      .then(booking => {
-        res
-          .status(200)
-          .json({message: "Successfully created booking", booking: booking});
       })
       .catch(err => {
         res.status(500).send(err);
