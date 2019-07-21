@@ -187,7 +187,7 @@ var ShiftController = function (
             .json({message: "Shift for that role is full!" + req.params.id});
           return;
         }
-        if (volunteerBookedOnShift(shift, req.body.roleName)) {
+        if (volunteerBookedOnShift({userId: req.user.id}, shift)) {
           res
             .status(400)
             .json({message: "You have already booked this shift!" + req.params.id});
@@ -218,13 +218,20 @@ var ShiftController = function (
           return;
         }
 
+        var lastDate = moment(req.body.untilDate, "YYYY-MM-DD");
+
+        if (lastDate.isBefore(startDate)) {
+          res.status(400)
+            .json({message: "untilDate is before the shift date"});
+          return;
+        }
+
         return shiftRepository.getRepeatedById(shift.repeated.id, [SHIFTS_WITH_REQUIREMENTS_WITH_BOOKINGS(shift.date, req.body.untilDate,
           [sequelize.literal("date, start"), "asc"])])
           .then(shifts => {
             return bookingRepository.createRepeatedId(req.body.repeatedType, req.body.untilDate)
               .then(repeated => {
                 var bookings = [];
-                var lastDate = moment(req.body.untilDate, "YYYY-MM-DD");
                 var shiftIndex = 0;
                 do  {
                   // Find the next booking for this repeated shift
@@ -265,7 +272,15 @@ var ShiftController = function (
                   );
                 return bookingRepository.addRepeated(bookings);
               });
-          });
+;          })
+          .then(bookings => {
+            res
+              .status(200)
+              .json({
+                message: "Successfully created repeated booking",
+                lastBooking: bookings[bookings.length - 1],
+                bookingsMade: bookings.length});
+          })
       })
       .catch(err => {
         res.status(500).send(err);
