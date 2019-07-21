@@ -272,7 +272,7 @@ var ShiftController = function (
                   );
                 return bookingRepository.addRepeated(bookings);
               });
-;          })
+           })
           .then(bookings => {
             res
               .status(200)
@@ -421,8 +421,8 @@ var ShiftController = function (
     if (!type || type === "Never") {
       shiftRepository
         .add(req.body, req.user.id, rolesRequired)
-        .then(result => {
-          res.status(201).send(result);
+        .then(shift => {
+          res.status(201).send({message: "Success! Created shift!", shift});
         })
         .catch(err => res.status(500).json({message: err}));
     } else {
