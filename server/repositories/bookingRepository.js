@@ -1,10 +1,7 @@
-const {Booking, RepeatedShift, RepeatedBooking} = require("../models");
+const {Booking, RepeatedBooking} = require("../models");
 const Q = require("q");
-const {getNextDate} = require("../utils/date");
-const sequelize = require("sequelize");
-const moment = require("moment");
 const BookingRepositoryInterface = require("./interfaces/bookingRepositoryInterface");
-const { SHIFT, SHIFTS_WITH_BOOKINGS } = require("../sequelizeUtils/include");
+const { SHIFT } = require("../sequelizeUtils/include");
 
 var BookingRepository = Object.create(BookingRepositoryInterface);
 
@@ -21,94 +18,27 @@ BookingRepository.add = function(shift, volunteerId, roleName) {
   return deferred.promise;
 };
 
-BookingRepository.addRepeated = async function(
-  shift,
-  volunteerId,
-  roleName,
-  type,
-  untilDate
-) {
+BookingRepository.createRepeatedId = function(type, untilDate) {
   var deferred = Q.defer();
-  var repeatedId;
-  var successful = true;
-  await RepeatedBooking.create({
+
+  RepeatedBooking.create({
     type: type,
     untilDate: untilDate
   })
-    .then(result => (repeatedId = result.id))
-    .catch(err => {
-      successful = false;
-      deferred.reject(err);
-    });
-  if (successful) {
-    // Create repeated booking
-    RepeatedShift.findOne({
-      where: { id: shift.repeatedId },
-      include: [
-        SHIFTS_WITH_BOOKINGS(shift.date, untilDate, [
-          [sequelize.literal("date, start"), "asc"]
-        ])
-      ]
-    })
-      .then(result => {
-        console.log(result);
-        var bookings = [];
-        var shifts = result.shifts;
-        var startDate = moment(shift.date, "YYYY-MM-DD");
-        var lastDate = moment(untilDate, "YYYY-MM-DD");
-        var shiftIndex = 0;
-        while (
-          (startDate.isBefore(lastDate) || startDate.isSame(lastDate)) &&
-          shiftIndex !== shifts.length
-        ) {
-          // Find the next booking for this repeated shift
-          var nextShiftDate = moment(shifts[shiftIndex].date, "YYYY-MM-DD");
+    .then(repeated => deferred.resolve(repeated))
+    .catch(err => deferred.reject(err));
 
-          while (startDate.isBefore(nextShiftDate)) {
-            // Increment with respect to the next
-            startDate = getNextDate(startDate, type);
-          }
-          // If the booking increment is larger than shift increment
-          // then get the shift that is either after or the same as the
-          // booking
-          while (
-            shiftIndex !== shifts.length - 1 &&
-            startDate.isAfter(nextShiftDate)
-          ) {
-            shiftIndex += 1;
-            nextShiftDate = moment(shifts[shiftIndex].date, "YYYY-MM-DD");
-          }
+  return deferred.promise;
+};
 
-          if (startDate.isSame(nextShiftDate)) {
-            var currentBookings = shifts[shiftIndex].bookings;
-            var alreadyBooked = false;
-            currentBookings.forEach(booking => {
-              if (booking.volunteerId === volunteerId) {
-                alreadyBooked = true;
-              }
-            });
-            if (!alreadyBooked) {
-              bookings.push({
-                shiftId: shifts[shiftIndex].id,
-                repeatedId: repeatedId,
-                roleName: roleName,
-                volunteerId: volunteerId
-              });
-            }
-          }
-          // Consider next shift
-          shiftIndex += 1;
-        }
-        return Booking.bulkCreate(bookings);
-      })
-      .then(bookings =>
-        deferred.resolve({
-          message: "Created recurring booking",
-          lastBooking: bookings[bookings.length - 1]
-        })
-      )
-      .catch(err => deferred.reject(err));
-  }
+
+BookingRepository.addRepeated = async function(
+  bookings
+) {
+  var deferred = Q.defer();
+  Booking.bulkCreate(bookings)
+    .then(bookings => deferred.resolve(bookings))
+    .catch(err => deferred.reject(err));
   return deferred.promise;
 };
 

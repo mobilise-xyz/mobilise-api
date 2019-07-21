@@ -173,6 +173,17 @@ ShiftRepository.getById = function(id, include) {
   return deferred.promise;
 };
 
+ShiftRepository.getRepeatedById = function(id, include) {
+  var deferred = Q.defer();
+  RepeatedShift.findOne({
+    where: {id: id},
+    include: include
+  })
+    .then(result => deferred.resolve(result.shifts))
+    .catch(err => deferred.reject(err));
+  return deferred.promise;
+};
+
 ShiftRepository.removeById = function(id) {
   var deferred = Q.defer();
 
