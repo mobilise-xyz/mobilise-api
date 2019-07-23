@@ -23,6 +23,7 @@ const nodemailer = require("nodemailer");
 const Nexmo = require("nexmo");
 
 const APP_LINK = "https://city-harvest.mobilise.xyz";
+const ITEMS_PER_PAGE = 20;
 
 const REPEATED_TYPES = {
   Never: ["Never"],
@@ -58,16 +59,21 @@ var ShiftController = function (
       var time = afterMoment.format("HH:mm");
       whereTrue = SHIFT_AFTER(date, time);
     }
+    const page = req.query.page;
 
     shiftRepository
       .getAll(null, whereTrue, [
         REQUIREMENTS_WITH_BOOKINGS(withVolunteers),
         CREATOR(),
         REPEATED_SHIFT()
-      ])
+      ], ITEMS_PER_PAGE, (page - 1) * ITEMS_PER_PAGE)
       .then(shifts => {
-
-        res.status(200).json({message: "Success!", shifts})
+        const itemCount = shifts.length;
+        res.status(200).json({
+          message: "Success!",
+          shifts,
+          itemCount
+        })
       })
       .catch(err => res.status(500).json({message: err}));
   };

@@ -144,12 +144,14 @@ ShiftRepository.addAll = function(shifts, rolesRequired) {
   return deferred.promise;
 };
 
-ShiftRepository.getAll = function(attributes, whereTrue, include) {
+ShiftRepository.getAll = function(attributes, whereTrue, include, limit=null, offset=0) {
   var deferred = Q.defer();
   Shift.findAll({
     attributes: attributes,
     where: whereTrue,
     include: include,
+    limit: limit,
+    offset: offset,
     order: [[sequelize.literal("date, start"), "asc"]]
   })
     .then(shifts => {
