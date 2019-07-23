@@ -23,7 +23,7 @@ const nodemailer = require("nodemailer");
 const Nexmo = require("nexmo");
 
 const APP_LINK = "https://city-harvest.mobilise.xyz";
-const ITEMS_PER_PAGE = 20;
+const ITEMS_PER_PAGE = 5;
 
 const REPEATED_TYPES = {
   Never: ["Never"],
@@ -59,7 +59,7 @@ var ShiftController = function (
       var time = afterMoment.format("HH:mm");
       whereTrue = SHIFT_AFTER(date, time);
     }
-    const page = req.query.page;
+    const page = req.query.page ? req.query.page : 1;
 
     shiftRepository
       .getAll(null, whereTrue, [
