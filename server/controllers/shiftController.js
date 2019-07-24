@@ -57,7 +57,7 @@ function getDateRange(before, after) {
     let beforeDate = beforeMoment.format("YYYY-MM-DD");
     let beforeTime = beforeMoment.format("HH:mm");
     whereTrue = SHIFT_BEFORE(beforeDate, beforeTime);
-  } else {
+  } else if (after) {
     const afterDate = afterMoment.format("YYYY-MM-DD");
     const afterTime = afterMoment.format("HH:mm");
     whereTrue = SHIFT_AFTER(afterDate, afterTime);
