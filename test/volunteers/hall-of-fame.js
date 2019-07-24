@@ -1,6 +1,6 @@
-var request = require("supertest");
-var app = require("../../app");
-var { describe, it } = require("mocha");
+let request = require("supertest");
+let app = require("../../app");
+let { describe, it } = require("mocha");
 const Seeded = require('../../server/utils/seeded');
 
 describe("Volunteers' Hall of Fame", function() {

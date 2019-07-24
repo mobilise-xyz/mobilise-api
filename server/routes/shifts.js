@@ -1,6 +1,6 @@
-var express = require("express");
-var router = express.Router();
-var controller = require("../controllers").ShiftController;
+let express = require("express");
+let router = express.Router();
+let controller = require("../controllers").ShiftController;
 
 /* Create a new shift. */
 router.post("/", controller.create);

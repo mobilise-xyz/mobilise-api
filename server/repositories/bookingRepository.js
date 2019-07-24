@@ -3,10 +3,10 @@ const Q = require("q");
 const BookingRepositoryInterface = require("./interfaces/bookingRepositoryInterface");
 const { SHIFT } = require("../sequelizeUtils/include");
 
-var BookingRepository = Object.create(BookingRepositoryInterface);
+let BookingRepository = Object.create(BookingRepositoryInterface);
 
 BookingRepository.add = function(shift, volunteerId, roleName) {
-  var deferred = Q.defer();
+  let deferred = Q.defer();
   Booking.create({
     shiftId: shift.id,
     volunteerId: volunteerId,
@@ -19,7 +19,7 @@ BookingRepository.add = function(shift, volunteerId, roleName) {
 };
 
 BookingRepository.createRepeatedId = function(type, untilDate) {
-  var deferred = Q.defer();
+  let deferred = Q.defer();
 
   RepeatedBooking.create({
     type: type,
@@ -35,7 +35,7 @@ BookingRepository.createRepeatedId = function(type, untilDate) {
 BookingRepository.addRepeated = async function(
   bookings
 ) {
-  var deferred = Q.defer();
+  let deferred = Q.defer();
   Booking.bulkCreate(bookings)
     .then(bookings => deferred.resolve(bookings))
     .catch(err => deferred.reject(err));
@@ -43,7 +43,7 @@ BookingRepository.addRepeated = async function(
 };
 
 BookingRepository.getAll = function() {
-  var deferred = Q.defer();
+  let deferred = Q.defer();
 
   Booking.findAll()
     .then(bookings => deferred.resolve(bookings))
@@ -53,7 +53,7 @@ BookingRepository.getAll = function() {
 };
 
 BookingRepository.getAllWithShifts = function() {
-  var deferred = Q.defer();
+  let deferred = Q.defer();
 
   Booking.findAll({ include: [SHIFT()] })
     .then(bookings => deferred.resolve(bookings))
@@ -63,7 +63,7 @@ BookingRepository.getAllWithShifts = function() {
 };
 
 BookingRepository.getByVolunteerId = function(volunteerId, whereShift) {
-  var deferred = Q.defer();
+  let deferred = Q.defer();
   Booking.findAll({
     where: {
       volunteerId: volunteerId
@@ -77,7 +77,7 @@ BookingRepository.getByVolunteerId = function(volunteerId, whereShift) {
 };
 
 BookingRepository.delete = function(shiftId, volunteerId) {
-  var deferred = Q.defer();
+  let deferred = Q.defer();
 
   Booking.destroy({
     where: {
@@ -92,7 +92,7 @@ BookingRepository.delete = function(shiftId, volunteerId) {
 };
 
 BookingRepository.getById = function(shiftId, volunteerId) {
-  var deferred = Q.defer();
+  let deferred = Q.defer();
 
   Booking.findOne({
     where: {

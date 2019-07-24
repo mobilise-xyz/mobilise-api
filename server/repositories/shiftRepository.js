@@ -6,11 +6,11 @@ const sequelize = require("sequelize");
 const moment = require("moment");
 const ShiftRepositoryInterface = require("./interfaces/shiftRepositoryInterface");
 
-var ShiftRepository = Object.create(ShiftRepositoryInterface);
+let ShiftRepository = Object.create(ShiftRepositoryInterface);
 
 ShiftRepository.add = async function(shift, creatorId, rolesRequired) {
-  var deferred = Q.defer();
-  var createdShift;
+  let deferred = Q.defer();
+  let createdShift;
   if (!rolesRequired) {
     rolesRequired = [];
   }
@@ -25,7 +25,7 @@ ShiftRepository.add = async function(shift, creatorId, rolesRequired) {
   })
     .then(async shift => {
       createdShift = shift;
-      var shiftRequirements = [];
+      let shiftRequirements = [];
       // Add the roles to shift
       rolesRequired.forEach(roleRequired => {
         shiftRequirements.push({
@@ -50,9 +50,9 @@ ShiftRepository.addRepeated = async function(
     rolesRequired,
     type
   ) {
-    var deferred = Q.defer();
-    var repeatedId;
-    var successful = true;
+    let deferred = Q.defer();
+    let repeatedId;
+    let successful = true;
     await RepeatedShift.create({
       type: type,
       untilDate: shift.untilDate
@@ -66,13 +66,13 @@ ShiftRepository.addRepeated = async function(
       return deferred.promise;
     }
     // Create repeated shift
-    var shifts = [];
-    var startDate = moment(shift.date, "YYYY-MM-DD");
-    var untilDate = moment(shift.untilDate, "YYYY-MM-DD");
+    let shifts = [];
+    let startDate = moment(shift.date, "YYYY-MM-DD");
+    let untilDate = moment(shift.untilDate, "YYYY-MM-DD");
     shift["creatorId"] = creatorId;
     shift["repeatedId"] = repeatedId;
     while (startDate.isBefore(untilDate) || startDate.isSame(untilDate)) {
-      var newShift = JSON.parse(JSON.stringify(shift));
+      let newShift = JSON.parse(JSON.stringify(shift));
       newShift["date"] = startDate.format("YYYY-MM-DD");
       shifts.push(newShift);
       startDate = getNextDate(startDate, type);
@@ -89,12 +89,12 @@ ShiftRepository.addRepeated = async function(
 };
 
 ShiftRepository.updateRoles = function(shift, rolesRequired) {
-  var deferred = Q.defer();
+  let deferred = Q.defer();
   ShiftRequirement.destroy({
     where: { shiftId: shift.id }
   })
     .then(() => {
-      var shiftRequirements = [];
+      let shiftRequirements = [];
       // Add the roles to shift
       rolesRequired.forEach(roleRequired => {
         shiftRequirements.push({
@@ -112,7 +112,7 @@ ShiftRepository.updateRoles = function(shift, rolesRequired) {
 };
 
 ShiftRepository.update = function(shift, body) {
-  var deferred = Q.defer();
+  let deferred = Q.defer();
   Shift.update(body, { where: { id: shift.id } })
     .then(result => deferred.resolve(result))
     .catch(error => deferred.reject(error));
@@ -120,12 +120,12 @@ ShiftRepository.update = function(shift, body) {
 };
 
 ShiftRepository.addAll = function(shifts, rolesRequired) {
-  var deferred = Q.defer();
-  var allShifts;
+  let deferred = Q.defer();
+  let allShifts;
   Shift.bulkCreate(shifts)
     .then(shifts => {
       allShifts = shifts;
-      var shiftRequirements = [];
+      let shiftRequirements = [];
       shifts.forEach(shift => {
         rolesRequired.forEach(roleRequired => {
           shiftRequirements.push({
@@ -145,7 +145,7 @@ ShiftRepository.addAll = function(shifts, rolesRequired) {
 };
 
 ShiftRepository.getAll = function(attributes, whereTrue, include, limit=null, offset=0) {
-  var deferred = Q.defer();
+  let deferred = Q.defer();
   Shift.findAll({
     attributes: attributes,
     where: whereTrue,
@@ -163,7 +163,7 @@ ShiftRepository.getAll = function(attributes, whereTrue, include, limit=null, of
 };
 
 ShiftRepository.getById = function(id, include) {
-  var deferred = Q.defer();
+  let deferred = Q.defer();
 
   Shift.findOne({
     where: { id: id },
@@ -176,7 +176,7 @@ ShiftRepository.getById = function(id, include) {
 };
 
 ShiftRepository.getRepeatedById = function(id, include) {
-  var deferred = Q.defer();
+  let deferred = Q.defer();
   RepeatedShift.findOne({
     where: {id: id},
     include: include
@@ -187,7 +187,7 @@ ShiftRepository.getRepeatedById = function(id, include) {
 };
 
 ShiftRepository.removeById = function(id) {
-  var deferred = Q.defer();
+  let deferred = Q.defer();
 
   Shift.destroy({ where: { id: id } })
     .then(shift => deferred.resolve(shift))

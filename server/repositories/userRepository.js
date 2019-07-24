@@ -3,10 +3,10 @@ const Q = require("q");
 const UserRepositoryInterface = require("./interfaces/userRepositoryInterface");
 const { CONTACT_PREFERENCES } = require("../sequelizeUtils/include");
 
-var UserRepository = Object.create(UserRepositoryInterface);
+let UserRepository = Object.create(UserRepositoryInterface);
 
 UserRepository.add = function(user, hash, phone) {
-  var deferred = Q.defer();
+  let deferred = Q.defer();
 
   User.create({
     firstName: user.firstName,
@@ -24,7 +24,7 @@ UserRepository.add = function(user, hash, phone) {
 };
 
 UserRepository.getByEmail = function(email) {
-  var deferred = Q.defer();
+  let deferred = Q.defer();
 
   User.findOne({ where: { email: email }, include: [CONTACT_PREFERENCES()] })
     .then(user => deferred.resolve(user))
@@ -34,7 +34,7 @@ UserRepository.getByEmail = function(email) {
 };
 
 UserRepository.getById = function(id) {
-  var deferred = Q.defer();
+  let deferred = Q.defer();
 
   User.findOne({ where: { id: id }, include: [CONTACT_PREFERENCES()] })
     .then(user => deferred.resolve(user))
@@ -44,7 +44,7 @@ UserRepository.getById = function(id) {
 };
 
 UserRepository.update = function(user, body) {
-  var deferred = Q.defer();
+  let deferred = Q.defer();
 
   User.update(body, { where: { id: user.id } })
     .then(user => deferred.resolve(user))

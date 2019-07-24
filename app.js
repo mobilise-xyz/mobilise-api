@@ -1,10 +1,10 @@
-var createError = require("http-errors");
-var express = require("express");
-var cors = require("cors");
-var path = require("path");
-var cookieParser = require("cookie-parser");
-var boolParser = require("express-query-boolean");
-var logger = require("morgan");
+let createError = require("http-errors");
+let express = require("express");
+let cors = require("cors");
+let path = require("path");
+let cookieParser = require("cookie-parser");
+let boolParser = require("express-query-boolean");
+let logger = require("morgan");
 const passport = require("passport");
 
 if (process.env.NODE_ENV !== "production" && process.env.NODE_ENV !== "test") {
@@ -13,19 +13,19 @@ if (process.env.NODE_ENV !== "production" && process.env.NODE_ENV !== "test") {
 
 require("./passport");
 
-var app = express();
+let app = express();
 
 app.use(cors());
 
-var indexRouter = require("./server/routes/index");
-var usersRouter = require("./server/routes/users");
-var shiftsRouter = require("./server/routes/shifts");
-var rolesRouter = require("./server/routes/roles");
-var authRouter = require("./server/routes/auth");
-var volunteersRouter = require("./server/routes/volunteers");
-var metricRouter = require("./server/routes/metric");
-var statsRouter = require("./server/routes/stats");
-var predictionRouter = require("./server/routes/prediction");
+let indexRouter = require("./server/routes/index");
+let usersRouter = require("./server/routes/users");
+let shiftsRouter = require("./server/routes/shifts");
+let rolesRouter = require("./server/routes/roles");
+let authRouter = require("./server/routes/auth");
+let volunteersRouter = require("./server/routes/volunteers");
+let metricRouter = require("./server/routes/metric");
+let statsRouter = require("./server/routes/stats");
+let predictionRouter = require("./server/routes/prediction");
 
 // view engine setup
 app.set("views", path.join(__dirname, "views"));

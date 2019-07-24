@@ -2,10 +2,10 @@ const {Volunteer} = require("../models");
 const Q = require("q");
 const VolunteerRepositoryInterface = require("./interfaces/volunteerRepositoryInterface");
 const { USER, SHIFTS } = require("../sequelizeUtils/include");
-var VolunteerRepository = Object.create(VolunteerRepositoryInterface);
+let VolunteerRepository = Object.create(VolunteerRepositoryInterface);
 
 VolunteerRepository.add = function(volunteer) {
-  var deferred = Q.defer();
+  let deferred = Q.defer();
 
   Volunteer.create({
     userId: volunteer.userId
@@ -17,7 +17,7 @@ VolunteerRepository.add = function(volunteer) {
 };
 
 VolunteerRepository.getTotalHoursFromLastWeek = function() {
-  var deferred = Q.defer();
+  let deferred = Q.defer();
 
   Volunteer.sum("lastWeekHours")
     .then(hours => deferred.resolve(hours))
@@ -27,7 +27,7 @@ VolunteerRepository.getTotalHoursFromLastWeek = function() {
 };
 
 VolunteerRepository.getTop = function(orderBy, limit) {
-  var deferred = Q.defer();
+  let deferred = Q.defer();
 
   Volunteer.findAll({
     include: [USER()],
@@ -41,7 +41,7 @@ VolunteerRepository.getTop = function(orderBy, limit) {
 };
 
 VolunteerRepository.getAll = function(whereTrue) {
-  var deferred = Q.defer();
+  let deferred = Q.defer();
 
   Volunteer.findAll({
     where: whereTrue,
@@ -54,7 +54,7 @@ VolunteerRepository.getAll = function(whereTrue) {
 };
 
 VolunteerRepository.getAllWithShifts = function(whereShift) {
-  var deferred = Q.defer();
+  let deferred = Q.defer();
 
   Volunteer.findAll({
     include: [SHIFTS(false, whereShift)]
@@ -66,7 +66,7 @@ VolunteerRepository.getAllWithShifts = function(whereShift) {
 };
 
 VolunteerRepository.getById = function(id) {
-  var deferred = Q.defer();
+  let deferred = Q.defer();
 
   Volunteer.findOne({
     where: { userId: id },
@@ -79,7 +79,7 @@ VolunteerRepository.getById = function(id) {
 };
 
 VolunteerRepository.update = function(volunteer, body) {
-  var deferred = Q.defer();
+  let deferred = Q.defer();
   Volunteer.update(body, { where: { userId: volunteer.userId } })
     .then(result => deferred.resolve(result))
     .catch(error => deferred.reject(error));
@@ -87,7 +87,7 @@ VolunteerRepository.update = function(volunteer, body) {
 };
 
 VolunteerRepository.updateAvailability = function(id, availability) {
-  var deferred = Q.defer();
+  let deferred = Q.defer();
 
   Volunteer.update({ availability: availability }, { where: { userId: id } })
     .then(result => deferred.resolve(result))
@@ -97,7 +97,7 @@ VolunteerRepository.updateAvailability = function(id, availability) {
 };
 
 VolunteerRepository.getAvailability = function(id) {
-  var deferred = Q.defer();
+  let deferred = Q.defer();
 
   Volunteer.findOne({ where: { userId: id } })
     .then(volunteer => deferred.resolve(volunteer.availability))

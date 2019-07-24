@@ -2,12 +2,12 @@ const {UserContactPreference} = require("../models");
 const Q = require("q");
 const UserContactPreferenceRepositoryInterface = require("./interfaces/userContactPreferenceRepositoryInterface");
 
-var UserContactPreferenceRepository = Object.create(
+let UserContactPreferenceRepository = Object.create(
   UserContactPreferenceRepositoryInterface
 );
 
 UserContactPreferenceRepository.add = function(userId, contactPreferences) {
-  var deferred = Q.defer();
+  let deferred = Q.defer();
 
   UserContactPreference.create({
     userId: userId,
@@ -21,7 +21,7 @@ UserContactPreferenceRepository.add = function(userId, contactPreferences) {
 };
 
 UserContactPreferenceRepository.getById = function(userId) {
-  var deferred = Q.defer();
+  let deferred = Q.defer();
 
   UserContactPreference.findOne({ where: { userId: userId } })
     .then(contactPreferences => deferred.resolve(contactPreferences))
@@ -31,7 +31,7 @@ UserContactPreferenceRepository.getById = function(userId) {
 };
 
 UserContactPreferenceRepository.update = function(userId, contactPreferences) {
-  var deferred = Q.defer();
+  let deferred = Q.defer();
 
   UserContactPreference.update(
     {

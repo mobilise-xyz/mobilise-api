@@ -1,5 +1,5 @@
 'use strict';
-var bcrypt = require('bcryptjs');
+let bcrypt = require('bcryptjs');
 
 const Seeded = require('../utils/seeded');
 

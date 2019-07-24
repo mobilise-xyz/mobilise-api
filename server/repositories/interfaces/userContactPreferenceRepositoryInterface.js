@@ -1,5 +1,5 @@
 /* eslint-disable no-unused-vars */
-var UserContactPreference = {
+let UserContactPreference = {
   add: function(userId, contactPreferences) {},
   getById: function(userId) {},
   update: function(userId, contactPreferences) {}

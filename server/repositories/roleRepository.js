@@ -3,7 +3,7 @@ const Q = require("q");
 
 const RoleRepositoryInterface = require("./interfaces/roleRepositoryInterface");
 
-var RoleRepository = Object.create(RoleRepositoryInterface);
+let RoleRepository = Object.create(RoleRepositoryInterface);
 
 RoleRepository.add = function(role) {
   const deferred = Q.defer();
@@ -20,7 +20,7 @@ RoleRepository.add = function(role) {
 };
 
 RoleRepository.getByName = function(name) {
-  var deferred = Q.defer();
+  let deferred = Q.defer();
 
   Role.findOne({ where: { name: name } })
     .then(role => deferred.resolve(role))
@@ -30,7 +30,7 @@ RoleRepository.getByName = function(name) {
 };
 
 RoleRepository.getAll = function() {
-  var deferred = Q.defer();
+  let deferred = Q.defer();
 
   Role.findAll()
     .then(roles => deferred.resolve(roles))
@@ -40,7 +40,7 @@ RoleRepository.getAll = function() {
 };
 
 RoleRepository.removeByName = function(name) {
-  var deferred = Q.defer();
+  let deferred = Q.defer();
 
   Role.destroy({ where: { name: name } })
     .then(role => deferred.resolve(role))

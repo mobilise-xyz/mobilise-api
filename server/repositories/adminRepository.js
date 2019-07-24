@@ -2,10 +2,10 @@ const {Admin} = require("../models");
 const Q = require("q");
 const AdminRepositoryInterface = require("./interfaces/adminRepositoryInterface");
 const { USER } = require("../sequelizeUtils/include");
-var AdminRepository = Object.create(AdminRepositoryInterface);
+let AdminRepository = Object.create(AdminRepositoryInterface);
 
 AdminRepository.add = function(admin) {
-  var deferred = Q.defer();
+  let deferred = Q.defer();
 
   Admin.create({
     userId: admin.userId
@@ -17,7 +17,7 @@ AdminRepository.add = function(admin) {
 };
 
 AdminRepository.getById = function(id) {
-  var deferred = Q.defer();
+  let deferred = Q.defer();
   Admin.findOne({
     where: {
       userId: id

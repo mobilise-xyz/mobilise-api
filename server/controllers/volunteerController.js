@@ -13,7 +13,7 @@ const {
 const { SHIFT_BEFORE, SHIFT_AFTER } = require("../sequelizeUtils/where");
 const EXPECTED_SHORTAGE_THRESHOLD = 2;
 
-var VolunteerController = function(volunteerRepository, shiftRepository) {
+let VolunteerController = function(volunteerRepository, shiftRepository) {
   this.list = function(req, res) {
     // Restrict access to admin
     if (!req.user.isAdmin) {
@@ -35,7 +35,7 @@ var VolunteerController = function(volunteerRepository, shiftRepository) {
       res.status(401).send({ message: "You can only view your own stats." });
       return;
     }
-    var volunteer;
+    let volunteer;
 
     volunteerRepository
       .getById(req.user.id)
@@ -54,18 +54,18 @@ var VolunteerController = function(volunteerRepository, shiftRepository) {
         }
       })
       .then(bookings => {
-        var contributions = {};
-        var hours = 0;
-        var shiftsCompleted = bookings.length;
+        let contributions = {};
+        let hours = 0;
+        let shiftsCompleted = bookings.length;
         bookings.forEach(booking => {
-          var shift = booking.shift;
-          var startTime = moment(shift.start, "HH:mm");
-          var stopTime = moment(shift.stop, "HH:mm");
-          var duration = moment.duration(stopTime.diff(startTime));
+          let shift = booking.shift;
+          let startTime = moment(shift.start, "HH:mm");
+          let stopTime = moment(shift.stop, "HH:mm");
+          let duration = moment.duration(stopTime.diff(startTime));
           hours += duration.asHours();
         });
-        var metricStat;
-        var totalHoursFromLastWeek;
+        let metricStat;
+        let totalHoursFromLastWeek;
         contributions["shiftsCompleted"] = shiftsCompleted;
         contributions["hours"] = roundIfNotInteger(hours, 1);
         metricRepository
@@ -117,16 +117,16 @@ var VolunteerController = function(volunteerRepository, shiftRepository) {
   };
 
   this.getHallOfFame = async function(req, res) {
-    var response = {};
-    var fields = ["lastWeekHours", "lastWeekIncrease"];
-    var errs = [];
-    for (var i = 0; i < fields.length; i++) {
-      var ranking = [];
+    let response = {};
+    let fields = ["lastWeekHours", "lastWeekIncrease"];
+    let errs = [];
+    for (let i = 0; i < fields.length; i++) {
+      let ranking = [];
       await volunteerRepository
         .getTop([[fields[i], "DESC"]], 3)
         .then(volunteers => {
-          for (var j = 0; j < volunteers.length; j++) {
-            var volunteer = volunteers[j];
+          for (let j = 0; j < volunteers.length; j++) {
+            let volunteer = volunteers[j];
             ranking.push({
               rank: j + 1,
               uid: volunteer.userId,
@@ -198,13 +198,13 @@ var VolunteerController = function(volunteerRepository, shiftRepository) {
   };
 
   this.listShiftsForVolunteer = function(req, res) {
-    var volunteer;
-    var after = req.query.after;
-    var whereTrue = {};
+    let volunteer;
+    let after = req.query.after;
+    let whereTrue = {};
     if (after) {
-      var afterMoment = moment(after);
-      var date = afterMoment.format("YYYY-MM-DD");
-      var time = afterMoment.format("HH:mm");
+      let afterMoment = moment(after);
+      let date = afterMoment.format("YYYY-MM-DD");
+      let time = afterMoment.format("HH:mm");
       whereTrue = SHIFT_AFTER(date, time);
     }
     volunteerRepository
@@ -218,7 +218,7 @@ var VolunteerController = function(volunteerRepository, shiftRepository) {
         }
       })
       .then(bookings => {
-        var shiftIds = bookings.map(booking => booking.shiftId);
+        let shiftIds = bookings.map(booking => booking.shiftId);
         whereTrue["id"] = {[Op.in]: shiftIds};
         return shiftRepository
           .getAll(null, whereTrue, [
@@ -227,10 +227,10 @@ var VolunteerController = function(volunteerRepository, shiftRepository) {
             REPEATED_SHIFT()
           ])
           .then(shifts => {
-            var result = [];
+            let result = [];
             shifts.forEach(s => {
-              var shift = s.toJSON();
-              var requirements = [];
+              let shift = s.toJSON();
+              let requirements = [];
               shift.requirements.forEach(requirement => {
                 requirement.bookings.forEach(booking => {
                   if (booking.volunteerId === volunteer.userId) {
@@ -249,13 +249,13 @@ var VolunteerController = function(volunteerRepository, shiftRepository) {
   };
 
   this.listAvailableShiftsForVolunteer = function(req, res) {
-    var volunteer;
-    var after = req.query.after;
-    var whereTrue = {};
+    let volunteer;
+    let after = req.query.after;
+    let whereTrue = {};
     if (after) {
-      var afterMoment = moment(after);
-      var date = afterMoment.format("YYYY-MM-DD");
-      var time = afterMoment.format("HH:mm");
+      let afterMoment = moment(after);
+      let date = afterMoment.format("YYYY-MM-DD");
+      let time = afterMoment.format("HH:mm");
       whereTrue = SHIFT_AFTER(date, time);
     }
     volunteerRepository
@@ -269,7 +269,7 @@ var VolunteerController = function(volunteerRepository, shiftRepository) {
         }
       })
       .then(bookings => {
-        var shiftIds = bookings.map(booking => booking.shiftId);
+        let shiftIds = bookings.map(booking => booking.shiftId);
         whereTrue["id"] = { [Op.notIn]: shiftIds };
         return shiftRepository
           .getAll(null, whereTrue, [
@@ -278,12 +278,12 @@ var VolunteerController = function(volunteerRepository, shiftRepository) {
             REPEATED_SHIFT()
           ])
           .then(shifts => {
-            var result = [];
+            let result = [];
             shifts.forEach(s => {
-              var shift = s.toJSON();
+              let shift = s.toJSON();
               if (volunteerIsAvailableForShift(volunteer, shift)) {
-                for (var i = 0; i < shift.requirements.length; i++) {
-                  var requirement = shift.requirements[i];
+                for (let i = 0; i < shift.requirements.length; i++) {
+                  let requirement = shift.requirements[i];
                   if (
                     requirement.expectedShortage > EXPECTED_SHORTAGE_THRESHOLD
                   ) {

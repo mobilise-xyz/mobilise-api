@@ -1,5 +1,5 @@
 /* eslint-disable no-unused-vars */
-var MetricRepositoryInterface = {
+let MetricRepositoryInterface = {
   set: function(name, verb, value) {},
   get: function() {}
 };

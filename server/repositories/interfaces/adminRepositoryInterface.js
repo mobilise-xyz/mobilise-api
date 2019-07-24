@@ -1,5 +1,5 @@
 /* eslint-disable no-unused-vars */
-var AdminRepositoryInterface = {
+let AdminRepositoryInterface = {
   add: function(admin) {},
   getById: function(id) {}
 };

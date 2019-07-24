@@ -8,54 +8,54 @@ const {
   REQUIREMENTS_WITH_BOOKINGS
 } = require("../sequelizeUtils/include");
 
-var Predictor = function(shiftRepository) {
+let Predictor = function(shiftRepository) {
   this.shiftRepository = shiftRepository;
 
   this.computeExpectedShortages = async function(whereTrue) {
-    var deferred = Q.defer();
+    let deferred = Q.defer();
 
     const cumulativeAvailability = await getCumulativeAvailability();
 
-    var updatedShiftRequirements = [];
+    let updatedShiftRequirements = [];
 
     await shiftRepository
       .getAll(null, whereTrue, [REQUIREMENTS_WITH_BOOKINGS()])
       .then(async shifts => {
-        var i;
+        let i;
         for (i = 0; i < shifts.length; i++) {
-          var shift = shifts[i];
+          let shift = shifts[i];
 
           // Obtain the shift requirements
-          var requirements = shift.requirements;
+          let requirements = shift.requirements;
 
-          var j;
+          let j;
           for (j = 0; j < requirements.length; j++) {
-            var requirement = requirements[j];
+            let requirement = requirements[j];
 
             // Obtain the bookings made for specific role requirement
-            var bookings = requirement.bookings;
+            let bookings = requirement.bookings;
 
             // Obtain the volunteer user ids from the bookings
-            var volunteerIds = bookings.map(booking => booking.volunteerId);
+            let volunteerIds = bookings.map(booking => booking.volunteerId);
 
             // Obtain all the volunteers who have made bookings
-            var volunteers = await volunteerRepository.getAll({
+            let volunteers = await volunteerRepository.getAll({
               userId: { [Op.in]: volunteerIds }
             });
 
             // Find booked volunters who were available for shift
-            var availableVolunteers = volunteers.filter(volunteer =>
+            let availableVolunteers = volunteers.filter(volunteer =>
               volunteerIsAvailableForShiftStart(volunteer, shift)
             );
 
             // Find cumulative availability for shift (start time)
-            var dayOfWeek = getDayOfWeekForDate(shift.date);
+            let dayOfWeek = getDayOfWeekForDate(shift.date);
 
             // Find slot for shift start time
-            var slot = getSlotForTime(shift.start);
+            let slot = getSlotForTime(shift.start);
 
             // Heuristic to predict how many currently available volunteers will actually book
-            var currentAvailabilityForShift =
+            let currentAvailabilityForShift =
               (cumulativeAvailability[dayOfWeek][slot] -
                 availableVolunteers.length) *
               0.3;
@@ -75,9 +75,9 @@ var Predictor = function(shiftRepository) {
         return updatedShiftRequirements;
       })
       .then(async updatedShiftRequirements => {
-        var i;
+        let i;
         for (i = 0; i < updatedShiftRequirements.length; i++) {
-          var shiftRequirement = updatedShiftRequirements[i];
+          let shiftRequirement = updatedShiftRequirements[i];
 
           await ShiftRequirement.update(
             { expectedShortage: shiftRequirement.expectedShortage },

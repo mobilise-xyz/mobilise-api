@@ -1,7 +1,7 @@
-var request = require('supertest');
-var app = require('../../app');
+let request = require('supertest');
+let app = require('../../app');
 const {Role} = require('../../server/models');
-var { describe, it, after } = require("mocha");
+let { describe, it, after } = require("mocha");
 
 const Seeded = require('../../server/utils/seeded');
 
