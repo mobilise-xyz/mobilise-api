@@ -4,22 +4,23 @@ const bookingRepository = require("../repositories").BookingRepository;
 const metricRepository = require("../repositories").MetricRepository;
 const moment = require("moment");
 const Op = require("../models").Sequelize.Op;
-const { volunteerIsAvailableForShift } = require("../utils/availability");
+const {volunteerIsAvailableForShift} = require("../utils/availability");
+const {getDateRange} = require("../utils/date");
 const {
   REQUIREMENTS_WITH_BOOKINGS,
   CREATOR,
   REPEATED_SHIFT
 } = require("../sequelizeUtils/include");
-const { SHIFT_BEFORE, SHIFT_AFTER } = require("../sequelizeUtils/where");
+const {SHIFT_BEFORE, SHIFT_AFTER} = require("../sequelizeUtils/where");
 const EXPECTED_SHORTAGE_THRESHOLD = 2;
 
-let VolunteerController = function(volunteerRepository, shiftRepository) {
-  this.list = function(req, res) {
+let VolunteerController = function (volunteerRepository, shiftRepository) {
+  this.list = function (req, res) {
     // Restrict access to admin
     if (!req.user.isAdmin) {
       res
         .status(401)
-        .json({ message: "Only admins can access volunteer catalogue" });
+        .json({message: "Only admins can access volunteer catalogue"});
       return;
     }
 
@@ -29,10 +30,10 @@ let VolunteerController = function(volunteerRepository, shiftRepository) {
       .catch(err => res.status(500).json({message: err}));
   };
 
-  this.getStats = function(req, res) {
+  this.getStats = function (req, res) {
     // Check bearer token id matches parameter id
     if (req.user.id !== req.params.id) {
-      res.status(401).send({ message: "You can only view your own stats." });
+      res.status(401).send({message: "You can only view your own stats."});
       return;
     }
     let volunteer;
@@ -41,7 +42,7 @@ let VolunteerController = function(volunteerRepository, shiftRepository) {
       .getById(req.user.id)
       .then(vol => {
         if (!vol) {
-          res.status(400).send({ message: "No volunteer with that id" });
+          res.status(400).send({message: "No volunteer with that id"});
         } else {
           const now = moment();
           const date = now.format("YYYY-MM-DD");
@@ -89,9 +90,9 @@ let VolunteerController = function(volunteerRepository, shiftRepository) {
               value:
                 totalHoursFromLastWeek !== 0
                   ? Math.round(
-                      metricStat.value *
-                        (volunteer.lastWeekHours / totalHoursFromLastWeek)
-                    )
+                  metricStat.value *
+                  (volunteer.lastWeekHours / totalHoursFromLastWeek)
+                  )
                   : 0
             };
             res.status(200).json({
@@ -103,20 +104,20 @@ let VolunteerController = function(volunteerRepository, shiftRepository) {
       .catch(err => res.status(500).send(err));
   };
 
-  this.getActivity = function(req, res) {
-      // Check bearer token id matches parameter id
-      if (req.user.id !== req.params.id) {
-        res.status(401).json({ message: "You can only view your own stats." });
-        return;
-      }
+  this.getActivity = function (req, res) {
+    // Check bearer token id matches parameter id
+    if (req.user.id !== req.params.id) {
+      res.status(401).json({message: "You can only view your own stats."});
+      return;
+    }
 
-      res.status(200).json({
-        message: "Success!",
-        myActivity: []
-      });
+    res.status(200).json({
+      message: "Success!",
+      myActivity: []
+    });
   };
 
-  this.getHallOfFame = async function(req, res) {
+  this.getHallOfFame = async function (req, res) {
     let response = {};
     let fields = ["lastWeekHours", "lastWeekIncrease"];
     let errs = [];
@@ -141,16 +142,16 @@ let VolunteerController = function(volunteerRepository, shiftRepository) {
     if (errs.length > 0) {
       res.status(500).json({message: errs});
     } else {
-      res.status(200).send({ message: "Success!", hallOfFame: response });
+      res.status(200).send({message: "Success!", hallOfFame: response});
     }
   };
 
-  this.updateAvailability = function(req, res) {
+  this.updateAvailability = function (req, res) {
     // Check bearer token id matches parameter id
     if (req.user.id !== req.params.id) {
       res
         .status(401)
-        .json({ message: "You can only update your own availability." });
+        .json({message: "You can only update your own availability."});
       return;
     }
 
@@ -158,7 +159,7 @@ let VolunteerController = function(volunteerRepository, shiftRepository) {
       .getById(req.params.id)
       .then(volunteer => {
         if (!volunteer) {
-          res.status(400).json({ message: "No volunteer with that id" });
+          res.status(400).json({message: "No volunteer with that id"});
         } else {
           volunteerRepository
             .updateAvailability(req.params.id, req.body.availability)
@@ -173,12 +174,12 @@ let VolunteerController = function(volunteerRepository, shiftRepository) {
       .catch(error => res.status(500).json({message: error}));
   };
 
-  this.getAvailability = function(req, res) {
+  this.getAvailability = function (req, res) {
     // Check bearer token id matches parameter id
     if (req.user.id !== req.params.id) {
       res
         .status(401)
-        .json({ message: "You can only update your own availability." });
+        .json({message: "You can only update your own availability."});
       return;
     }
 
@@ -186,7 +187,7 @@ let VolunteerController = function(volunteerRepository, shiftRepository) {
       .getById(req.params.id)
       .then(volunteer => {
         if (!volunteer) {
-          res.status(400).json({ message: "No volunteer with that id" });
+          res.status(400).json({message: "No volunteer with that id"});
         } else {
           volunteerRepository
             .getAvailability(req.params.id)
@@ -197,21 +198,14 @@ let VolunteerController = function(volunteerRepository, shiftRepository) {
       .catch(error => res.status(500).json({message: error}));
   };
 
-  this.listShiftsForVolunteer = function(req, res) {
+  this.listShiftsForVolunteer = function (req, res) {
     let volunteer;
-    let after = req.query.after;
-    let whereTrue = {};
-    if (after) {
-      let afterMoment = moment(after);
-      let date = afterMoment.format("YYYY-MM-DD");
-      let time = afterMoment.format("HH:mm");
-      whereTrue = SHIFT_AFTER(date, time);
-    }
+    const whereTrue = getDateRange(req.query.before, req.query.after);
     volunteerRepository
       .getById(req.params.id)
       .then(vol => {
         if (!vol) {
-          res.status(400).json({ message: "No volunteer with that id" });
+          res.status(400).json({message: "No volunteer with that id"});
         } else {
           volunteer = vol;
           return bookingRepository.getByVolunteerId(vol.userId);
@@ -248,21 +242,14 @@ let VolunteerController = function(volunteerRepository, shiftRepository) {
       .catch(err => res.status(500).json({message: err}));
   };
 
-  this.listAvailableShiftsForVolunteer = function(req, res) {
+  this.listAvailableShiftsForVolunteer = function (req, res) {
     let volunteer;
-    let after = req.query.after;
-    let whereTrue = {};
-    if (after) {
-      let afterMoment = moment(after);
-      let date = afterMoment.format("YYYY-MM-DD");
-      let time = afterMoment.format("HH:mm");
-      whereTrue = SHIFT_AFTER(date, time);
-    }
+    const whereTrue = getDateRange(req.query.before, req.query.after);
     volunteerRepository
       .getById(req.params.id)
       .then(vol => {
         if (!vol) {
-          res.status(400).json({ message: "No volunteer with that id" });
+          res.status(400).json({message: "No volunteer with that id"});
         } else {
           volunteer = vol;
           return bookingRepository.getByVolunteerId(vol.userId);
@@ -270,7 +257,7 @@ let VolunteerController = function(volunteerRepository, shiftRepository) {
       })
       .then(bookings => {
         let shiftIds = bookings.map(booking => booking.shiftId);
-        whereTrue["id"] = { [Op.notIn]: shiftIds };
+        whereTrue["id"] = {[Op.notIn]: shiftIds};
         return shiftRepository
           .getAll(null, whereTrue, [
             REQUIREMENTS_WITH_BOOKINGS(),
