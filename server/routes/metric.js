@@ -1,6 +1,6 @@
-var express = require('express');
-var router = express.Router();
-var controller = require('../controllers').MetricController;
+let express = require('express');
+let router = express.Router();
+let controller = require('../controllers').MetricController;
 
 /* POST metric. */
 router.post('/', controller.update);

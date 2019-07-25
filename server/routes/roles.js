@@ -1,6 +1,6 @@
-var express = require('express');
-var router = express.Router();
-var controller = require('../controllers').RoleController;
+let express = require('express');
+let router = express.Router();
+let controller = require('../controllers').RoleController;
 
 /* POST role. */
 router.post('/', controller.create);

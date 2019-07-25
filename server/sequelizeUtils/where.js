@@ -16,7 +16,7 @@ function SHIFT_BETWEEN(startDate, startTime, endDate, endTime) {
               [Op.eq]: startDate
             },
             start: {
-              [Op.gte]: startTime
+              [Op.gt]: startTime
             }
           }
         ]
@@ -37,7 +37,7 @@ function SHIFT_BETWEEN(startDate, startTime, endDate, endTime) {
                 [Op.eq]: endDate
               },
               stop: {
-                [Op.lte]: endTime
+                [Op.lt]: endTime
               }
             }
           ]
@@ -62,7 +62,7 @@ function SHIFT_BEFORE(date, time) {
               [Op.eq]: date
             },
             stop: {
-              [Op.lte]: time
+              [Op.lt]: time
             }
           }
         ]
@@ -86,7 +86,7 @@ function SHIFT_AFTER(date, time) {
               [Op.eq]: date
             },
             start: {
-              [Op.gte]: time
+              [Op.gt]: time
             }
           }
         ]

@@ -1,6 +1,6 @@
 const metricRepository = require("../repositories").MetricRepository;
 
-var MetricController = function(metricRepository) {
+let MetricController = function(metricRepository) {
 
   this.update = function(req, res) {
     if (!req.user.isAdmin) {

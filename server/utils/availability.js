@@ -6,27 +6,27 @@ const AVAILABILITY_THRESHOLD = 0.5;
 
 function volunteerIsAvailableForShift(volunteer, shift) {
 
-  var dayOfWeek = getDayOfWeekForDate(shift.date);
-  var dayAvailability = volunteer.availability[(((dayOfWeek - 1) % 7) + 7) % 7];
+  let dayOfWeek = getDayOfWeekForDate(shift.date);
+  let dayAvailability = volunteer.availability[(((dayOfWeek - 1) % 7) + 7) % 7];
 
-  var startAvailability = dayAvailability[getSlotForTime(shift.start)];
-  var stopAvailability  = dayAvailability[getSlotForTime(shift.stop)];
+  let startAvailability = dayAvailability[getSlotForTime(shift.start)];
+  let stopAvailability  = dayAvailability[getSlotForTime(shift.stop)];
   
   return (Number(startAvailability) + Number(stopAvailability) / 2) >= AVAILABILITY_THRESHOLD;
 }
 
 function volunteerIsAvailableForShiftStart(volunteer, shift) {
 
-  var dayOfWeek = getDayOfWeekForDate(shift.date);
-  var dayAvailability = volunteer.availability[(((dayOfWeek - 1) % 7) + 7) % 7];
+  let dayOfWeek = getDayOfWeekForDate(shift.date);
+  let dayAvailability = volunteer.availability[(((dayOfWeek - 1) % 7) + 7) % 7];
 
-  var startAvailability = dayAvailability[getSlotForTime(shift.start)];
+  let startAvailability = dayAvailability[getSlotForTime(shift.start)];
   
   return Number(startAvailability) >= AVAILABILITY_THRESHOLD;
 }
 
 function getSlotForTime(time) {
-  var m = moment(time, "hh:mm:ss");
+  let m = moment(time, "hh:mm:ss");
   if (m.isBefore(moment("12:00:00",  "hh:mm:ss"))) {
     return 0;
   } else if (m.isAfter(moment("16:00:00",  "hh:mm:ss"))) {
@@ -41,9 +41,9 @@ function getDayOfWeekForDate(date) {
 }
 
 function volunteerBookedOnShift(volunteer, shift) {
-  for (var i = 0; i < shift.requirements.length; i++) {
-    var requirement = shift.requirements[i];
-    for (var j = 0; j < requirement.bookings.length; j++) {
+  for (let i = 0; i < shift.requirements.length; i++) {
+    let requirement = shift.requirements[i];
+    for (let j = 0; j < requirement.bookings.length; j++) {
       if (requirement.bookings[j].volunteerId === volunteer.userId) {
         return true;
       }
@@ -54,13 +54,13 @@ function volunteerBookedOnShift(volunteer, shift) {
 
 async function getCumulativeAvailability() {
 
-  var deferred = Q.defer();
+  let deferred = Q.defer();
 
   await volunteerRepository.getAll()
     .then(volunteers => {
 
       // Initialise array to build cumulative availability
-      var array = [
+      let array = [
         [0,0,0],
         [0,0,0],
         [0,0,0],
@@ -71,14 +71,14 @@ async function getCumulativeAvailability() {
       ]
 
       // Loop through list of volunteers and build the array of cumulative availabilities
-      var i;
+      let i;
       for(i = 0; i < volunteers.length; i++) {
-        var availability = volunteers[i].availability;
+        let availability = volunteers[i].availability;
 
         // Loop through each element of 2D availability array
-        var j;
+        let j;
         for(j = 0; j < array.length; j++) {
-          var k;
+          let k;
           for(k = 0; k < array[j].length; k++) {
 
             // Compare availability character and increment corresponding cell in array

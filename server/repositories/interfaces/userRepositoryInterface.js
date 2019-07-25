@@ -1,5 +1,5 @@
 /* eslint-disable no-unused-vars */
-var UserRepositoryInterface = {
+let UserRepositoryInterface = {
   add: function(user, hash, phone) {},
   getByEmail: function(email) {},
   getById: function(id) {},

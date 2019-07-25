@@ -1,5 +1,5 @@
 /* eslint-disable no-unused-vars */
-var RoleRepositoryInterface = {
+let RoleRepositoryInterface = {
   add: function(role) {},
   getByName: function(name) {},
   getAll: function() {},

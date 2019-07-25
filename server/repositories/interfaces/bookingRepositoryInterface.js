@@ -1,5 +1,5 @@
 /* eslint-disable no-unused-vars */
-var BookingRepositoryInterface = {
+let BookingRepositoryInterface = {
   getById: function(shiftId, volunteerId) {},
   getAll: function() {},
   add: function(shift, volunteerId, roleName) {},

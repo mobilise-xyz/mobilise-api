@@ -2,10 +2,10 @@ const {Metric} = require("../models");
 const Q = require("q");
 const MetricRepositoryInterface = require("./interfaces/metricRepositoryInterface");
 
-var MetricRepository = Object.create(MetricRepositoryInterface);
+let MetricRepository = Object.create(MetricRepositoryInterface);
 
 MetricRepository.set = function(name, verb, value) {
-  var deferred = Q.defer();
+  let deferred = Q.defer();
 
   Metric.destroy({ truncate: true })
     .then(() => {
@@ -18,7 +18,7 @@ MetricRepository.set = function(name, verb, value) {
 };
 
 MetricRepository.get = function() {
-  var deferred = Q.defer();
+  let deferred = Q.defer();
 
   Metric.findOne()
     .then(metric => deferred.resolve(metric))

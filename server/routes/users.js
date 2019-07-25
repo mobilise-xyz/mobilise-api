@@ -1,6 +1,6 @@
-var express = require('express');
-var router = express.Router();
-var controller = require('../controllers').UserController;
+let express = require('express');
+let router = express.Router();
+let controller = require('../controllers').UserController;
 
 /* Get user by id */
 router.get('/:id', controller.getById);

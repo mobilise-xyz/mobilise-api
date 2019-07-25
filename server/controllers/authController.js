@@ -10,7 +10,7 @@ const jwt = require("jsonwebtoken");
 const {PhoneNumberFormat: PNF, PhoneNumberUtil} = require('google-libphonenumber');
 const phoneUtil = PhoneNumberUtil.getInstance();
 
-var AuthController = function (
+let AuthController = function (
   userRepository,
   volunteerRepository,
   adminRepository
@@ -24,7 +24,7 @@ var AuthController = function (
             .status(400)
             .json({message: "An account with that email already exists"});
         } else {
-          var hash = hashedPassword(req.body.password);
+          let hash = hashedPassword(req.body.password);
           const number = phoneUtil.parse(req.body.telephone, 'GB');
           if (!phoneUtil.isValidNumber(number)) {
             res
@@ -71,8 +71,8 @@ var AuthController = function (
   };
 
   this.loginUser = function (req, res) {
-    var lastLogin;
-    var loggedInUser;
+    let lastLogin;
+    let loggedInUser;
     userRepository
       .getByEmail(req.body.email)
       .then(user => {
@@ -121,7 +121,7 @@ function validatePassword(password, hashedPassword) {
 }
 
 function generateToken(user) {
-  var tokenConfig = config.token;
+  let tokenConfig = config.token;
   return jwt.sign(
     {
       id: user.id

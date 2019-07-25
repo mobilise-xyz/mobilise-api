@@ -2,7 +2,7 @@ const userRepository = require("../repositories").UserRepository;
 const userContactPreferenceRepository = require("../repositories")
   .UserContactPreferenceRepository;
 
-var UserController = function(userRepository) {
+let UserController = function(userRepository) {
 
   this.getById = function(req, res) {
     // Check request validity

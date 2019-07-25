@@ -5,8 +5,7 @@ const volunteerRepository = require("../repositories").VolunteerRepository;
 const adminRepository = require("../repositories").AdminRepository;
 const moment = require("moment");
 const sequelize = require("sequelize");
-const {getNextDate} = require("../utils/date");
-const isWeekend = require("../utils/date").isWeekend;
+const {getNextDate, getDateRange, isWeekend} = require("../utils/date");
 const {
   volunteerIsAvailableForShift,
   volunteerBookedOnShift
@@ -18,11 +17,11 @@ const {
   REPEATED_SHIFT,
   VOLUNTEERS
 } = require("../sequelizeUtils/include");
-const {SHIFT_AFTER} = require("../sequelizeUtils/where");
 const nodemailer = require("nodemailer");
 const Nexmo = require("nexmo");
 
 const APP_LINK = "https://city-harvest.mobilise.xyz";
+const ITEMS_PER_PAGE = 5;
 
 const REPEATED_TYPES = {
   Never: ["Never"],
@@ -42,32 +41,31 @@ const REPEATED_TYPES = {
   Annually: ["Never", "Annually"]
 };
 
-var ShiftController = function (
+let ShiftController = function (
   shiftRepository,
   roleRepository,
   bookingRepository
 ) {
 
   this.list = function (req, res) {
-    var withVolunteers = req.user.isAdmin;
-    var after = req.query.after;
-    var whereTrue = {};
-    if (after) {
-      var afterMoment = moment(after);
-      var date = afterMoment.format("YYYY-MM-DD");
-      var time = afterMoment.format("HH:mm");
-      whereTrue = SHIFT_AFTER(date, time);
-    }
+    let withVolunteers = req.user.isAdmin;
+
+    const whereTrue = getDateRange(req.query.before, req.query.after);
+    const page = req.query.page;
 
     shiftRepository
       .getAll(null, whereTrue, [
         REQUIREMENTS_WITH_BOOKINGS(withVolunteers),
         CREATOR(),
         REPEATED_SHIFT()
-      ])
+      ], page ? ITEMS_PER_PAGE : null, page ? ((page - 1) * ITEMS_PER_PAGE): null)
       .then(shifts => {
-
-        res.status(200).json({message: "Success!", shifts})
+        const itemCount = shifts.length;
+        res.status(200).json({
+          message: "Success!",
+          shifts,
+          itemCount
+        })
       })
       .catch(err => res.status(500).json({message: err}));
   };
@@ -76,7 +74,7 @@ var ShiftController = function (
     shiftRepository
       .getAll(["title"])
       .then(shifts => {
-        var titles = [];
+        let titles = [];
         shifts.forEach(shift => {
           if (titles.indexOf(shift.title) === -1) {
             titles.push(shift.title);
@@ -95,10 +93,10 @@ var ShiftController = function (
           res.status(400).send({message: "No such shift"});
           return;
         }
-        var emailClient = createEmailClient();
-        var textClient = createTextClient();
+        let emailClient = createEmailClient();
+        let textClient = createTextClient();
         shift.volunteers.forEach(volunteer => {
-          var message = constructCancelShiftMessage(volunteer, shift);
+          let message = constructCancelShiftMessage(volunteer, shift);
           if (volunteer.user.contactPreferences.email) {
             sendEmail(emailClient, volunteer.user, "Shift cancelled", message);
           }
@@ -115,8 +113,8 @@ var ShiftController = function (
   };
 
   this.cancel = function (req, res) {
-    var creator;
-    var shift;
+    let creator;
+    let shift;
 
     bookingRepository
       .getById(req.params.id, req.user.id)
@@ -149,11 +147,11 @@ var ShiftController = function (
             req.body.reason
           );
           if (creator.user.contactPreferences.email) {
-            var emailClient = createEmailClient();
+            let emailClient = createEmailClient();
             sendEmail(emailClient, creator.user, "Cancelled booking", message);
           }
           if (creator.user.contactPreferences.text) {
-            var textClient = createTextClient();
+            let textClient = createTextClient();
             sendText(textClient, creator.user, message);
           }
           return bookingRepository.delete(req.params.id, req.user.id);
@@ -201,7 +199,7 @@ var ShiftController = function (
                 .json({message: "Successfully created booking", booking: booking});
             })
         }
-        var startDate = moment(shift.date, "YYYY-MM-DD");
+        let startDate = moment(shift.date, "YYYY-MM-DD");
 
         if (!repeatedTypeIsValid(req.body.repeatedType, startDate)) {
           res.status(400).json({
@@ -218,7 +216,7 @@ var ShiftController = function (
           return;
         }
 
-        var lastDate = moment(req.body.untilDate, "YYYY-MM-DD");
+        let lastDate = moment(req.body.untilDate, "YYYY-MM-DD");
 
         if (lastDate.isBefore(startDate)) {
           res.status(400)
@@ -231,11 +229,11 @@ var ShiftController = function (
           .then(shifts => {
             return bookingRepository.createRepeatedId(req.body.repeatedType, req.body.untilDate)
               .then(repeated => {
-                var bookings = [];
-                var shiftIndex = 0;
+                let bookings = [];
+                let shiftIndex = 0;
                 do  {
                   // Find the next booking for this repeated shift
-                  var nextShiftDate = moment(shifts[shiftIndex].date, "YYYY-MM-DD");
+                  let nextShiftDate = moment(shifts[shiftIndex].date, "YYYY-MM-DD");
 
                   while (startDate.isBefore(nextShiftDate)) {
                     // Increment with respect to the next
@@ -324,7 +322,7 @@ var ShiftController = function (
           return;
         }
         // Check the referenced roles
-        var {errs, rolesRequired} = await checkRoles(
+        let {errs, rolesRequired} = await checkRoles(
           req.body.rolesRequired,
           roleRepository
         );
@@ -364,7 +362,7 @@ var ShiftController = function (
                 !volunteerBookedOnShift(volunteer, shift) &&
                 volunteerIsAvailableForShift(volunteer, shift)
               ) {
-                var message = constructHelpMessage(volunteer, shift);
+                let message = constructHelpMessage(volunteer, shift);
                 if (volunteer.user.contactPreferences.email) {
                   sendEmail(
                     emailClient,
@@ -396,7 +394,7 @@ var ShiftController = function (
       return;
     }
     // Check the referenced roles
-    var {errs, rolesRequired} = await checkRoles(
+    let {errs, rolesRequired} = await checkRoles(
       req.body.rolesRequired,
       roleRepository
     );
@@ -416,7 +414,7 @@ var ShiftController = function (
       return;
     }
 
-    var type = req.body.repeatedType;
+    let type = req.body.repeatedType;
 
     if (!type || type === "Never") {
       shiftRepository
@@ -426,8 +424,8 @@ var ShiftController = function (
         })
         .catch(err => res.status(500).json({message: err}));
     } else {
-      var startDate = moment(req.body.date, "YYYY-MM-DD");
-      var untilDate = moment(req.body.untilDate, "YYYY-MM-DD");
+      let startDate = moment(req.body.date, "YYYY-MM-DD");
+      let untilDate = moment(req.body.untilDate, "YYYY-MM-DD");
 
       if (untilDate.isBefore(startDate)) {
         res.status(400).json({
@@ -474,7 +472,7 @@ function repeatedTypeIsValid(type, startDate) {
 }
 
 function sendEmail(emailClient, user, title, message) {
-  var mailOptions = {
+  let mailOptions = {
     from: process.env.SMTP_FROM,
     to: user.email,
     subject: title,
@@ -513,7 +511,7 @@ function createTextClient() {
 }
 
 function constructCancelShiftMessage(volunteer, shift) {
-  var message = `Hello ${volunteer.user.firstName},\n\n`;
+  let message = `Hello ${volunteer.user.firstName},\n\n`;
   message += `Shift has been cancelled:\n\n`;
   message += `Title: ${shift.title}\n`;
   message += `Description: ${shift.description}\n`;
@@ -525,7 +523,7 @@ function constructCancelShiftMessage(volunteer, shift) {
 }
 
 function constructCancelBookingMessage(admin, volunteer, shift, reason) {
-  var message = `Hello ${admin.user.firstName},\n\n`;
+  let message = `Hello ${admin.user.firstName},\n\n`;
   message += `${
     volunteer.user.firstName
     } has cancelled their booking for a shift.\n\n`;
@@ -546,7 +544,7 @@ function formatTime(time) {
 }
 
 function constructHelpMessage(volunteer, shift) {
-  var message = `Hello ${volunteer.user.firstName},\n\n`;
+  let message = `Hello ${volunteer.user.firstName},\n\n`;
   message += `A shift needs your assistance! \n`;
   message += `The shift details are as follows:\n\n`;
   message += `Title: ${shift.title}\n`;
@@ -560,9 +558,9 @@ function constructHelpMessage(volunteer, shift) {
 }
 
 async function checkRoles(rolesRequired, roleRepository) {
-  var errs = [];
+  let errs = [];
   if (rolesRequired) {
-    var i;
+    let i;
     for (i = 0; i < rolesRequired.length; i++) {
       await roleRepository.getByName(rolesRequired[i].roleName).then(role => {
         if (role) {
