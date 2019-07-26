@@ -11,8 +11,9 @@ const {
   CREATOR,
   REPEATED_SHIFT
 } = require("../sequelizeUtils/include");
-const {SHIFT_BEFORE, SHIFT_AFTER} = require("../sequelizeUtils/where");
+const {SHIFT_BEFORE} = require("../sequelizeUtils/where");
 const EXPECTED_SHORTAGE_THRESHOLD = 2;
+const ITEMS_PER_PAGE = 5;
 
 let VolunteerController = function (volunteerRepository, shiftRepository) {
   this.list = function (req, res) {
@@ -165,7 +166,7 @@ let VolunteerController = function (volunteerRepository, shiftRepository) {
             .updateAvailability(req.params.id, req.body.availability)
             .then(() =>
               res.status(201).json({
-                message: "Availability Updated Successfuly"
+                message: "Availability Updated Successfully"
               })
             )
             .catch(error => res.status(400).json({message: error}));
@@ -201,6 +202,7 @@ let VolunteerController = function (volunteerRepository, shiftRepository) {
   this.listShiftsForVolunteer = function (req, res) {
     let volunteer;
     const whereTrue = getDateRange(req.query.before, req.query.after);
+    const page = req.query.page;
     volunteerRepository
       .getById(req.params.id)
       .then(vol => {
@@ -219,7 +221,7 @@ let VolunteerController = function (volunteerRepository, shiftRepository) {
             REQUIREMENTS_WITH_BOOKINGS(),
             CREATOR(),
             REPEATED_SHIFT()
-          ])
+          ], page ? ITEMS_PER_PAGE : null, page ? ((page - 1) * ITEMS_PER_PAGE) : null)
           .then(shifts => {
             let result = [];
             shifts.forEach(s => {
@@ -238,13 +240,14 @@ let VolunteerController = function (volunteerRepository, shiftRepository) {
             return result;
           });
       })
-      .then(shifts => res.status(200).json({message: "Success!", shifts}))
+      .then(shifts => res.status(200).json({message: "Success!", shifts, count: shifts.length}))
       .catch(err => res.status(500).json({message: err}));
   };
 
   this.listAvailableShiftsForVolunteer = function (req, res) {
     let volunteer;
     const whereTrue = getDateRange(req.query.before, req.query.after);
+    const page = req.query.page;
     volunteerRepository
       .getById(req.params.id)
       .then(vol => {
@@ -263,7 +266,7 @@ let VolunteerController = function (volunteerRepository, shiftRepository) {
             REQUIREMENTS_WITH_BOOKINGS(),
             CREATOR(),
             REPEATED_SHIFT()
-          ])
+          ], page ? ITEMS_PER_PAGE : null, page ? ((page - 1) * ITEMS_PER_PAGE) : null)
           .then(shifts => {
             let result = [];
             shifts.forEach(s => {
@@ -284,7 +287,7 @@ let VolunteerController = function (volunteerRepository, shiftRepository) {
             return result;
           });
       })
-      .then(shifts => res.status(200).json({message: "Success!", shifts}))
+      .then(shifts => res.status(200).json({message: "Success!", shifts, count: shifts.length}))
       .catch(err => res.status(500).json({message: err}));
   };
 };
