@@ -60,11 +60,10 @@ let ShiftController = function (
         REPEATED_SHIFT()
       ], page ? ITEMS_PER_PAGE : null, page ? ((page - 1) * ITEMS_PER_PAGE): null)
       .then(shifts => {
-        const itemCount = shifts.length;
         res.status(200).json({
           message: "Success!",
           shifts,
-          itemCount
+          count: shifts.length
         })
       })
       .catch(err => res.status(500).json({message: err}));
