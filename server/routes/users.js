@@ -11,4 +11,7 @@ router.get("/:id/contact-preferences", controller.getContactPreferences);
 /* Update contact preferences for a volunteer */
 router.put("/:id/contact-preferences", controller.updateContactPreferences);
 
+/* Send feedback from a user */
+router.post("/:id/feedback", controller.sendFeedback);
+
 module.exports = router;

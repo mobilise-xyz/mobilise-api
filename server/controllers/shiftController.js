@@ -17,7 +17,7 @@ const {
   REPEATED_SHIFT,
   VOLUNTEERS
 } = require("../sequelizeUtils/include");
-const nodemailer = require("nodemailer");
+const { EmailClient, emailClientTypes } = require("../utils/email");
 const Nexmo = require("nexmo");
 
 const APP_LINK = "https://city-harvest.mobilise.xyz";
@@ -93,12 +93,12 @@ let ShiftController = function (
           res.status(400).send({message: "No such shift"});
           return;
         }
-        let emailClient = createEmailClient();
+        let emailClient = new EmailClient(emailClientTypes.NOREPLY);
         let textClient = createTextClient();
         shift.volunteers.forEach(volunteer => {
           let message = constructCancelShiftMessage(volunteer, shift);
           if (volunteer.user.contactPreferences.email) {
-            sendEmail(emailClient, volunteer.user, "Shift cancelled", message);
+            emailClient.send(volunteer.user.email, "Shift cancelled", message);
           }
           if (volunteer.user.contactPreferences.text) {
             sendText(textClient, volunteer.user, message);
@@ -147,8 +147,8 @@ let ShiftController = function (
             req.body.reason
           );
           if (creator.user.contactPreferences.email) {
-            let emailClient = createEmailClient();
-            sendEmail(emailClient, creator.user, "Cancelled booking", message);
+            let emailClient = new EmailClient(emailClientTypes.NOREPLY);
+            emailClient.send(creator.user.email, "Cancelled booking", message);
           }
           if (creator.user.contactPreferences.text) {
             let textClient = createTextClient();
@@ -354,7 +354,7 @@ let ShiftController = function (
         if (!shift) {
           res.status(400).json({message: "No shift with that id"});
         } else {
-          const emailClient = createEmailClient();
+          const emailClient = EmailClient(emailClientTypes.NOREPLY);
           const textClient = createTextClient();
           return volunteerRepository.getAll().then(volunteers => {
             volunteers.forEach(volunteer => {
@@ -364,9 +364,8 @@ let ShiftController = function (
               ) {
                 let message = constructHelpMessage(volunteer, shift);
                 if (volunteer.user.contactPreferences.email) {
-                  sendEmail(
-                    emailClient,
-                    volunteer.user,
+                  emailClient.send(
+                    volunteer.user.email,
                     "Help needed for shift!",
                     message
                   );
@@ -471,16 +470,6 @@ function repeatedTypeIsValid(type, startDate) {
   return type in REPEATED_TYPES;
 }
 
-function sendEmail(emailClient, user, title, message) {
-  let mailOptions = {
-    from: process.env.SMTP_FROM,
-    to: user.email,
-    subject: title,
-    text: message
-  };
-  emailClient.sendMail(mailOptions);
-}
-
 function sendText(textClient, user, message) {
   textClient.message.sendSms("Mobilise", user.telephone, message);
 }
@@ -490,17 +479,6 @@ function repeatedTypesCompatible(shiftType, bookingType) {
     return true;
   }
   return REPEATED_TYPES[shiftType].includes(bookingType);
-}
-
-function createEmailClient() {
-  return nodemailer.createTransport({
-    host: process.env.MAIL_HOST,
-    port: process.env.MAIL_PORT,
-    auth: {
-      user: process.env.MAIL_SENDER_USER,
-      pass: process.env.MAIL_SENDER_PASS
-    }
-  });
 }
 
 function createTextClient() {
