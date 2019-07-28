@@ -2,6 +2,7 @@ const {EmailClient, emailClientTypes} = require("../utils/email");
 const userRepository = require("../repositories").UserRepository;
 const userContactPreferenceRepository = require("../repositories")
   .UserContactPreferenceRepository;
+const moment = require("moment");
 
 let UserController = function (userRepository) {
 
@@ -76,8 +77,6 @@ let UserController = function (userRepository) {
       return;
     }
 
-    const feedbackMessage = `New user feedback received: \n\n${req.body.feedback}\n\n Love from Mobilise.`;
-
     // Lookup user email.
     userRepository
       .getById(req.params.id)
@@ -85,6 +84,15 @@ let UserController = function (userRepository) {
         if (!user) {
           res.status(400).json({message: "No user with that id"});
         } else {
+          const feedbackMessage = (`
+New user feedback received from ${user.firstName} ${user.lastName} (${user.email}).
+Message sent at ${moment().format('MMMM Do YYYY, h:mm:ss a')}
+
+\"${req.body.feedback}\"
+
+Love from Mobilise.
+          `.trim());
+
           return emailClient.send(process.env.CONTACT_MAIL_SENDER_USER, "User feedback", feedbackMessage)
         }
       })
