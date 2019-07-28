@@ -25,6 +25,7 @@ let authRouter = require("./server/routes/auth");
 let volunteersRouter = require("./server/routes/volunteers");
 let metricRouter = require("./server/routes/metric");
 let statsRouter = require("./server/routes/stats");
+let calendarRouter = require("./server/routes/calendar");
 let predictionRouter = require("./server/routes/prediction");
 
 // view engine setup
@@ -42,6 +43,7 @@ app.use("/", indexRouter);
 app.use("/auth", authRouter);
 app.use("/prediction", predictionRouter);
 app.use("/stats", statsRouter);
+app.use("/calendar", calendarRouter);
 app.use(
   "/shifts",
   passport.authenticate("jwt", { session: false }),
