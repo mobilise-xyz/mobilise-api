@@ -210,7 +210,7 @@ let VolunteerController = function (volunteerRepository, shiftRepository) {
           if (vol.calendarAccessKey) {
             res.status(200).json({
               message: "Success!",
-              link: `webcal://localhost:8080/calendar/${vol.calendarAccessKey}/bookings.ics`
+              link: `${process.env.WEB_CAL_URL}/calendar/${vol.calendarAccessKey}/bookings.ics`
             })
           } else {
             const key = uuid();
@@ -218,7 +218,7 @@ let VolunteerController = function (volunteerRepository, shiftRepository) {
               .then(() => {
                 res.status(200).json({
                   message: "Success!",
-                  link: `webcal://localhost:8080/calendar/${key}/bookings.ics`
+                  link: `${process.env.WEB_CAL_URL}/calendar/${key}/bookings.ics`
                 })
               })
           }
