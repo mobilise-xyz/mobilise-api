@@ -3,6 +3,6 @@ let router = express.Router();
 let controller = require("../controllers").CalendarController;
 
 /* Get calendar for a volunteer's shifts */
-router.get("/:id/bookings.ics", controller.subscribe);
+router.get("/:key/bookings.ics", controller.subscribeToBookings);
 
 module.exports = router;

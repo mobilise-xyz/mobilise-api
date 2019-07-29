@@ -11,6 +11,8 @@ router.get("/hall-of-fame", controller.getHallOfFame);
 /* Get all shifts for a volunteer */
 router.get("/:id/shifts", controller.listShiftsForVolunteer);
 
+router.get("/:id/shifts/calendar", controller.getCalendarForVolunteer);
+
 /* Get all available shifts for a volunteer */
 router.get("/:id/availableShifts", controller.listAvailableShiftsForVolunteer);
 

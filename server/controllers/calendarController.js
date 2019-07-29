@@ -2,16 +2,17 @@ const ical = require("ical-generator");
 const moment = require("moment");
 const bookingRepository = require("../repositories").BookingRepository;
 const volunteerRepository = require("../repositories").VolunteerRepository;
+
 const {SHIFT_AFTER} = require("../sequelizeUtils/where");
 
 let CalendarController = function(bookingRepository) {
 
-  this.subscribe = function(req, res) {
+  this.subscribeToBookings = function(req, res) {
     const cal = ical({name: 'City Harvest London'});
     const now = moment();
     const whereShift = SHIFT_AFTER(now.format("YYYY-MM-DD"), now.format("HH:mm:ss"));
     volunteerRepository
-      .getById(req.params.id)
+      .getByCalendarKey(req.params.key)
       .then(vol => {
         if (!vol) {
           res.status(400).json({message: "No volunteer with that id"});
@@ -35,7 +36,7 @@ let CalendarController = function(bookingRepository) {
         res.status(200).send(cal.toString());
       })
       .catch(err => res.status(500).json({message: err}));
-  }
+  };
 };
 
 module.exports = new CalendarController(bookingRepository);

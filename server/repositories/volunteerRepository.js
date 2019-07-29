@@ -78,6 +78,19 @@ VolunteerRepository.getById = function(id) {
   return deferred.promise;
 };
 
+VolunteerRepository.getByCalendarKey = function(key) {
+  let deferred = Q.defer();
+
+  Volunteer.findOne({
+    where: { calendarAccessKey: key },
+    include: [USER()]
+  })
+    .then(volunteer => deferred.resolve(volunteer))
+    .catch(err => deferred.reject(err));
+
+  return deferred.promise;
+};
+
 VolunteerRepository.update = function(volunteer, body) {
   let deferred = Q.defer();
   Volunteer.update(body, { where: { userId: volunteer.userId } })
