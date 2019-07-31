@@ -206,6 +206,8 @@ let VolunteerController = function (volunteerRepository, shiftRepository) {
       .then(vol => {
         if (!vol) {
           res.status(400).json({message: "No volunteer with that id"});
+        } else if (vol.userId !== req.user.id) {
+          res.status(400).json({message: "You can not get someone else's calendar!"})
         } else {
           if (vol.calendarAccessKey) {
             res.status(200).json({
