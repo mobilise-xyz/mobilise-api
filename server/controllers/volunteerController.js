@@ -3,6 +3,7 @@ const shiftRepository = require("../repositories").ShiftRepository;
 const bookingRepository = require("../repositories").BookingRepository;
 const metricRepository = require("../repositories").MetricRepository;
 const moment = require("moment");
+const uuid = require("uuid/v4");
 const Op = require("../models").Sequelize.Op;
 const {volunteerIsAvailableForShift} = require("../utils/availability");
 const {getDateRange} = require("../utils/date");
@@ -197,6 +198,35 @@ let VolunteerController = function (volunteerRepository, shiftRepository) {
         }
       })
       .catch(error => res.status(500).json({message: error}));
+  };
+
+  this.getCalendarForVolunteer = function (req, res) {
+    volunteerRepository
+      .getById(req.params.id)
+      .then(vol => {
+        if (!vol) {
+          res.status(400).json({message: "No volunteer with that id"});
+        } else if (vol.userId !== req.user.id) {
+          res.status(400).json({message: "You can not get someone else's calendar!"})
+        } else {
+          if (vol.calendarAccessKey) {
+            res.status(200).json({
+              message: "Success!",
+              link: `${process.env.WEB_CAL_URL}/calendar/${vol.calendarAccessKey}/bookings.ics`
+            })
+          } else {
+            const key = uuid();
+            return volunteerRepository.update(vol, {calendarAccessKey: key})
+              .then(() => {
+                res.status(200).json({
+                  message: "Success!",
+                  link: `${process.env.WEB_CAL_URL}/calendar/${key}/bookings.ics`
+                })
+              })
+          }
+        }
+      })
+      .catch(err => res.status(500).json({message: err}));
   };
 
   this.listShiftsForVolunteer = function (req, res) {
