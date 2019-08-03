@@ -28,6 +28,7 @@ let metricRouter = require("./server/routes/metric");
 let statsRouter = require("./server/routes/stats");
 let calendarRouter = require("./server/routes/calendar");
 let predictionRouter = require("./server/routes/prediction");
+let fileRouter = require("./server/routes/files");
 
 app.use(logger("dev"));
 app.use(express.json());
@@ -65,6 +66,11 @@ app.use(
   "/metric",
   passport.authenticate("jwt", { session: false }),
   metricRouter
+);
+app.use(
+  "/files",
+  passport.authenticate("jwt", {session: false}),
+  fileRouter
 );
 
 // catch 404 and forward to error handler
