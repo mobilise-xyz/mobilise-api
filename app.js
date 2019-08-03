@@ -16,6 +16,7 @@ require("./passport");
 let app = express();
 
 app.use(cors());
+app.options('*', cors()) 
 
 let indexRouter = require("./server/routes/index");
 let usersRouter = require("./server/routes/users");
