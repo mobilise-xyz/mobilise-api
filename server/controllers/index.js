@@ -7,6 +7,7 @@ const MetricController = require("./metricController");
 const VolunteerController = require("./volunteerController");
 const PredictionController = require("./predictionController");
 const CalendarController = require("./calendarController");
+const FileController = require("./fileController");
 
 module.exports = {
   ShiftController,
@@ -17,5 +18,6 @@ module.exports = {
   StatsController,
   VolunteerController,
   PredictionController,
-  CalendarController
+  CalendarController,
+  FileController
 };

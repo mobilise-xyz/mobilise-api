@@ -12,4 +12,4 @@ passport.use(new JWTStrategy({
         return User.findOne({where: {id: jwtPayload.id}})
                 .then(user => {return done(null, user)})
                 .catch(err => {return done(err)})
-}))
+}));
