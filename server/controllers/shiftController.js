@@ -3,8 +3,10 @@ const roleRepository = require("../repositories").RoleRepository;
 const bookingRepository = require("../repositories").BookingRepository;
 const volunteerRepository = require("../repositories").VolunteerRepository;
 const adminRepository = require("../repositories").AdminRepository;
+const userRepository = require("../repositories").UserRepository;
 const moment = require("moment");
 const sequelize = require("sequelize");
+const uuid = require("uuid/v4");
 const {getNextDate, getDateRange, isWeekend} = require("../utils/date");
 const {
   volunteerIsAvailableForShift,
@@ -82,6 +84,25 @@ let ShiftController = function (
         res.status(200).json({message: "Success!", titles});
       })
       .catch(err => res.status(500).json({message: err}));
+  };
+
+  this.getCalendarForShifts = function (req, res) {
+      if (req.user.calendarAccessKey) {
+        res.status(200).json({
+          message: "Success!",
+          link: `${process.env.WEB_CAL_URL}/calendar/${req.user.calendarAccessKey}/shifts.ics`
+        })
+      } else {
+        const key = uuid();
+        userRepository.update(req.user, {calendarAccessKey: key})
+          .then(() => {
+            res.status(200).json({
+              message: "Success!",
+              link: `${process.env.WEB_CAL_URL}/calendar/${key}/shifts.ics`
+            })
+          })
+          .catch(err => res.status(500).json({message: err}));
+      }
   };
 
   this.deleteById = function (req, res) {
