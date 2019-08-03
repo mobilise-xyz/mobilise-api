@@ -2,7 +2,7 @@
 
 # Mobilise [API]
 
-This is the API that serves the [Mobilise app](www.mobilise.xyz). The client for this web app can be found [here](https://github.com/sonjoonho/mobilise-frontend).
+This is the API that serves the [Mobilise app](https://www.mobilise.xyz). The client for this web app can be found [here](https://github.com/mobilise-xyz/mobilise-frontend).
 
 ## Getting Started
 

@@ -42,6 +42,10 @@ module.exports = (sequelize, DataTypes) => {
       lastLogin: {
         type: DATE,
         allowNull: true
+      },
+      calendarAccessKey: {
+        type: UUID,
+        unique: true
       }
     },
     {}

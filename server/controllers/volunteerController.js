@@ -1,4 +1,5 @@
 const volunteerRepository = require("../repositories").VolunteerRepository;
+const userRepository = require("../repositories").UserRepository;
 const shiftRepository = require("../repositories").ShiftRepository;
 const bookingRepository = require("../repositories").BookingRepository;
 const metricRepository = require("../repositories").MetricRepository;
@@ -201,20 +202,24 @@ let VolunteerController = function (volunteerRepository, shiftRepository) {
   };
 
   this.getCalendarForVolunteer = function (req, res) {
-    volunteerRepository
+    userRepository
       .getById(req.params.id)
-      .then(vol => {
-        if (!vol) {
+      .then(user => {
+        if (!user) {
           res.status(400).json({message: "No volunteer with that id"});
+        } else if (user.id !== req.user.id) {
+          res.status(400).json({message: "You can not get someone else's calendar!"})
+        } else if (user.isAdmin) {
+          res.status(400).json({message: "User is an admin!"})
         } else {
-          if (vol.calendarAccessKey) {
+          if (user.calendarAccessKey) {
             res.status(200).json({
               message: "Success!",
-              link: `${process.env.WEB_CAL_URL}/calendar/${vol.calendarAccessKey}/bookings.ics`
+              link: `${process.env.WEB_CAL_URL}/calendar/${user.calendarAccessKey}/bookings.ics`
             })
           } else {
             const key = uuid();
-            return volunteerRepository.update(vol, {calendarAccessKey: key})
+            return userRepository.update(user, {calendarAccessKey: key})
               .then(() => {
                 res.status(200).json({
                   message: "Success!",

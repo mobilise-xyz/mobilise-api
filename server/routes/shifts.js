@@ -8,6 +8,9 @@ router.post("/", controller.create);
 /* Get all shifts. */
 router.get("/", controller.list);
 
+/* Get calendar link for all shifts. */
+router.get("/calendar", controller.getCalendarForShifts);
+
 /* Delete shift by ID */
 router.delete("/:id", controller.deleteById);
 
