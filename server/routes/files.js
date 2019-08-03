@@ -34,4 +34,7 @@ router.post('/', upload.single("file"), function(req, res) {
   res.json({message: 'Successfully uploaded: ', file: req.file.originalname})
 });
 
+/* Delete a file */
+router.delete('/:name', controller.deleteByName);
+
 module.exports = router;
