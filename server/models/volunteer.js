@@ -23,10 +23,6 @@ module.exports = (sequelize, DataTypes) => {
       },
       lastWeekIncrease: {
         type: FLOAT
-      },
-      calendarAccessKey: {
-        type: UUID,
-        unique: true
       }
     },
     {}

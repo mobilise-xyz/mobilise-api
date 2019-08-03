@@ -5,4 +5,7 @@ let controller = require("../controllers").CalendarController;
 /* Get calendar for a volunteer's shifts */
 router.get("/:key/bookings.ics", controller.subscribeToBookings);
 
+/* Get calendar for all shifts */
+router.get("/:key/shifts.ics", controller.subscribeToShifts);
+
 module.exports = router;
