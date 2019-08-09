@@ -11,13 +11,14 @@ const {getDateRange} = require("../utils/date");
 const {
   REQUIREMENTS_WITH_BOOKINGS,
   CREATOR,
-  REPEATED_SHIFT
+  REPEATED_SHIFT,
+  USER
 } = require("../sequelizeUtils/include");
 const {SHIFT_BEFORE} = require("../sequelizeUtils/where");
 const EXPECTED_SHORTAGE_THRESHOLD = 2;
 const ITEMS_PER_PAGE = 5;
 
-let VolunteerController = function (volunteerRepository, shiftRepository) {
+let VolunteerController = function (volunteerRepository, shiftRepository, userRepository) {
   this.list = function (req, res) {
     // Restrict access to admin
     if (!req.user.isAdmin) {
@@ -27,8 +28,14 @@ let VolunteerController = function (volunteerRepository, shiftRepository) {
       return;
     }
 
+    let whereTrue = {};
+
+    if (req.query.approved != null) {
+      whereTrue["approved"] = req.query.approved
+    }
+
     volunteerRepository
-      .getAll()
+      .getAll({}, [USER(whereTrue)])
       .then(volunteers => res.status(200).json({message: "Success", volunteers}))
       .catch(err => res.status(500).json({message: err}));
   };
@@ -171,10 +178,32 @@ let VolunteerController = function (volunteerRepository, shiftRepository) {
                 message: "Availability Updated Successfully"
               })
             )
-            .catch(error => res.status(400).json({message: error}));
         }
       })
       .catch(error => res.status(500).json({message: error}));
+  };
+
+  this.approve = function (req, res) {
+    if (!req.user.isAdmin) {
+      res.status(401).json({message: "Only admins may approve volunteers"});
+    }
+    volunteerRepository.getById(req.params.id)
+      .then(volunteer => {
+        if (!volunteer) {
+          res.status(400).json({message: "No volunteer with that id"});
+        } else if (volunteer.user.approved) {
+          res.status(400).json({message: "Volunteer already approved"});
+        } else {
+          userRepository.update(volunteer.user, {approved: true})
+            .then(user => res.status(200).json({
+              message: "Approved volunteer!",
+              volunteer: {
+                "firstName": user.firstName, "lastName": user.lastName
+              }
+            }));
+        }
+      })
+      .catch(err => res.status(500).json({message: err}));
   };
 
   this.getAvailability = function (req, res) {
@@ -195,7 +224,6 @@ let VolunteerController = function (volunteerRepository, shiftRepository) {
           volunteerRepository
             .getAvailability(req.params.id)
             .then(result => res.status(200).json({message: "Success!", availability: result}))
-            .catch(error => res.status(400).json({message: error}));
         }
       })
       .catch(error => res.status(500).json({message: error}));
@@ -329,4 +357,4 @@ function roundIfNotInteger(num, numDP) {
   return Number.isInteger(num) ? num : num.toFixed(numDP);
 }
 
-module.exports = new VolunteerController(volunteerRepository, shiftRepository);
+module.exports = new VolunteerController(volunteerRepository, shiftRepository, userRepository);

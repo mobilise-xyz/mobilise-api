@@ -113,10 +113,13 @@ function REPEATED_SHIFT() {
   };
 }
 
-function USER() {
+function USER(whereTrue = {}) {
   return {
     model: User,
     as: "user",
+    where: whereTrue,
+    required: true,
+    attributes: ["firstName", "lastName", "email", "telephone", "approved"],
     include: ["contactPreferences"]
   };
 }

@@ -8,6 +8,9 @@ router.get("/", controller.list);
 /* Get hall of fame of volunteers */
 router.get("/hall-of-fame", controller.getHallOfFame);
 
+/* Approve a volunteer by id */
+router.post("/:id/approve", controller.approve);
+
 /* Get all shifts for a volunteer */
 router.get("/:id/shifts", controller.listShiftsForVolunteer);
 

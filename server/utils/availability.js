@@ -68,7 +68,7 @@ async function getCumulativeAvailability() {
         [0,0,0],
         [0,0,0],
         [0,0,0]
-      ]
+      ];
 
       // Loop through list of volunteers and build the array of cumulative availabilities
       let i;
@@ -92,7 +92,7 @@ async function getCumulativeAvailability() {
       return array;
     })
     .then(result => deferred.resolve(result))
-    .catch(error => deferred.reject(error))
+    .catch(error => deferred.reject(error));
 
   return deferred.promise;
 }
