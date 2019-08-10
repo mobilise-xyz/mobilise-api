@@ -194,12 +194,10 @@ let VolunteerController = function (volunteerRepository, shiftRepository, userRe
         } else if (volunteer.user.approved) {
           res.status(400).json({message: "Volunteer already approved"});
         } else {
-          userRepository.update(volunteer.user, {approved: true})
-            .then(user => res.status(200).json({
+          userRepository.update({id: volunteer.userId}, {approved: true})
+            .then(() => res.status(200).json({
               message: "Approved volunteer!",
-              volunteer: {
-                "firstName": user.firstName, "lastName": user.lastName
-              }
+              volunteer: volunteer
             }));
         }
       })
