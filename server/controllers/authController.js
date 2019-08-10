@@ -88,7 +88,7 @@ let AuthController = function (
         if (user.approved) {
           return user;
         }
-        res.status(400).json({message: "User has not been approved"})
+        res.status(400).json({message: "User has not been approved yet!"})
       })
       .then(user => {
         lastLogin = user.lastLogin;
@@ -108,7 +108,7 @@ let AuthController = function (
           }
         });
       })
-      .catch(err => res.status(500).send(err));
+      .catch(() => res.status(500).send("An error occurred"));
   };
 };
 
