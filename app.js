@@ -3,7 +3,6 @@ let express = require("express");
 let cors = require("cors");
 let path = require("path");
 let cookieParser = require("cookie-parser");
-let boolParser = require("express-query-boolean");
 let logger = require("morgan");
 const passport = require("passport");
 
@@ -16,7 +15,7 @@ require("./passport");
 let app = express();
 
 app.use(cors());
-app.options('*', cors()) 
+app.options('*', cors()) ;
 
 let indexRouter = require("./server/routes/index");
 let usersRouter = require("./server/routes/users");
@@ -34,7 +33,6 @@ app.use(logger("dev"));
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser());
-app.use(boolParser());
 app.use(express.static(path.join(__dirname, "public")));
 
 app.use("/", indexRouter);

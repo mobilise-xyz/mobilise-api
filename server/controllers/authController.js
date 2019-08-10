@@ -39,8 +39,10 @@ let AuthController = function (
       .then(async user => {
         // Add user to volunteer or admin table
         if (!user.isAdmin) {
+          //TODO: Send some notification to admins
           await volunteerRepository.add({userId: user.id});
         } else {
+          //TODO: Send some notification to us
           await adminRepository.add({userId: user.id});
         }
 
@@ -79,9 +81,14 @@ let AuthController = function (
         loggedInUser = user;
         if (user && validatePassword(req.body.password, user.password)) {
           return user;
-        } else {
-          res.status(400).json({message: "Invalid username/password"});
         }
+        res.status(400).json({message: "Invalid username/password"});
+      })
+      .then(user => {
+        if (user.approved) {
+          return user;
+        }
+        res.status(400).json({message: "User has not been approved yet!"})
       })
       .then(user => {
         lastLogin = user.lastLogin;
@@ -101,7 +108,7 @@ let AuthController = function (
           }
         });
       })
-      .catch(err => res.status(500).send(err));
+      .catch(() => res.status(500).send("An error occurred"));
   };
 };
 

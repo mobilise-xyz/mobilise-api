@@ -17,7 +17,8 @@ const {
   SHIFTS_WITH_REQUIREMENTS_WITH_BOOKINGS,
   CREATOR,
   REPEATED_SHIFT,
-  VOLUNTEERS
+  VOLUNTEERS,
+  USER
 } = require("../sequelizeUtils/include");
 const { EmailClient, emailClientTypes } = require("../utils/email");
 const Nexmo = require("nexmo");
@@ -376,7 +377,7 @@ let ShiftController = function (
         } else {
           const emailClient = EmailClient(emailClientTypes.NOREPLY);
           const textClient = createTextClient();
-          return volunteerRepository.getAll().then(volunteers => {
+          return volunteerRepository.getAll({}, [USER()]).then(volunteers => {
             volunteers.forEach(volunteer => {
               if (
                 !volunteerBookedOnShift(volunteer, shift) &&

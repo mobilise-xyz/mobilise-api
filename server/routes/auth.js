@@ -4,6 +4,6 @@ let controller = require('../controllers').AuthController;
 
 router.post('/login',	controller.loginUser);
 
-//router.post('/register', controller.registerUser);
+router.post('/register', controller.registerUser);
 
 module.exports = router;
