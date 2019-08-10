@@ -40,11 +40,12 @@ VolunteerRepository.getTop = function(orderBy, limit) {
   return deferred.promise;
 };
 
-VolunteerRepository.getAll = function(whereTrue, include) {
+VolunteerRepository.getAll = function(whereTrue, include, order) {
   let deferred = Q.defer();
 
   Volunteer.findAll({
     where: whereTrue,
+    order: order,
     include: include
   })
     .then(volunteers => deferred.resolve(volunteers))
