@@ -29,13 +29,23 @@ let VolunteerController = function (volunteerRepository, shiftRepository, userRe
     }
 
     let whereTrue = {};
+    let order = [];
 
     if (req.query.approved != null) {
       whereTrue["approved"] = req.query.approved
     }
 
+    if (req.query.sortBy != null) {
+      console.log(req.query.sortBy);
+      // eslint-disable-next-line no-useless-escape
+      const result = req.query.sortBy.match('(asc|desc)\\(([^\\)\\(]+)\\)');
+      if (result != null) {
+        order.push([result[2], result[1].toUpperCase()])
+      }
+    }
+
     volunteerRepository
-      .getAll({}, [USER(whereTrue)])
+      .getAll({}, [USER(whereTrue)], order)
       .then(volunteers => res.status(200).json({message: "Success", volunteers}))
       .catch(err => res.status(500).json({message: err}));
   };
