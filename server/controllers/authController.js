@@ -24,15 +24,22 @@ let AuthController = function (
             .status(400)
             .json({message: "An account with that email already exists"});
         } else {
-          let hash = hashedPassword(req.body.password);
-          const number = phoneUtil.parse(req.body.telephone, 'GB');
-          if (!phoneUtil.isValidNumber(number)) {
+          if (!isSecure(req.body.password)) {
             res
               .status(400)
-              .json({message: "Invalid UK phone number"});
+              .json({message: "Password must be at least 8 characters, contain at least one uppercase letter, " +
+                  "one lowercase letter and one number/special character"});
           } else {
-            const formattedNumber = phoneUtil.format(number, PNF.E164);
-            return userRepository.add(req.body, hash, formattedNumber);
+            let hash = hashedPassword(req.body.password);
+            const number = phoneUtil.parse(req.body.telephone, 'GB');
+            if (!phoneUtil.isValidNumber(number)) {
+              res
+                .status(400)
+                .json({message: "Invalid UK phone number"});
+            } else {
+              const formattedNumber = phoneUtil.format(number, PNF.E164);
+              return userRepository.add(req.body, hash, formattedNumber);
+            }
           }
         }
       })
@@ -135,4 +142,11 @@ function generateToken(user) {
     config["jwt-secret"],
     {expiresIn: tokenConfig.timeout * 60}
   );
+}
+
+function isSecure(password) {
+  return new RegExp(
+    '(?=^.{8,}$)((?=.*\\d)|(?=.*\\W+))' +
+    '(?![.\\n])(?=.*[A-Z])(?=.*[a-z]).*$'
+  ).test(password);
 }
