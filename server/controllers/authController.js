@@ -64,8 +64,7 @@ let AuthController = function (
             firstName: user.firstName,
             lastName: user.lastName,
             email: user.email,
-            isAdmin: user.isAdmin,
-            dob: user.dob
+            isAdmin: user.isAdmin
           }
         })
       )
