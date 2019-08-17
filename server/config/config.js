@@ -1,7 +1,4 @@
 module.exports = {
-  "token": {
-    "timeout": 9999
-  },
   "jwt-secret": process.env.JWT_SECRET
   ,
   "development": {

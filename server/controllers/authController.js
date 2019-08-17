@@ -134,13 +134,12 @@ function validatePassword(password, hashedPassword) {
 }
 
 function generateToken(user) {
-  let tokenConfig = config.token;
   return jwt.sign(
     {
       id: user.id
     },
     config["jwt-secret"],
-    {expiresIn: tokenConfig.timeout * 60}
+    {expiresIn: '24h'}
   );
 }
 
