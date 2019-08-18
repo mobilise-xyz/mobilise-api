@@ -8,6 +8,7 @@ module.exports = {
   down: (queryInterface, Sequelize) => {
     return queryInterface.addColumn("Users", "dob", {
       type: Sequelize.DATEONLY,
+      defaultValue: "2019-06-30",
       allowNull: false
     })
   }
