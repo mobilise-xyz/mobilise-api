@@ -3,6 +3,7 @@ const userRepository = require("../repositories").UserRepository;
 const shiftRepository = require("../repositories").ShiftRepository;
 const bookingRepository = require("../repositories").BookingRepository;
 const metricRepository = require("../repositories").MetricRepository;
+const contactRepository = require("../repositories").ContactRepository;
 const moment = require("moment");
 const uuid = require("uuid/v4");
 const Op = require("../models").Sequelize.Op;
@@ -219,7 +220,7 @@ let VolunteerController = function (volunteerRepository, shiftRepository, userRe
     if (req.user.id !== req.params.id) {
       res
         .status(401)
-        .json({message: "You can only update your own availability."});
+        .json({message: "You can only get your own availability."});
       return;
     }
 
@@ -359,6 +360,49 @@ let VolunteerController = function (volunteerRepository, shiftRepository, userRe
       .then(shifts => res.status(200).json({message: "Success!", shifts, count: shifts.length}))
       .catch(err => res.status(500).json({message: err}));
   };
+
+  this.addContact = function(req, res) {
+
+    if (req.user.id !== req.params.id) {
+      res.status(400).json({message: "You can only add your own contacts!"});
+      return;
+    }
+
+    volunteerRepository.getById(req.params.id)
+      .then(volunteer => {
+        if (!volunteer) {
+          res.status(400).json({message: "No volunteer with that id"});
+          return;
+        }
+        return contactRepository.add(req.params.id, req.body);
+      })
+      .then(contacts => {
+        res.status(201).json({message: "Success! Contacts retrieved.", contacts})
+      })
+      .catch(err => res.status(500).json({message: err}))
+  };
+
+  this.getContacts = function(req, res) {
+
+    if (req.user.id !== req.params.id) {
+      res.status(400).json({message: "You can only get your own contacts!"});
+      return;
+    }
+
+    volunteerRepository.getById(req.params.id)
+      .then(volunteer => {
+        if (!volunteer) {
+          res.status(400).json({message: "No volunteer with that id"});
+          return;
+        }
+        return contactRepository.getAllByVolunteerId(req.params.id);
+      })
+      .then(contacts => {
+        res.status(201).json({message: "Success! Contacts retrieved.", contacts})
+      })
+      .catch(err => res.status(500).json({message: err}))
+  }
+
 };
 
 function roundIfNotInteger(num, numDP) {

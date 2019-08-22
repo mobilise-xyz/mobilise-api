@@ -46,7 +46,6 @@ let AuthController = function (
       .then(async user => {
         // Add user to volunteer or admin table
         if (!user.isAdmin) {
-          //TODO: Send some notification to admins
           await volunteerRepository.add({userId: user.id});
         } else {
           //TODO: Send some notification to us
