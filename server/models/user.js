@@ -42,10 +42,6 @@ module.exports = (sequelize, DataTypes) => {
       calendarAccessKey: {
         type: UUID,
         unique: true
-      },
-      approved: {
-        type: BOOLEAN,
-        allowNull: false
       }
     },
     {}
