@@ -14,4 +14,7 @@ router.put("/:id/contact-preferences", controller.updateContactPreferences);
 /* Send feedback from a user */
 router.post("/:id/feedback", controller.sendFeedback);
 
+/* Change password for this user */
+router.put("/password", controller.changePassword);
+
 module.exports = router;
