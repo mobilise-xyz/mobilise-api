@@ -66,7 +66,7 @@ let AuthController = function (
                 .json({message: "Invalid UK phone number"});
             } else {
               const formattedNumber = phoneUtil.format(number, PNF.E164);
-              return userRepository.add(req.body, hash, formattedNumber);
+              return userRepository.add(req.body, hash, formattedNumber, false);
             }
           }
         }

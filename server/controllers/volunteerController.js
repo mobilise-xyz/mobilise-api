@@ -355,7 +355,7 @@ let VolunteerController = function (volunteerRepository, shiftRepository, userRe
         return invitationTokenRepository.getByEmail(req.body.email);
       })
       .then(invitation => {
-        if (invitation) {
+        if (invitation && moment().isBefore(invitation.expires)) {
           res.status(400).json({message: "Volunteer with that email has already been invited!"});
           return;
         }
