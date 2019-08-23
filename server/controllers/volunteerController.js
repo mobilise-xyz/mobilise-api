@@ -343,7 +343,17 @@ let VolunteerController = function (volunteerRepository, shiftRepository, userRe
       res.status(401).json({message: "Only admins can invite volunteers"});
       return;
     }
-    invitationTokenRepository.getByEmail(req.body.email)
+    if (!req.user.email) {
+      res.status(400).json({message: "No email has been specified"});
+    }
+    volunteerRepository.getByEmail(req.body.email)
+      .then(volunteer => {
+        if (volunteer) {
+          res.status(400).json({message: "Volunteer already has an account"});
+          return;
+        }
+        return invitationTokenRepository.getByEmail(req.body.email);
+      })
       .then(invitation => {
         if (invitation) {
           res.status(400).json({message: "Volunteer with that email has already been invited!"});
@@ -355,11 +365,11 @@ let VolunteerController = function (volunteerRepository, shiftRepository, userRe
           .then(() => {
             const emailClient = new EmailClient(emailClientTypes.NOREPLY);
             emailClient.send(req.body.email,
-              "Invitation to Mobilise",
-              `Hi there,\n
+              "Invitation to City Harvest",
+              `Hello from Mobilise,\n
           You have been invited to join City Harvest by ${req.user.firstName}.\n
           Please click the following link to sign-up to Mobilise, the home of volunteering at City Harvest.\n\n
-          http://localhost:3000/sign-up?token=${token}\n\n
+          ${process.env.WEB_URL}/sign-up?token=${token}\n\n
           This link will expire in 24 hours.`);
             res.status(200).json({message: "Success! Invitation has been sent."});
           })
