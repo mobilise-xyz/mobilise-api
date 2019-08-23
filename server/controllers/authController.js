@@ -18,10 +18,14 @@ let AuthController = function (
   invitationTokenRepository
 ) {
   this.registerUser = function (req, res) {
+    if (!req.body.token) {
+      res.status(401).json({message: "Token not present"});
+      return;
+    }
     invitationTokenRepository.getByToken(req.body.token)
       .then(result => {
         if (!result) {
-          res.status(401).json({message: "Invalid or missing token"});
+          res.status(401).json({message: "Invalid token"});
           return;
         }
         if (result.email !== req.body.email) {
