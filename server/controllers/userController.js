@@ -75,7 +75,7 @@ let UserController = function (userRepository) {
       res.status(400).json({message: "Please provide your old password"});
     }
     if (!validatePassword(req.body.oldPassword, req.user.password)) {
-      res.status(401).json({message: "Password given is incorrect"});
+      res.status(400).json({message: "Password given is incorrect"});
       return;
     }
     if (!isSecure(req.body.newPassword)) {
