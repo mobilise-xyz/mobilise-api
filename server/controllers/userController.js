@@ -2,6 +2,7 @@ const {EmailClient, emailClientTypes} = require("../utils/email");
 const userRepository = require("../repositories").UserRepository;
 const userContactPreferenceRepository = require("../repositories")
   .UserContactPreferenceRepository;
+const {isSecure, validatePassword, hashedPassword} = require("../utils/password");
 const moment = require("moment");
 
 let UserController = function (userRepository) {
@@ -69,6 +70,26 @@ let UserController = function (userRepository) {
       .catch(error => res.status(500).json({message: error}));
   };
 
+  this.changePassword = function (req, res) {
+    if (!req.body.oldPassword) {
+      res.status(400).json({message: "Please provide your old password"});
+    }
+    if (!validatePassword(req.body.oldPassword, req.user.password)) {
+      res.status(400).json({message: "Password given is incorrect"});
+      return;
+    }
+    if (!isSecure(req.body.newPassword)) {
+      res.status(400).json({
+        message: "New password must be at least 8 characters, contain at least one uppercase " +
+          "letter, one lowercase letter and one number/special character"
+      });
+      return;
+    }
+    userRepository.update(req.user, {password: hashedPassword(req.body.newPassword)})
+      .then(() => res.status(200).json({message: "Success! Password has been changed."}))
+      .catch(() => res.status(500).json({message: "An error occurred"}));
+  };
+
   this.sendFeedback = function (req, res) {
     let emailClient = new EmailClient(emailClientTypes.CONTACT);
 
@@ -85,14 +106,13 @@ let UserController = function (userRepository) {
           res.status(400).json({message: "No user with that id"});
         } else {
           const feedbackMessage = (`
-New user feedback received from ${user.firstName} ${user.lastName} (${user.email}).
-Message sent at ${moment().format('MMMM Do YYYY, h:mm:ss a')}
-
-\"${req.body.feedback}\"
-
-Love from Mobilise.
-          `.trim());
-
+          New user feedback received from ${user.firstName} ${user.lastName} (${user.email}).
+          Message sent at ${moment().format('MMMM Do YYYY, h:mm:ss a')}
+          
+          "${req.body.feedback}"
+          
+          Love from
+          Mobilise.`.trim());
           return emailClient.send(process.env.CONTACT_MAIL_SENDER_USER, "User feedback", feedbackMessage)
         }
       })
@@ -101,8 +121,6 @@ Love from Mobilise.
           message: "Success!",
         }))
       .catch(error => res.status(500).json({message: error}));
-
-
   }
 };
 

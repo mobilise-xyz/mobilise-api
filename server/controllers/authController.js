@@ -4,10 +4,10 @@ const userRepository = require("../repositories").UserRepository;
 const volunteerRepository = require("../repositories").VolunteerRepository;
 const adminRepository = require("../repositories").AdminRepository;
 const moment = require("moment");
-const bcrypt = require("bcryptjs");
 const config = require("../config/config.js");
 const jwt = require("jsonwebtoken");
 const invitationTokenRepository = require("../repositories").InvitationTokenRepository;
+const {isSecure, hashedPassword, validatePassword} = require("../utils/password");
 const {PhoneNumberFormat: PNF, PhoneNumberUtil} = require('google-libphonenumber');
 const phoneUtil = PhoneNumberUtil.getInstance();
 
@@ -147,15 +147,6 @@ module.exports = new AuthController(
   invitationTokenRepository
 );
 
-/* Helper functions */
-function hashedPassword(password) {
-  return bcrypt.hashSync(password, bcrypt.genSaltSync(8), null);
-}
-
-function validatePassword(password, hashedPassword) {
-  return bcrypt.compareSync(password, hashedPassword);
-}
-
 function generateToken(user) {
   return jwt.sign(
     {
@@ -164,11 +155,4 @@ function generateToken(user) {
     config["jwt-secret"],
     {expiresIn: '24h'}
   );
-}
-
-function isSecure(password) {
-  return new RegExp(
-    '(?=^.{8,}$)((?=.*\\d)|(?=.*\\W+))' +
-    '(?![.\\n])(?=.*[A-Z])(?=.*[a-z]).*$'
-  ).test(password);
 }
