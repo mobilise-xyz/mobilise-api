@@ -346,10 +346,10 @@ let VolunteerController = function (volunteerRepository, shiftRepository, userRe
     if (!req.user.email) {
       res.status(400).json({message: "No email has been specified"});
     }
-    volunteerRepository.getByEmail(req.body.email)
-      .then(volunteer => {
-        if (volunteer) {
-          res.status(400).json({message: "Volunteer already has an account"});
+    userRepository.getByEmail(req.body.email)
+      .then(user => {
+        if (user) {
+          res.status(400).json({message: "User already has an account"});
           return;
         }
         return invitationTokenRepository.getByEmail(req.body.email);
