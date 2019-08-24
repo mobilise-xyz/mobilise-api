@@ -19,23 +19,23 @@ let AuthController = function (
 ) {
   this.registerUser = function (req, res) {
     if (!req.body.token) {
-      res.status(401).json({message: "Token not present"});
+      res.status(400).json({message: "Token not present"});
       return;
     }
     invitationTokenRepository.getByToken(req.body.token)
       .then(result => {
         if (!result) {
-          res.status(401).json({message: "Invalid token"});
+          res.status(400).json({message: "Invalid token"});
           return;
         }
         if (result.email !== req.body.email) {
-          res.status(401).json({message: "Please use the email that received the invitation."});
+          res.status(400).json({message: "Please use the email that received the invitation."});
           return;
         }
         return invitationTokenRepository.removeByToken(result.token)
           .then(() => {
             if (moment().isAfter(result.expiry)) {
-              res.status(401).json({
+              res.status(400).json({
                 message: "Token has expired. " +
                   "Please request another invite from an admin."
               });
