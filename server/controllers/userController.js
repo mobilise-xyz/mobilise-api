@@ -105,9 +105,14 @@ let UserController = function (userRepository) {
         if (!user) {
           res.status(400).json({message: "No user with that id"});
         } else {
-          const feedbackMessage = (`\nNew user feedback received from ${user.firstName} ${user.lastName} (${user.email})
-          .\nMessage sent at ${moment().format('MMMM Do YYYY, h:mm:ss a')}\n\n"${req.body.feedback}"\n\nLove from
-           Mobilise.\n`.trim());
+          const feedbackMessage = (`
+          New user feedback received from ${user.firstName} ${user.lastName} (${user.email}).
+          Message sent at ${moment().format('MMMM Do YYYY, h:mm:ss a')}
+          
+          "${req.body.feedback}"
+          
+          Love from
+          Mobilise.`.trim());
           return emailClient.send(process.env.CONTACT_MAIL_SENDER_USER, "User feedback", feedbackMessage)
         }
       })
