@@ -91,7 +91,7 @@ let UserController = function (userRepository) {
   };
 
   this.sendFeedback = function (req, res) {
-    let emailClient = new EmailClient(emailClientTypes.CONTACT);
+    const emailClient = new EmailClient(emailClientTypes.NOREPLY);
 
     if (!req.body.feedback) {
       res.status(400);
