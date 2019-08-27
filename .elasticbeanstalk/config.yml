@@ -1,6 +1,6 @@
 branch-defaults:
   master:
-    environment: mobilise-api-dev2
+    environment: mobilise-dev
     group_suffix: null
 environment-defaults:
   mobilise-api-dev:
