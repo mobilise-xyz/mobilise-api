@@ -3,7 +3,10 @@ const userRepository = require("../repositories").UserRepository;
 const shiftRepository = require("../repositories").ShiftRepository;
 const bookingRepository = require("../repositories").BookingRepository;
 const metricRepository = require("../repositories").MetricRepository;
+const invitationTokenRepository = require("../repositories").InvitationTokenRepository;
+const {EmailClient, emailClientTypes} = require("../utils/email");
 const moment = require("moment");
+const crypto = require("crypto");
 const uuid = require("uuid/v4");
 const Op = require("../models").Sequelize.Op;
 const {volunteerIsAvailableForShift} = require("../utils/availability");
@@ -18,7 +21,7 @@ const {SHIFT_BEFORE} = require("../sequelizeUtils/where");
 const EXPECTED_SHORTAGE_THRESHOLD = 2;
 const ITEMS_PER_PAGE = 5;
 
-let VolunteerController = function (volunteerRepository, shiftRepository, userRepository) {
+let VolunteerController = function (volunteerRepository, shiftRepository, userRepository, invitationTokenRepository) {
   this.list = function (req, res) {
     // Restrict access to admin
     if (!req.user.isAdmin) {
@@ -30,10 +33,6 @@ let VolunteerController = function (volunteerRepository, shiftRepository, userRe
 
     let whereTrue = {};
     let order = [];
-
-    if (req.query.approved != null) {
-      whereTrue["approved"] = req.query.approved
-    }
 
     if (req.query.sortBy != null) {
       console.log(req.query.sortBy);
@@ -193,27 +192,6 @@ let VolunteerController = function (volunteerRepository, shiftRepository, userRe
       .catch(error => res.status(500).json({message: error}));
   };
 
-  this.approve = function (req, res) {
-    if (!req.user.isAdmin) {
-      res.status(401).json({message: "Only admins may approve volunteers"});
-    }
-    volunteerRepository.getById(req.params.id)
-      .then(volunteer => {
-        if (!volunteer) {
-          res.status(400).json({message: "No volunteer with that id"});
-        } else if (volunteer.user.approved) {
-          res.status(400).json({message: "Volunteer already approved"});
-        } else {
-          userRepository.update({id: volunteer.userId}, {approved: true})
-            .then(() => res.status(200).json({
-              message: "Approved volunteer!",
-              volunteer: volunteer
-            }));
-        }
-      })
-      .catch(err => res.status(500).json({message: err}));
-  };
-
   this.getAvailability = function (req, res) {
     // Check bearer token id matches parameter id
     if (req.user.id !== req.params.id) {
@@ -359,10 +337,49 @@ let VolunteerController = function (volunteerRepository, shiftRepository, userRe
       .then(shifts => res.status(200).json({message: "Success!", shifts, count: shifts.length}))
       .catch(err => res.status(500).json({message: err}));
   };
+
+  this.invite = function (req, res) {
+    if (!req.user.isAdmin) {
+      res.status(401).json({message: "Only admins can invite volunteers"});
+      return;
+    }
+    if (!req.user.email) {
+      res.status(400).json({message: "No email has been specified"});
+    }
+    userRepository.getByEmail(req.body.email)
+      .then(user => {
+        if (user) {
+          res.status(400).json({message: "User already has an account"});
+          return;
+        }
+        return invitationTokenRepository.getByEmail(req.body.email);
+      })
+      .then(invitation => {
+        if (invitation && moment().isBefore(invitation.expires)) {
+          res.status(400).json({message: "Volunteer with that email has already been invited!"});
+          return;
+        }
+        const token = crypto.randomBytes(16).toString('hex');
+        const expires = moment().add(1, 'days').format();
+        return invitationTokenRepository.add(req.body.email, token, expires)
+          .then(() => {
+            const emailClient = new EmailClient(emailClientTypes.NOREPLY);
+            return emailClient.send(req.body.email,
+              "Invitation to City Harvest",
+              `Hello from Mobilise,\n
+          You have been invited to join City Harvest by ${req.user.firstName}.\n
+          Please click the following link to sign-up to Mobilise, the home of volunteering at City Harvest.\n\n
+          ${process.env.WEB_URL}/signup?token=${token}\n\n
+          This link will expire in 24 hours.`)
+          })
+      })
+      .then(() => res.status(200).json({message: "Success! Invitation has been sent."}))
+      .catch(err => res.status(500).json({message: err}));
+  }
 };
 
 function roundIfNotInteger(num, numDP) {
   return Number.isInteger(num) ? num : num.toFixed(numDP);
 }
 
-module.exports = new VolunteerController(volunteerRepository, shiftRepository, userRepository);
+module.exports = new VolunteerController(volunteerRepository, shiftRepository, userRepository, invitationTokenRepository);
