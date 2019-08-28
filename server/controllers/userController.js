@@ -130,7 +130,7 @@ let UserController = function (userRepository) {
       res.status(401).json({message: "Only admins can invite volunteers"});
       return;
     }
-    if (!req.user.email) {
+    if (!req.body.email) {
       res.status(400).json({message: "No email has been specified"});
     }
     userRepository.getByEmail(req.body.email)

@@ -113,7 +113,7 @@ let AuthController = function (
       res.status(401).json({message: "Not authenticated"});
       return;
     }
-    if (!req.user.email) {
+    if (!req.body.email) {
       res.status(400).json({message: "No email has been specified"});
     }
     userRepository.getByEmail(req.body.email)
