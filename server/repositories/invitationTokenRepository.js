@@ -6,12 +6,13 @@ let InvitationTokenRepository = Object.create(
   InvitationTokenRepositoryInterface
 );
 
-InvitationTokenRepository.add = function(email, token, expires) {
+InvitationTokenRepository.add = function(email, token, expires, isAdmin) {
   let deferred = Q.defer();
 
   InvitationToken.create({
     email: email,
     token: token,
+    isAdmin: isAdmin,
     expires: expires
   })
     .then(result => deferred.resolve(result))

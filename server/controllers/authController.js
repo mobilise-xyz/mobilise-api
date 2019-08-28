@@ -42,34 +42,34 @@ let AuthController = function (
               return;
             }
             return userRepository.getByEmail(req.body.email);
-          });
-      })
-      .then(user => {
-        if (user) {
-          res
-            .status(400)
-            .json({message: "An account with that email already exists"});
-        } else {
-          if (!isSecure(req.body.password)) {
-            res
-              .status(400)
-              .json({
-                message: "Password must be at least 8 characters, contain at least one uppercase letter, " +
-                  "one lowercase letter and one number/special character"
-              });
-          } else {
-            let hash = hashedPassword(req.body.password);
-            const number = phoneUtil.parse(req.body.telephone, 'GB');
-            if (!phoneUtil.isValidNumber(number)) {
+          })
+          .then(user => {
+            if (user) {
               res
                 .status(400)
-                .json({message: "Invalid UK phone number"});
+                .json({message: "An account with that email already exists"});
             } else {
-              const formattedNumber = phoneUtil.format(number, PNF.E164);
-              return userRepository.add(req.body, hash, formattedNumber, false);
+              if (!isSecure(req.body.password)) {
+                res
+                  .status(400)
+                  .json({
+                    message: "Password must be at least 8 characters, contain at least one uppercase letter, " +
+                      "one lowercase letter and one number/special character"
+                  });
+              } else {
+                let hash = hashedPassword(req.body.password);
+                const number = phoneUtil.parse(req.body.telephone, 'GB');
+                if (!phoneUtil.isValidNumber(number)) {
+                  res
+                    .status(400)
+                    .json({message: "Invalid UK phone number"});
+                } else {
+                  const formattedNumber = phoneUtil.format(number, PNF.E164);
+                  return userRepository.add(req.body, hash, formattedNumber, result.isAdmin);
+                }
+              }
             }
-          }
-        }
+          });
       })
       .then(async user => {
         // Add user to volunteer or admin table

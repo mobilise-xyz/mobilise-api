@@ -4,6 +4,8 @@ const userContactPreferenceRepository = require("../repositories")
   .UserContactPreferenceRepository;
 const {isSecure, validatePassword, hashedPassword} = require("../utils/password");
 const moment = require("moment");
+const crypto = require("crypto");
+const invitationTokenRepository = require("../repositories").InvitationTokenRepository;
 
 let UserController = function (userRepository) {
 
@@ -121,6 +123,45 @@ let UserController = function (userRepository) {
           message: "Success!",
         }))
       .catch(error => res.status(500).json({message: error}));
+  };
+
+  this.invite = function (req, res) {
+    if (!req.user.isAdmin) {
+      res.status(401).json({message: "Only admins can invite volunteers"});
+      return;
+    }
+    if (!req.user.email) {
+      res.status(400).json({message: "No email has been specified"});
+    }
+    userRepository.getByEmail(req.body.email)
+      .then(user => {
+        if (user) {
+          res.status(400).json({message: "User already has an account"});
+          return;
+        }
+        return invitationTokenRepository.getByEmail(req.body.email);
+      })
+      .then(invitation => {
+        if (invitation && moment().isBefore(invitation.expires)) {
+          res.status(400).json({message: "Volunteer with that email has already been invited!"});
+          return;
+        }
+        const token = crypto.randomBytes(16).toString('hex');
+        const expires = moment().add(1, 'days').format();
+        return invitationTokenRepository.add(req.body.email, token, expires, req.body.isAdmin)
+          .then(() => {
+            const emailClient = new EmailClient(emailClientTypes.NOREPLY);
+            return emailClient.send(req.body.email,
+              "Invitation to City Harvest",
+              `Hello from Mobilise,\n
+          You have been invited to join City Harvest by ${req.user.firstName}.\n
+          Please click the following link to sign-up to Mobilise, the home of volunteering at City Harvest.\n\n
+          ${process.env.WEB_URL}/signup?token=${token}\n\n
+          This link will expire in 24 hours.`)
+          })
+      })
+      .then(() => res.status(200).json({message: "Success! Invitation has been sent."}))
+      .catch(err => res.status(500).json({message: err}));
   }
 };
 
