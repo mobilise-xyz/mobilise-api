@@ -17,4 +17,7 @@ router.post("/:id/feedback", controller.sendFeedback);
 /* Change password for this user */
 router.put("/password", controller.changePassword);
 
+/* Invite user */
+router.post("/invite", controller.invite);
+
 module.exports = router;

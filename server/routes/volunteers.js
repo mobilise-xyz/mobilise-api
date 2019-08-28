@@ -29,7 +29,4 @@ router.put("/:id/availability", controller.updateAvailability);
 /* Get availability for a volunteer */
 router.get("/:id/availability", controller.getAvailability);
 
-/* Invite volunteer */
-router.post("/invite", controller.invite);
-
 module.exports = router;
