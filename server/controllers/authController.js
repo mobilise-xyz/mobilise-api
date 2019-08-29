@@ -137,7 +137,7 @@ let AuthController = function (
             return emailClient.send(req.body.email,
               "Invitation to City Harvest",
               `Hello from Mobilise,\n
-          You have been invited to join City Harvest by ${req.user.firstName}.\n
+          You have been invited to join City Harvest.\n
           Please click the following link to sign-up to Mobilise, the home of volunteering at City Harvest.\n\n
           ${process.env.WEB_URL}/signup?token=${token}\n\n
           This link will expire in 24 hours.`)
