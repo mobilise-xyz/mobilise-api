@@ -351,8 +351,8 @@ let VolunteerController = function (volunteerRepository, shiftRepository, userRe
         }
         return contactRepository.add(req.params.id, req.body);
       })
-      .then(contacts => {
-        res.status(201).json({message: "Success! Contacts retrieved.", contacts})
+      .then(contact => {
+        res.status(201).json({message: "Success! Contact added.", contact})
       })
       .catch(err => res.status(500).json({message: err}))
   };
@@ -376,8 +376,36 @@ let VolunteerController = function (volunteerRepository, shiftRepository, userRe
         res.status(201).json({message: "Success! Contacts retrieved.", contacts})
       })
       .catch(err => res.status(500).json({message: err}))
-  }
+  };
 
+  this.removeContact = function (req, res) {
+    if (req.user.id !== req.params.id) {
+      res.status(400).json({message: "You can only remove your own contacts!"});
+      return;
+    }
+
+    volunteerRepository.getById(req.params.id)
+      .then(volunteer => {
+        if (!volunteer) {
+          res.status(400).json({message: "No volunteer with that id"});
+          return;
+        }
+        return contactRepository.getById(req.params.contactId);
+      })
+      .then(contact => {
+        if (!contact) {
+          res.status(400).json({message: "No contact with that id"});
+          return;
+        }
+        if (contact.volunteerId !== req.params.id) {
+          res.status(400).json({message: "You can only remove your own contacts!"});
+          return;
+        }
+        return contactRepository.removeById(req.params.contactId);
+      })
+      .then(() => res.status(200).json({message: "Success! Contact removed!"}))
+      .catch(err => res.status(500).json({message: err}));
+  }
 };
 
 function roundIfNotInteger(num, numDP) {

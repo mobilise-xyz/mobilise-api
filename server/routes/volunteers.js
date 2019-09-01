@@ -35,4 +35,7 @@ router.post("/:id/contacts", controller.addContact);
 /* Get emergency contacts for a volunteer */
 router.get("/:id/contacts", controller.getContacts);
 
+/* Remove emergency contact for a volunteer */
+router.delete("/:id/contacts/:contactId", controller.removeContact);
+
 module.exports = router;
