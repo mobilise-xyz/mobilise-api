@@ -118,7 +118,7 @@ function USER(whereTrue = {}) {
     model: User,
     as: "user",
     where: whereTrue,
-    attributes: ["id", "firstName", "lastName", "email", "telephone", "approved"],
+    attributes: ["id", "firstName", "lastName", "email", "telephone"],
     include: ["contactPreferences"]
   };
 }

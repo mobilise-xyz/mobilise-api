@@ -6,6 +6,7 @@ const AdminRepository = require("./adminRepository");
 const BookingRepository = require("./bookingRepository");
 const MetricRepository = require("./metricRepository");
 const ContactRepository = require("./contactRepository");
+const InvitationTokenRepository = require("./invitationTokenRepository");
 const UserContactPreferenceRepository = require("./userContactPreferenceRepository");
 
 module.exports = {
@@ -17,5 +18,6 @@ module.exports = {
   BookingRepository,
   MetricRepository,
   ContactRepository,
+  InvitationTokenRepository,
   UserContactPreferenceRepository
 };

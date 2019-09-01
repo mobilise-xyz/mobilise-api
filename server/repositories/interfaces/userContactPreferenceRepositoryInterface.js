@@ -1,8 +1,8 @@
 /* eslint-disable no-unused-vars */
-let UserContactPreference = {
+let UserContactPreferenceRepositoryInterface = {
   add: function(userId, contactPreferences) {},
   getById: function(userId) {},
   update: function(userId, contactPreferences) {}
 };
 
-module.exports = UserContactPreference;
+module.exports = UserContactPreferenceRepositoryInterface;

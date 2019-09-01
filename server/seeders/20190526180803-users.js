@@ -16,7 +16,6 @@ module.exports = {
           telephone: Seeded.volunteers[0].telephone,
           password: bcrypt.hashSync(Seeded.volunteers[0].password, bcrypt.genSaltSync(8), null),
           isAdmin: Seeded.volunteers[0].isAdmin,
-          dob: Seeded.volunteers[0].dob,
           createdAt: Seeded.volunteers[0].createdAt,
           updatedAt: Seeded.volunteers[0].updatedAt,
         },
@@ -28,7 +27,6 @@ module.exports = {
           telephone: Seeded.volunteers[1].telephone,
           password: bcrypt.hashSync(Seeded.volunteers[1].password, bcrypt.genSaltSync(8), null),
           isAdmin: Seeded.volunteers[1].isAdmin,
-          dob: Seeded.volunteers[1].dob,
           createdAt: Seeded.volunteers[1].createdAt,
           updatedAt: Seeded.volunteers[1].updatedAt
         },
@@ -40,7 +38,6 @@ module.exports = {
           telephone: Seeded.volunteers[2].telephone,
           password: bcrypt.hashSync(Seeded.volunteers[2].password, bcrypt.genSaltSync(8), null),
           isAdmin: Seeded.volunteers[2].isAdmin,
-          dob: Seeded.volunteers[2].dob,
           createdAt: Seeded.volunteers[2].createdAt,
           updatedAt: Seeded.volunteers[2].updatedAt
         },
@@ -54,7 +51,6 @@ module.exports = {
           telephone: Seeded.admins[0].telephone,
           password: bcrypt.hashSync(Seeded.admins[0].password, bcrypt.genSaltSync(8), null),
           isAdmin: Seeded.admins[0].isAdmin,
-          dob: Seeded.admins[0].dob,
           createdAt: Seeded.admins[0].createdAt,
           updatedAt: Seeded.admins[0].updatedAt
         },
@@ -66,7 +62,6 @@ module.exports = {
           telephone: Seeded.admins[1].telephone,
           password: bcrypt.hashSync(Seeded.admins[1].password, bcrypt.genSaltSync(8), null),
           isAdmin: Seeded.admins[1].isAdmin,
-          dob: Seeded.admins[1].dob,
           createdAt: Seeded.admins[1].createdAt,
           updatedAt: Seeded.admins[1].updatedAt
         }

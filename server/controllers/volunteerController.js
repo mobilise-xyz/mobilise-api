@@ -32,10 +32,6 @@ let VolunteerController = function (volunteerRepository, shiftRepository, userRe
     let whereTrue = {};
     let order = [];
 
-    if (req.query.approved != null) {
-      whereTrue["approved"] = req.query.approved
-    }
-
     if (req.query.sortBy != null) {
       console.log(req.query.sortBy);
       // eslint-disable-next-line no-useless-escape
@@ -192,27 +188,6 @@ let VolunteerController = function (volunteerRepository, shiftRepository, userRe
         }
       })
       .catch(error => res.status(500).json({message: error}));
-  };
-
-  this.approve = function (req, res) {
-    if (!req.user.isAdmin) {
-      res.status(401).json({message: "Only admins may approve volunteers"});
-    }
-    volunteerRepository.getById(req.params.id)
-      .then(volunteer => {
-        if (!volunteer) {
-          res.status(400).json({message: "No volunteer with that id"});
-        } else if (volunteer.user.approved) {
-          res.status(400).json({message: "Volunteer already approved"});
-        } else {
-          userRepository.update({id: volunteer.userId}, {approved: true})
-            .then(() => res.status(200).json({
-              message: "Approved volunteer!",
-              volunteer: volunteer
-            }));
-        }
-      })
-      .catch(err => res.status(500).json({message: err}));
   };
 
   this.getAvailability = function (req, res) {

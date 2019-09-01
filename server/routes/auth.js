@@ -6,4 +6,6 @@ router.post('/login',	controller.loginUser);
 
 router.post('/register', controller.registerUser);
 
+router.post('/inviteAdmin', controller.inviteAdmin);
+
 module.exports = router;

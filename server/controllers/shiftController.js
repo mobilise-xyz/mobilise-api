@@ -375,7 +375,7 @@ let ShiftController = function (
         if (!shift) {
           res.status(400).json({message: "No shift with that id"});
         } else {
-          const emailClient = EmailClient(emailClientTypes.NOREPLY);
+          const emailClient = new EmailClient(emailClientTypes.NOREPLY);
           const textClient = createTextClient();
           return volunteerRepository.getAll({}, [USER()]).then(volunteers => {
             volunteers.forEach(volunteer => {

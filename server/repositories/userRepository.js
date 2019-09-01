@@ -5,7 +5,7 @@ const { CONTACT_PREFERENCES } = require("../sequelizeUtils/include");
 
 let UserRepository = Object.create(UserRepositoryInterface);
 
-UserRepository.add = function(user, hash, phone) {
+UserRepository.add = function(user, hash, phone, isAdmin) {
   let deferred = Q.defer();
 
   User.create({
@@ -13,10 +13,9 @@ UserRepository.add = function(user, hash, phone) {
     lastName: user.lastName,
     email: user.email,
     password: hash,
-    isAdmin: user.isAdmin,
+    isAdmin: isAdmin,
     dob: user.dob,
-    telephone: phone,
-    approved: false
+    telephone: phone
   })
     .then(user => deferred.resolve(user))
     .catch(error => deferred.reject(error));
