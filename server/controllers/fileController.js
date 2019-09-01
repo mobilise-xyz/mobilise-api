@@ -1,16 +1,16 @@
 const AWS = require('aws-sdk');
 const moment = require('moment');
 
-AWS.config.update({
-  accessKeyId: process.env.AWS_ACCESS_KEY,
-  secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY,
-  region: process.env.AWS_REGION
-});
-const s3 = new AWS.S3();
 
 let FileController = function () {
 
   this.get = function (req, res) {
+    AWS.config.update({
+      accessKeyId: process.env.AWS_ACCESS_KEY,
+      secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY,
+      region: process.env.AWS_REGION
+    });
+    const s3 = new AWS.S3();
     const params = {
       Bucket: process.env.AWS_S3_BUCKET_NAME,
     };
@@ -32,6 +32,12 @@ let FileController = function () {
   };
 
   this.downloadByName = function (req, res) {
+    AWS.config.update({
+      accessKeyId: process.env.AWS_ACCESS_KEY,
+      secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY,
+      region: process.env.AWS_REGION
+    });
+    const s3 = new AWS.S3();
     const params = {
       Bucket: process.env.AWS_S3_BUCKET_NAME,
       Key: req.params.name
@@ -47,6 +53,12 @@ let FileController = function () {
   };
 
   this.deleteByName = function (req, res) {
+    AWS.config.update({
+      accessKeyId: process.env.AWS_ACCESS_KEY,
+      secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY,
+      region: process.env.AWS_REGION
+    });
+    const s3 = new AWS.S3();
     if (!req.user.isAdmin) {
       res.status(400).json({message: "Only an admin can delete a file"});
       return;

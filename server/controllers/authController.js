@@ -109,7 +109,7 @@ let AuthController = function (
   };
 
   this.inviteAdmin = function (req, res) {
-    if (req.body.admin !== process.env.ADMIN_KEY) {
+    if (req.body.adminKey !== process.env.ADMIN_KEY) {
       res.status(401).json({message: "Not authenticated"});
       return;
     }
