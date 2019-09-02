@@ -17,6 +17,7 @@ DB_PASSWORD=yourpostgrespassword
 DB_NAME=yourdbname
 DB_PORT=5432 (probably)
 JWT_SECRET=somerandomcharacters
+ADMIN_KEY=somerandomcharacters
 NODE_ENV=development
 ```
 
@@ -51,6 +52,27 @@ NOREPLY_MAIL_SENDER_USER=youremail@ethereal.email
 NOREPLY_MAIL_SENDER_PASS=youremailpassword
 CONTACT_MAIL_SENDER_USER=yourotheremail@ethereal.email
 CONTACT_MAIL_SENDER_PASS=yourotheremailpassword
+```
+
+### S3
+
+We use Amazon S3 buckets for storing and retrieving files. Therefore, in order to 
+retrieve said files successfully. You will need to set the following
+environment variables by adding them to `.env`:
+
+```
+AWS_REGION=yourawsregion (eu-west-2)
+AWS_S3_BUCKET_NAME=yours3bucketname
+AWS_SECRET_ACCESS_KEY=yoursecretaccesskey
+AWS_ACCESS_KEY=youraccesskey
+```
+
+### Triggers
+
+The computation trigger requires use of a key. This should be added to `.env`:
+
+```
+COMPUTATION_TRIGGER_KEY=somerandomcharacters
 ```
 
 ### Calendar 
