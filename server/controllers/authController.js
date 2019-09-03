@@ -128,11 +128,13 @@ let AuthController = function (
                         const emailClient = new EmailClient(emailClientTypes.NOREPLY);
                         return emailClient.send(req.body.email,
                             "Invitation to City Harvest",
-                            `Hello from Mobilise,\n
-          You have been invited to join City Harvest.\n
-          Please click the following link to sign-up to Mobilise, the home of volunteering at City Harvest.\n\n
-          ${process.env.WEB_URL}/signup?token=${token}\n\n
-          This link will expire in 24 hours.`)
+                            `Hello from Mobilise,
+You have been invited to join City Harvest's Mobilise application.
+Please click the following link to begin creating your account on Mobilise.
+
+${process.env.WEB_URL}/signup?token=${token}
+
+This link will expire in 24 hours.`)
                     })
             })
             .then(() => res.status(200).json({message: "Success! Invitation has been sent."}))
