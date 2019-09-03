@@ -6,28 +6,93 @@ This is the API that serves the [Mobilise app](https://www.mobilise.xyz). The cl
 
 ## Getting Started
 
-Add .env file with:
+### Basics
+
+Add `.env` file in the project directory.
+You will need to add AT LEAST the following to this file:
 
 ```
-DB_USERNAME=
-DB_PASSWORD=
-DB_NAME=
-DB_PORT=
-JWT_SECRET=
-MAIL_HOST=
-MAIL_PORT=
-WEB_URL=https://city-harvest.mobilise.xyz
-WEB_CAL_URL=
-NOREPLY_MAIL_SENDER_USER=no-reply@mobilise.xyz
-NOREPLY_MAIL_SENDER_PASS=
-CONTACT_MAIL_SENDER_USER=contact@mobilise.xyz
-CONTACT_MAIL_SENDER_PASS=
-NEXMO_API_KEY=
-NEXMO_API_SECRET=
+DB_USERNAME=yourpostgresusername
+DB_PASSWORD=yourpostgrespassword
+DB_NAME=yourdbname
+DB_PORT=5432 (probably)
+JWT_SECRET=somerandomcharacters
+ADMIN_KEY=somerandomcharacters
 NODE_ENV=development
 ```
 
-Set up local postgres database and populate .env values respectively.
+If wish to use a local database instance, make sure to install Postgres.
+
+On Mac: https://postgresapp.com/downloads.html
+
+It is also advised you download a GUI for managing the Postgres instance:
+
+On Mac: https://eggerapps.at/postico/
+
+Make sure you are running the local Postgres server and have a database 
+that you can use. 
+
+### Mail
+
+Some endpoints will cause the code to send emails to users. In order for this to work, it is important
+that you add the correct environment variables to the `.env` file.
+
+#### Mail using Ethereal
+
+For local use, it is best to use Ethereal for getting a fake email account. 
+https://ethereal.email/
+
+```
+MAIL_HOST=smtp.ethereal.email
+MAIL_PORT=587
+
+WEB_URL=http://localhost:3000
+
+NOREPLY_MAIL_SENDER_USER=youremail@ethereal.email
+NOREPLY_MAIL_SENDER_PASS=youremailpassword
+CONTACT_MAIL_SENDER_USER=yourotheremail@ethereal.email
+CONTACT_MAIL_SENDER_PASS=yourotheremailpassword
+```
+
+### S3
+
+We use Amazon S3 buckets for storing and retrieving files. Therefore, in order to 
+retrieve said files successfully. You will need to set the following
+environment variables by adding them to `.env`:
+
+```
+AWS_REGION=yourawsregion (eu-west-2)
+AWS_S3_BUCKET_NAME=yours3bucketname
+AWS_SECRET_ACCESS_KEY=yoursecretaccesskey
+AWS_ACCESS_KEY=youraccesskey
+```
+
+### Triggers
+
+The computation trigger requires use of a key. This should be added to `.env`:
+
+```
+COMPUTATION_TRIGGER_KEY=somerandomcharacters
+```
+
+### Calendar 
+
+In order to support the ability for shifts to be exported to calendar, you will
+need to add the following to `.env`:
+```
+WEB_CAL_URL=webcal://localhost:8080
+```
+### Texting (not required)
+
+Some endpoints will cause the code to send texts to users. In order for this to work, it is important
+that you add the correct environment variables to the `.env` file.
+
+```
+NEXMO_API_KEY=yournexmoapikey
+NEXMO_API_SECRET=yourapisecret
+```
+
+## Running server
 
 To start the development server:
 
