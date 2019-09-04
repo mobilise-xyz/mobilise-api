@@ -42,7 +42,7 @@ let VolunteerController = function (volunteerRepository, shiftRepository, userRe
     }
 
     volunteerRepository
-      .getAll({}, [USER(whereTrue)], order)
+      .getAll({}, [USER(whereTrue), 'contacts'], order)
       .then(volunteers => res.status(200).json({message: "Success", volunteers}))
       .catch(err => res.status(500).json({message: err}));
   };
