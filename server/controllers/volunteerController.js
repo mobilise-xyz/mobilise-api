@@ -274,11 +274,7 @@ let VolunteerController = function (volunteerRepository, shiftRepository, userRe
               for (let i = 0; i < shift.requirements.length; i++) {
                 let requirement = shift.requirements[i];
                 const { bookings } = requirement;
-                if (
-                    bookings.some(b => b.volunteerId === volunteer.userId)
-                ) {
-                  requirement.booked = true;
-                }
+                requirement.booked = bookings.some(b => b.volunteerId === volunteer.userId);
                 shift.requirements[i] = requirement;
               }
               result.push(shift);
