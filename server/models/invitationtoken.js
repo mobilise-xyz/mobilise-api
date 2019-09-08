@@ -10,6 +10,10 @@ module.exports = (sequelize, DataTypes) => {
       primaryKey: true,
       allowNull: false
     },
+    isAdmin: {
+      type: DataTypes.BOOLEAN,
+      allowNull: false
+    },
     expires: {
       type: DataTypes.DATE,
       allowNull: false
