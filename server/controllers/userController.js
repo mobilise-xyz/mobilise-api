@@ -11,8 +11,8 @@ let UserController = function (userRepository) {
 
   this.getById = function (req, res) {
     // Check request validity
-    // 1) Request made by admin
-    // 2) Request made by volunteer for their own info
+    // 1. Request made by admin
+    // 2. Request made by volunteer for their own info
     if (!req.user.isAdmin && req.user.id !== req.params.id) {
       res.status(401).json({message: "Unauthorised request"});
       return;

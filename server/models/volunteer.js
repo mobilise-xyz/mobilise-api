@@ -29,7 +29,7 @@ module.exports = (sequelize, DataTypes) => {
   );
 
   Volunteer.associate = function(models) {
-    const {Shift, Booking, User} = models;
+    const {Shift, Booking, User, Contact} = models;
     Volunteer.belongsTo(User, {
       as: "user",
       foreignKey: {
@@ -41,6 +41,11 @@ module.exports = (sequelize, DataTypes) => {
 
     Volunteer.hasMany(Booking, {
       as: "bookings",
+      foreignKey: "volunteerId"
+    });
+
+    Volunteer.hasMany(Contact, {
+      as: "contacts",
       foreignKey: "volunteerId"
     });
 

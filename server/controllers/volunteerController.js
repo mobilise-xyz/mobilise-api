@@ -3,6 +3,7 @@ const userRepository = require("../repositories").UserRepository;
 const shiftRepository = require("../repositories").ShiftRepository;
 const bookingRepository = require("../repositories").BookingRepository;
 const metricRepository = require("../repositories").MetricRepository;
+const contactRepository = require("../repositories").ContactRepository;
 const moment = require("moment");
 const uuid = require("uuid/v4");
 const Op = require("../models").Sequelize.Op;
@@ -41,7 +42,7 @@ let VolunteerController = function (volunteerRepository, shiftRepository, userRe
     }
 
     volunteerRepository
-      .getAll({}, [USER(whereTrue)], order)
+      .getAll({}, [USER(whereTrue), 'contacts'], order)
       .then(volunteers => res.status(200).json({message: "Success", volunteers}))
       .catch(err => res.status(500).json({message: err}));
   };
@@ -194,7 +195,7 @@ let VolunteerController = function (volunteerRepository, shiftRepository, userRe
     if (req.user.id !== req.params.id) {
       res
         .status(401)
-        .json({message: "You can only update your own availability."});
+        .json({message: "You can only get your own availability."});
       return;
     }
 
@@ -270,15 +271,12 @@ let VolunteerController = function (volunteerRepository, shiftRepository, userRe
             let result = [];
             shifts.forEach(s => {
               let shift = s.toJSON();
-              let requirements = [];
-              shift.requirements.forEach(requirement => {
-                requirement.bookings.forEach(booking => {
-                  if (booking.volunteerId === volunteer.userId) {
-                    requirements.push(requirement);
-                  }
-                });
-              });
-              shift.requirements = requirements;
+              for (let i = 0; i < shift.requirements.length; i++) {
+                let requirement = shift.requirements[i];
+                const { bookings } = requirement;
+                requirement.booked = bookings.some(b => b.volunteerId === volunteer.userId);
+                shift.requirements[i] = requirement;
+              }
               result.push(shift);
             });
             return result;
@@ -334,6 +332,77 @@ let VolunteerController = function (volunteerRepository, shiftRepository, userRe
       .then(shifts => res.status(200).json({message: "Success!", shifts, count: shifts.length}))
       .catch(err => res.status(500).json({message: err}));
   };
+
+  this.addContact = function(req, res) {
+
+    if (req.user.id !== req.params.id) {
+      res.status(400).json({message: "You can only add your own contacts!"});
+      return;
+    }
+
+    volunteerRepository.getById(req.params.id)
+      .then(volunteer => {
+        if (!volunteer) {
+          res.status(400).json({message: "No volunteer with that id"});
+          return;
+        }
+        return contactRepository.add(req.params.id, req.body);
+      })
+      .then(contact => {
+        res.status(201).json({message: "Success! Contact added.", contact})
+      })
+      .catch(err => res.status(500).json({message: err}))
+  };
+
+  this.getContacts = function(req, res) {
+
+    if (req.user.id !== req.params.id) {
+      res.status(400).json({message: "You can only get your own contacts!"});
+      return;
+    }
+
+    volunteerRepository.getById(req.params.id)
+      .then(volunteer => {
+        if (!volunteer) {
+          res.status(400).json({message: "No volunteer with that id"});
+          return;
+        }
+        return contactRepository.getAllByVolunteerId(req.params.id);
+      })
+      .then(contacts => {
+        res.status(201).json({message: "Success! Contacts retrieved.", contacts})
+      })
+      .catch(err => res.status(500).json({message: err}))
+  };
+
+  this.removeContact = function (req, res) {
+    if (req.user.id !== req.params.id) {
+      res.status(400).json({message: "You can only remove your own contacts!"});
+      return;
+    }
+
+    volunteerRepository.getById(req.params.id)
+      .then(volunteer => {
+        if (!volunteer) {
+          res.status(400).json({message: "No volunteer with that id"});
+          return;
+        }
+        return contactRepository.getById(req.params.contactId);
+      })
+      .then(contact => {
+        if (!contact) {
+          res.status(400).json({message: "No contact with that id"});
+          return;
+        }
+        if (contact.volunteerId !== req.params.id) {
+          res.status(400).json({message: "You can only remove your own contacts!"});
+          return;
+        }
+        return contactRepository.removeById(req.params.contactId);
+      })
+      .then(() => res.status(200).json({message: "Success! Contact removed!"}))
+      .catch(err => res.status(500).json({message: err}));
+  }
 };
 
 function roundIfNotInteger(num, numDP) {
