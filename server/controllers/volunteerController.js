@@ -271,15 +271,12 @@ let VolunteerController = function (volunteerRepository, shiftRepository, userRe
             let result = [];
             shifts.forEach(s => {
               let shift = s.toJSON();
-              let requirements = [];
-              shift.requirements.forEach(requirement => {
-                requirement.bookings.forEach(booking => {
-                  if (booking.volunteerId === volunteer.userId) {
-                    requirements.push(requirement);
-                  }
-                });
-              });
-              shift.requirements = requirements;
+              for (let i = 0; i < shift.requirements.length; i++) {
+                let requirement = shift.requirements[i];
+                const { bookings } = requirement;
+                requirement.booked = bookings.some(b => b.volunteerId === volunteer.userId);
+                shift.requirements[i] = requirement;
+              }
               result.push(shift);
             });
             return result;

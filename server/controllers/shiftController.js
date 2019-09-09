@@ -217,7 +217,7 @@ let ShiftController = function (
             .then(booking => {
               res
                 .status(200)
-                .json({message: "Successfully created booking", booking: booking});
+                .json({message: "Successfully created booking", shiftIds: [booking.shiftId]});
             })
         }
         let startDate = moment(shift.date, "YYYY-MM-DD");
@@ -297,7 +297,7 @@ let ShiftController = function (
               .status(200)
               .json({
                 message: "Successfully created repeated booking",
-                lastBooking: bookings[bookings.length - 1],
+                shiftIds: bookings.map(booking => booking.shiftId),
                 bookingsMade: bookings.length});
           })
       })
