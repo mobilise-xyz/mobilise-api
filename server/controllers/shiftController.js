@@ -363,48 +363,57 @@ let ShiftController = function (
 
   this.ping = function (req, res) {
     if (!req.user.isAdmin) {
-      res
-        .status(401)
-        .json({message: "Only an admin may ping all volunteers for shift"});
+      res.status(401).json({message: "Only an admin may ping volunteers for shift"});
       return;
     }
-
+    let shiftToPing;
     shiftRepository
-      .getById(req.params.id)
+      .getById(req.params.id, [REQUIREMENTS_WITH_BOOKINGS()])
       .then(shift => {
         if (!shift) {
           res.status(400).json({message: "No shift with that id"});
-        } else {
-          const emailClient = new EmailClient(emailClientTypes.NOREPLY);
-          const textClient = createTextClient();
-          return volunteerRepository.getAll({}, [USER()]).then(volunteers => {
-            volunteers.forEach(volunteer => {
-              if (
-                !volunteerBookedOnShift(volunteer, shift) &&
-                volunteerIsAvailableForShift(volunteer, shift)
-              ) {
-                let message = constructHelpMessage(volunteer, shift);
-                if (volunteer.user.contactPreferences.email) {
-                  emailClient.send(
-                    volunteer.user.email,
-                    "Help needed for shift!",
-                    message
-                  );
-                }
-                if (volunteer.user.contactPreferences.text) {
-                  sendText(textClient, volunteer.user, message);
-                }
-              }
-            });
-            return shift;
-          });
+          return;
+        }
+        shiftToPing = shift;
+        // Identify volunteers to contact
+        switch (req.body.type) {
+          case "AVAILABLE":
+            return volunteerRepository.getAll({}, [USER()])
+                .then(volunteers => {
+                  return volunteers.filter(volunteer =>
+                      !volunteerBookedOnShift(volunteer, shift) && volunteerIsAvailableForShift(volunteer, shift)
+                  )
+                });
+          case "ALL":
+            return volunteerRepository.getAll({}, [USER()])
+                .then(volunteers => {
+                  return volunteers.filter(volunteer => !volunteerBookedOnShift(volunteer, shift))
+                });
+          default: {
+            res.status(400).json({message: "Invalid type of ping"});
+            return;
+          }
         }
       })
-      .then(() => {
-        res
-          .status(200)
-          .json({message: "Sending alerts to available volunteers"});
-      });
+      .then(volunteers => {
+        const emailClient = new EmailClient(emailClientTypes.NOREPLY);
+        const textClient = createTextClient();
+        volunteers.forEach(volunteer => {
+          let message = constructHelpMessage(volunteer, shiftToPing);
+          if (volunteer.user.contactPreferences.email) {
+            emailClient.send(
+                volunteer.user.email,
+                "Help needed for shift!",
+                message
+            );
+          }
+          if (volunteer.user.contactPreferences.text) {
+            sendText(textClient, volunteer.user, message);
+          }
+        });
+        res.status(200).json({message: "Sending alerts to volunteers"});
+      })
+      .catch(err => res.status(500).json({message: err}));
   };
 
   this.create = async function (req, res) {
