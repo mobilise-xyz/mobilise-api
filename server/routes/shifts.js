@@ -14,7 +14,7 @@ router.get("/calendar", controller.getCalendarForShifts);
 /* Delete shift by ID */
 router.delete("/:id", controller.deleteById);
 
-/* Ping all available volunteers */
+/* Ping volunteers */
 router.post("/:id/ping", controller.ping);
 
 /* Update the shift information */
