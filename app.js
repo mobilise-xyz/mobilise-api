@@ -50,12 +50,12 @@ app.use("/calendar", calendarRouter);
 app.use(
   "/shifts",
   passport.authenticate("jwt", { session: false }),
-  linkRouter
+  shiftsRouter
 );
 app.use(
   "/links",
   passport.authenticate("jwt", { session: false }),
-  shiftsRouter
+  linkRouter
 );
 app.use(
   "/roles",
