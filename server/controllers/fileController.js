@@ -1,23 +1,14 @@
-const AWS = require('aws-sdk');
+const { BucketClient } = require("../utils/bucket");
 const moment = require('moment');
 
 
 let FileController = function () {
 
   this.get = function (req, res) {
-    AWS.config.update({
-      accessKeyId: process.env.AWS_ACCESS_KEY,
-      secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY,
-      region: process.env.AWS_REGION
-    });
-    const s3 = new AWS.S3();
-    const params = {
-      Bucket: process.env.AWS_S3_BUCKET_NAME,
-    };
-    s3.listObjects(params, (err, data) => {
-      if (err) {
-        res.status(500).json({message: err});
-      } else {
+    const client = new BucketClient();
+
+    client.listContents()
+      .then(data => {
         let files = [];
         data.Contents.forEach(result => {
           files.push({
@@ -27,53 +18,34 @@ let FileController = function () {
           })
         });
         res.status(200).send({message: "Success!", files: files});
-      }
-    });
+      })
+      .catch(err => {
+        res.status(500).json({message: err});
+      });
   };
 
   this.downloadByName = function (req, res) {
-    AWS.config.update({
-      accessKeyId: process.env.AWS_ACCESS_KEY,
-      secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY,
-      region: process.env.AWS_REGION
-    });
-    const s3 = new AWS.S3();
-    const params = {
-      Bucket: process.env.AWS_S3_BUCKET_NAME,
-      Key: req.params.name
-    };
-    s3.getObject(params, (err, data) => {
-      if (err === null) {
+    const client = new BucketClient();
+
+    client.getByName(req.params.name)
+      .then(data => {
         res.attachment(req.params.name);
         res.send(data.Body);
-      } else {
-        res.status(404).send({message: "File does not exist"});
-      }
-    });
+      })
+      .catch(() => res.status(404).send({message: "File does not exist"}));
   };
 
   this.deleteByName = function (req, res) {
-    AWS.config.update({
-      accessKeyId: process.env.AWS_ACCESS_KEY,
-      secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY,
-      region: process.env.AWS_REGION
-    });
-    const s3 = new AWS.S3();
+    const client = new BucketClient();
+
     if (!req.user.isAdmin) {
       res.status(400).json({message: "Only an admin can delete a file"});
       return;
     }
-    const params = {
-      Bucket: process.env.AWS_S3_BUCKET_NAME,
-      Key: req.params.name
-    };
-    s3.deleteObject(params, (err, data) => {
-      if (err) {
-        res.status(500).json({message: err});
-      } else {
-        res.status(200).json({message: "File deleted", data: data})
-      }
-    });
+
+    client.deleteByName(req.params.name)
+      .then(data => res.status(200).json({message: "File deleted", data: data}))
+      .catch(err => res.status(500).json({message: err}));
   }
 };
 
