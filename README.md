@@ -61,7 +61,7 @@ retrieve said files successfully. You will need to set the following
 environment variables by adding them to `.env`:
 
 ```
-AWS_REGION=yourawsregion (eu-west-2)
+AWS_S3_REGION=yourawsregion (eu-west-2)
 AWS_S3_BUCKET_NAME=yours3bucketname
 AWS_SECRET_ACCESS_KEY=yoursecretaccesskey
 AWS_ACCESS_KEY=youraccesskey
@@ -82,14 +82,13 @@ need to add the following to `.env`:
 ```
 WEB_CAL_URL=webcal://localhost:8080
 ```
-### Texting (not required)
+### Texting 
 
 Some endpoints will cause the code to send texts to users. In order for this to work, it is important
 that you add the correct environment variables to the `.env` file.
 
 ```
-NEXMO_API_KEY=yournexmoapikey
-NEXMO_API_SECRET=yourapisecret
+AWS_SMS_REGION=yourawsregion (eu-west-1)
 ```
 
 ## Running server
