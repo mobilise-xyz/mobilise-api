@@ -11,7 +11,7 @@ LinkRepository.add = function (quicklink) {
 
   QuickLink.create({
     name: quicklink.name,
-    link: quicklink.link
+    url: quicklink.url
   })
     .then(quicklink => deferred.resolve(quicklink))
     .catch(error => deferred.reject(error));

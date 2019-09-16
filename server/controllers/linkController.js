@@ -13,7 +13,7 @@ let LinkController = function (linkRepository) {
       res.status(400).json({message: "Only admin can add a link"});
       return;
     }
-    if (!req.body.link || !req.body.name) {
+    if (!req.body.url || !req.body.name) {
       res.status(400).json({message: "Please provide both the link and name"});
       return;
     }

@@ -7,8 +7,14 @@ module.exports = (sequelize, DataTypes) => {
       type: DataTypes.UUID,
       defaultValue: DataTypes.UUIDV4
     },
-    link: DataTypes.STRING,
-    name: DataTypes.STRING
+    url: {
+      type: DataTypes.STRING,
+      allowNull: false
+    },
+    name: {
+      type: DataTypes.STRING,
+      allowNull: false
+    }
   }, {});
   QuickLink.associate = function() {
     // associations can be defined here

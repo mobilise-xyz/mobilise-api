@@ -8,7 +8,7 @@ module.exports = {
         type: Sequelize.UUID,
         defaultValue: Sequelize.UUIDV4
       },
-      link: {
+      url: {
         type: Sequelize.STRING,
         allowNull: false
       },
