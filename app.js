@@ -48,32 +48,32 @@ app.use("/stats", statsRouter);
 app.use("/calendar", calendarRouter);
 app.use(
   "/shifts",
-  passport.authenticate("jwt", { session: false }),
+  passport.authenticate("jwt", { session: false }, null),
   shiftsRouter
 );
 app.use(
   "/roles",
-  passport.authenticate("jwt", { session: false }),
+  passport.authenticate("jwt", { session: false }, null),
   rolesRouter
 );
 app.use(
   "/users",
-  passport.authenticate("jwt", { session: false }),
+  passport.authenticate("jwt", { session: false }, null),
   usersRouter
 );
 app.use(
   "/volunteers",
-  passport.authenticate("jwt", { session: false }),
+  passport.authenticate("jwt", { session: false }, null),
   volunteersRouter
 );
 app.use(
   "/metric",
-  passport.authenticate("jwt", { session: false }),
+  passport.authenticate("jwt", { session: false }, null),
   metricRouter
 );
 app.use(
   "/files",
-  passport.authenticate("jwt", {session: false}),
+  passport.authenticate("jwt", {session: false}, null),
   fileRouter
 );
 
