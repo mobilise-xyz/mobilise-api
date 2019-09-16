@@ -21,8 +21,7 @@ const {
   USER
 } = require("../sequelizeUtils/include");
 const { EmailClient, emailClientTypes } = require("../utils/email");
-const Nexmo = require("nexmo");
-
+const { SMSClient } = require("../utils/sms");
 const APP_LINK = "https://city-harvest.mobilise.xyz";
 const ITEMS_PER_PAGE = 5;
 
@@ -115,14 +114,14 @@ let ShiftController = function (
           return;
         }
         let emailClient = new EmailClient(emailClientTypes.NOREPLY);
-        let textClient = createTextClient();
+        let smsClient = new SMSClient();
         shift.volunteers.forEach(volunteer => {
           let message = constructCancelShiftMessage(volunteer, shift);
           if (volunteer.user.contactPreferences.email) {
             emailClient.send(volunteer.user.email, "Shift cancelled", message);
           }
           if (volunteer.user.contactPreferences.text) {
-            sendText(textClient, volunteer.user, message);
+            smsClient.send(volunteer.user.telephone, message);
           }
         });
         return shiftRepository.removeById(req.params.id);
@@ -172,8 +171,8 @@ let ShiftController = function (
             emailClient.send(creator.user.email, "Cancelled booking", message);
           }
           if (creator.user.contactPreferences.text) {
-            let textClient = createTextClient();
-            sendText(textClient, creator.user, message);
+            let smsClient = new SMSClient();
+            smsClient.send(creator.user.telephone, message);
           }
           return bookingRepository.delete(req.params.id, req.user.id);
         }
@@ -397,7 +396,7 @@ let ShiftController = function (
       })
       .then(volunteers => {
         const emailClient = new EmailClient(emailClientTypes.NOREPLY);
-        const textClient = createTextClient();
+        const smsClient = new SMSClient();
         volunteers.forEach(volunteer => {
           let message = constructHelpMessage(volunteer, shiftToPing);
           if (volunteer.user.contactPreferences.email) {
@@ -408,7 +407,7 @@ let ShiftController = function (
             );
           }
           if (volunteer.user.contactPreferences.text) {
-            sendText(textClient, volunteer.user, message);
+            smsClient.send(volunteer.user.telephone, message)
           }
         });
         res.status(200).json({message: "Sending alerts to volunteers"});
@@ -500,22 +499,11 @@ function repeatedTypeIsValid(type, startDate) {
   return type in REPEATED_TYPES;
 }
 
-function sendText(textClient, user, message) {
-  textClient.message.sendSms("Mobilise", user.telephone, message);
-}
-
 function repeatedTypesCompatible(shiftType, bookingType) {
   if (shiftType === bookingType) {
     return true;
   }
   return REPEATED_TYPES[shiftType].includes(bookingType);
-}
-
-function createTextClient() {
-  return new Nexmo({
-    apiKey: process.env.NEXMO_API_KEY,
-    apiSecret: process.env.NEXMO_API_SECRET
-  });
 }
 
 function constructCancelShiftMessage(volunteer, shift) {
