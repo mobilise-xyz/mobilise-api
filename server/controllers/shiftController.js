@@ -407,7 +407,13 @@ let ShiftController = function (
             );
           }
           if (volunteer.user.contactPreferences.text) {
-            smsClient.send(volunteer.user.telephone, message);
+            smsClient.send(volunteer.user.telephone, message)
+              .then(data => {
+                console.log(data);
+              })
+              .catch(err => {
+                console.log(err);
+              })
           }
         });
         res.status(200).json({message: "Sending alerts to volunteers"});
