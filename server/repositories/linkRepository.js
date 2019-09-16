@@ -1,6 +1,6 @@
 const {QuickLink} = require("../models");
 const Q = require("q");
-const LinkRepositoryInterface = require("./interfaces/quicklinkRepositoryInterface");
+const LinkRepositoryInterface = require("./interfaces/linkRepositoryInterface");
 
 let LinkRepository = Object.create(
   LinkRepositoryInterface
