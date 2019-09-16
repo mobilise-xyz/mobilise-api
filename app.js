@@ -36,6 +36,7 @@ let predictionRouter = require("./server/routes/prediction");
 let fileRouter = require("./server/routes/files");
 
 app.use(logger("dev"));
+app.use(passport.initialize());
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser());

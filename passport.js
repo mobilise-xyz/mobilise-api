@@ -12,7 +12,7 @@ passport.use(new JWTStrategy({
   return User.findOne({where: {id: jwtPayload.id}})
     .then(user => {
       if (!user) {
-        return done(null);
+        return done(null, false);
       }
       return done(null, user)
     })
