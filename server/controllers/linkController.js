@@ -14,7 +14,7 @@ let LinkController = function (linkRepository) {
       return;
     }
     if (!req.body.url || !req.body.name) {
-      res.status(400).json({message: "Please provide both the link and name"});
+      res.status(400).json({message: "Please provide both the url and name"});
       return;
     }
     linkRepository.add(req.body)
