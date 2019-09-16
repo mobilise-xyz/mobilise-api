@@ -27,6 +27,10 @@ let LinkController = function (linkRepository) {
       res.status(400).json({message: "Only admin can add a link"});
       return;
     }
+    if (!req.params.id) {
+      res.status(400).json({message: "Please provide an id"});
+      return;
+    }
     linkRepository.getById(req.params.id)
       .then(quicklink => {
         if (!quicklink) {

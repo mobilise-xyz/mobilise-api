@@ -28,6 +28,19 @@ LinkRepository.getAll = function () {
   return deferred.promise;
 };
 
+LinkRepository.getById = function (id) {
+  let deferred = Q.defer();
+  QuickLink.findOne({
+    where: {
+      id: id
+    }
+  })
+    .then(quicklink => deferred.resolve(quicklink))
+    .catch(err => deferred.reject(err));
+
+  return deferred.promise;
+};
+
 LinkRepository.removeById = function(id) {
   let deferred = Q.defer();
   QuickLink.destroy({

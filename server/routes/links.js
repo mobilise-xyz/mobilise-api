@@ -9,6 +9,6 @@ router.get('/', controller.get);
 router.post('/', controller.add);
 
 /* Delete a link */
-router.delete('/:name', controller.deleteById);
+router.delete('/:id', controller.deleteById);
 
 module.exports = router;
