@@ -4,6 +4,7 @@ let cors = require("cors");
 let path = require("path");
 let cookieParser = require("cookie-parser");
 let logger = require("morgan");
+let AWS = require('aws-sdk');
 const passport = require("passport");
 
 if (process.env.NODE_ENV !== "production" && process.env.NODE_ENV !== "test") {
@@ -11,6 +12,11 @@ if (process.env.NODE_ENV !== "production" && process.env.NODE_ENV !== "test") {
 }
 
 require("./passport");
+
+AWS.config.update({
+  accessKeyId: process.env.AWS_ACCESS_KEY,
+  secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY
+});
 
 let app = express();
 
