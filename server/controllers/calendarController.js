@@ -27,8 +27,8 @@ let CalendarController = function(bookingRepository) {
         bookings.forEach(booking => {
           cal.createEvent({
             uid: booking.shift.id,
-            start: moment(`${booking.shift.date} ${booking.shift.start}`),
-            end: moment(`${booking.shift.date} ${booking.shift.stop}`),
+            start: moment.tz(`${booking.shift.date} ${booking.shift.start}`, 'Europe/London'),
+            end: moment.tz(`${booking.shift.date} ${booking.shift.stop}`, 'Europe/London'),
             summary: booking.shift.title,
             location: booking.shift.address,
             description: `Description: ${booking.shift.description}\nRole: ${booking.roleName}`,
@@ -58,8 +58,8 @@ let CalendarController = function(bookingRepository) {
         shifts.forEach(shift => {
           cal.createEvent({
             uid: shift.id,
-            start: moment(`${shift.date} ${shift.start}`),
-            end: moment(`${shift.date} ${shift.stop}`),
+            start: moment.tz(`${shift.date} ${shift.start}`, 'Europe/London'),
+            end: moment.tz(`${shift.date} ${shift.stop}`, 'Europe/London'),
             summary: shift.title,
             location: shift.address,
             description: `Description: ${shift.description}`,
