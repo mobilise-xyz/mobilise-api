@@ -34,6 +34,7 @@ let statsRouter = require("./server/routes/stats");
 let calendarRouter = require("./server/routes/calendar");
 let predictionRouter = require("./server/routes/prediction");
 let fileRouter = require("./server/routes/files");
+let linkRouter = require("./server/routes/links");
 
 app.use(logger("dev"));
 app.use(passport.initialize());
@@ -51,6 +52,11 @@ app.use(
   "/shifts",
   passport.authenticate("jwt", { session: false }),
   shiftsRouter
+);
+app.use(
+  "/links",
+  passport.authenticate("jwt", { session: false }),
+  linkRouter
 );
 app.use(
   "/roles",
