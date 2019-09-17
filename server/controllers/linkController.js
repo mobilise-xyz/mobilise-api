@@ -32,8 +32,8 @@ let LinkController = function (linkRepository) {
       res.status(400).json({message: "Only admin can add a link"});
       return;
     }
-    if (!req.params.id) {
-      res.status(400).json({message: "Please provide an id"});
+    if (!validator.isUUID(req.params.id)) {
+      res.status(400).json({message: "Please provide a valid uuid"});
       return;
     }
     linkRepository.getById(req.params.id)
