@@ -1,4 +1,5 @@
 const linkRepository = require("../repositories").LinkRepository;
+const validator = require('validator');
 
 let LinkController = function (linkRepository) {
 
@@ -15,6 +16,10 @@ let LinkController = function (linkRepository) {
     }
     if (!req.body.url || !req.body.name) {
       res.status(400).json({message: "Please provide both the url and name"});
+      return;
+    }
+    if (!validator.isURL(req.body.url)) {
+      res.status(400).json({message: "Please provide a valid url"});
       return;
     }
     linkRepository.add(req.body)
