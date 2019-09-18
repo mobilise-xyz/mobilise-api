@@ -7,6 +7,14 @@ let MetricController = function(metricRepository) {
       res.status(400).json({message: "Only admin can set the metric"});
       return;
     }
+    if (!req.body.name || !req.body.verb || !req.body.value) {
+      res.status(400).json({message: "Please provide a name, verb and value"});
+      return;
+    }
+    if (typeof(req.body.value) !== 'number') {
+      res.status(400).json({message: "Value must be numeric"});
+      return;
+    }
     metricRepository.set(
       req.body.name,
       req.body.verb,
