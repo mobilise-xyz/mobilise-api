@@ -61,7 +61,7 @@ let VolunteerController = function (volunteerRepository, shiftRepository, userRe
         if (!vol) {
           res.status(400).send({message: "No volunteer with that id"});
         } else {
-          const now = moment();
+          const now = moment.tz('Europe/London');
           const date = now.format("YYYY-MM-DD");
           const time = now.format("HH:mm");
           volunteer = vol;
@@ -86,6 +86,7 @@ let VolunteerController = function (volunteerRepository, shiftRepository, userRe
         let totalHoursFromLastWeek;
         contributions["shiftsCompleted"] = shiftsCompleted;
         contributions["hours"] = roundIfNotInteger(hours, 1);
+        contributions["increase"] = volunteer.lastWeekIncrease;
         metricRepository
           .get()
           .then(metric => {

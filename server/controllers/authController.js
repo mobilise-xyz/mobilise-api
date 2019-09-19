@@ -34,7 +34,7 @@ let AuthController = function (
                     res.status(400).json({message: "Please use the email that received the invitation."});
                     return;
                 }
-                if (moment().isAfter(result.expiry)) {
+                if (moment.tz('Europe/London').isAfter(result.expiry)) {
                     res.status(400).json({
                         message: "Token has expired. " +
                             "Please request another invite from an admin."

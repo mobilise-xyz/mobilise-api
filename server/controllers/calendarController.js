@@ -10,7 +10,7 @@ let CalendarController = function(bookingRepository) {
 
   this.subscribeToBookings = function(req, res) {
     const cal = ical({name: 'City Harvest London - Bookings'});
-    const now = moment();
+    const now = moment.tz('Europe/London');
     const whereShift = SHIFT_AFTER(now.format("YYYY-MM-DD"), now.format("HH:mm:ss"));
     userRepository
       .getByCalendarKey(req.params.key)
@@ -43,7 +43,7 @@ let CalendarController = function(bookingRepository) {
 
   this.subscribeToShifts = function(req, res) {
     const cal = ical({name: 'City Harvest London - Shifts'});
-    const now = moment();
+    const now = moment.tz('Europe/London');
     const whereShift = SHIFT_AFTER(now.format("YYYY-MM-DD"), now.format("HH:mm:ss"));
     userRepository
       .getByCalendarKey(req.params.key)
