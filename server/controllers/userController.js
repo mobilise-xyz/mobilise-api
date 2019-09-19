@@ -109,7 +109,7 @@ let UserController = function (userRepository) {
         } else {
           const feedbackMessage = (`
           New user feedback received from ${user.firstName} ${user.lastName} (${user.email}).
-          Message sent at ${moment().format('MMMM Do YYYY, h:mm:ss a')}
+          Message sent at ${moment.tz('Europe/London').format('MMMM Do YYYY, h:mm:ss a')}
           
           "${req.body.feedback}"
           
