@@ -1,5 +1,5 @@
 const linkRepository = require("../repositories").LinkRepository;
-const validator = require('validator');
+const {validationResult, body, param} = require('express-validator');
 
 let LinkController = function (linkRepository) {
 
@@ -10,16 +10,12 @@ let LinkController = function (linkRepository) {
   };
 
   this.add = function (req, res) {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      return res.status(422).json({message: "Invalid request", errors: errors.array()});
+    }
     if (!req.user.isAdmin) {
       res.status(400).json({message: "Only admin can add a link"});
-      return;
-    }
-    if (!req.body.url || !req.body.name) {
-      res.status(400).json({message: "Please provide both the url and name"});
-      return;
-    }
-    if (!validator.isURL(req.body.url)) {
-      res.status(400).json({message: "Please provide a valid url"});
       return;
     }
     linkRepository.add(req.body)
@@ -28,12 +24,12 @@ let LinkController = function (linkRepository) {
   };
 
   this.deleteById = function (req, res) {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      return res.status(422).json({message: "Invalid request", errors: errors.array()});
+    }
     if (!req.user.isAdmin) {
       res.status(400).json({message: "Only admin can add a link"});
-      return;
-    }
-    if (!validator.isUUID(req.params.id)) {
-      res.status(400).json({message: "Please provide a valid uuid"});
       return;
     }
     linkRepository.getById(req.params.id)
@@ -46,8 +42,23 @@ let LinkController = function (linkRepository) {
       })
       .then(() => res.status(200).json({message: "Success! Removed link!"}))
       .catch(err => res.status(500).json({message: err}));
-  }
+  };
 
+  this.validate = function(method) {
+    switch (method) {
+      case 'add': {
+        return [
+          body('url').isURL(),
+          body('name').isString()
+        ]
+      }
+      case 'deleteById': {
+        return [
+          param('id').isUUID()
+        ]
+      }
+    }
+  }
 };
 
 module.exports = new LinkController(linkRepository);
