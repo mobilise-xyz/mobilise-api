@@ -547,7 +547,7 @@ let ShiftController = function (
           body('roleName').isString(),
           body('repeatedType').optional().isIn(Object.keys(REPEATED_TYPES)),
           body('untilDate')
-            .if(body('repeatedType').exists())
+            .if(body('repeatedType').exists().not().equals('Never'))
             .custom(result => moment(result, 'YYYY-MM-DD', true).isValid())
         ]
       }
@@ -587,7 +587,7 @@ let ShiftController = function (
             }),
           body('repeatedType').optional().isIn(Object.keys(REPEATED_TYPES)),
           body('untilDate')
-            .if(body('repeatedType').exists())
+            .if(body('repeatedType').exists().not().equals('Never'))
             .custom(result => moment(result, 'YYYY-MM-DD', true).isValid())
         ]
       }
