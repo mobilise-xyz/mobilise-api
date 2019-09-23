@@ -3,7 +3,7 @@
 const Seeded = require('../utils/seeded');
 
 module.exports = {
-  up: (queryInterface, Sequelize) => {
+  up: (queryInterface) => {
     return queryInterface.bulkInsert('Shifts', 
       [
         {
@@ -33,7 +33,7 @@ module.exports = {
       ], {});
   },
 
-  down: (queryInterface, Sequelize) => {
+  down: (queryInterface) => {
     return queryInterface.bulkDelete('Shifts', {
       id: [
         Seeded.shifts[0].UUID,

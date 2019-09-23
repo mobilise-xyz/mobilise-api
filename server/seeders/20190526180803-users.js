@@ -4,7 +4,7 @@ let bcrypt = require('bcryptjs');
 const Seeded = require('../utils/seeded');
 
 module.exports = {
-  up: (queryInterface) => {
+  up: (queryInterface, Sequelize) => {
       return queryInterface.bulkInsert('Users', [
 
         // Volunteers
@@ -16,6 +16,8 @@ module.exports = {
           telephone: Seeded.volunteers[0].telephone,
           password: bcrypt.hashSync(Seeded.volunteers[0].password, bcrypt.genSaltSync(8), null),
           isAdmin: Seeded.volunteers[0].isAdmin,
+          calendarAccessKey: Sequelize.NULL,
+          lastLogin: Seeded.volunteers[0].createdAt,
           createdAt: Seeded.volunteers[0].createdAt,
           updatedAt: Seeded.volunteers[0].updatedAt,
         },
@@ -27,6 +29,8 @@ module.exports = {
           telephone: Seeded.volunteers[1].telephone,
           password: bcrypt.hashSync(Seeded.volunteers[1].password, bcrypt.genSaltSync(8), null),
           isAdmin: Seeded.volunteers[1].isAdmin,
+          calendarAccessKey: Sequelize.NULL,
+          lastLogin: Seeded.volunteers[1].createdAt,
           createdAt: Seeded.volunteers[1].createdAt,
           updatedAt: Seeded.volunteers[1].updatedAt
         },
@@ -38,33 +42,13 @@ module.exports = {
           telephone: Seeded.volunteers[2].telephone,
           password: bcrypt.hashSync(Seeded.volunteers[2].password, bcrypt.genSaltSync(8), null),
           isAdmin: Seeded.volunteers[2].isAdmin,
+          calendarAccessKey: Sequelize.NULL,
+          lastLogin: Sequelize.NULL,
           createdAt: Seeded.volunteers[2].createdAt,
           updatedAt: Seeded.volunteers[2].updatedAt
         },
 
         // Admins
-        {
-          id: Seeded.admins[0].UUID,
-          firstName: Seeded.admins[0].firstName,
-          lastName: Seeded.admins[0].lastName,
-          email: Seeded.admins[0].email,
-          telephone: Seeded.admins[0].telephone,
-          password: bcrypt.hashSync(Seeded.admins[0].password, bcrypt.genSaltSync(8), null),
-          isAdmin: Seeded.admins[0].isAdmin,
-          createdAt: Seeded.admins[0].createdAt,
-          updatedAt: Seeded.admins[0].updatedAt
-        },
-        {
-          id: Seeded.admins[1].UUID,
-          firstName: Seeded.admins[1].firstName,
-          lastName: Seeded.admins[1].lastName,
-          email: Seeded.admins[1].email,
-          telephone: Seeded.admins[1].telephone,
-          password: bcrypt.hashSync(Seeded.admins[1].password, bcrypt.genSaltSync(8), null),
-          isAdmin: Seeded.admins[1].isAdmin,
-          createdAt: Seeded.admins[1].createdAt,
-          updatedAt: Seeded.admins[1].updatedAt
-        }
     ], {});
     
   },

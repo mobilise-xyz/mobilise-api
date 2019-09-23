@@ -8,22 +8,22 @@ const roles = [
     name: `Driver's Mate`,
     involves: 'Heavy Lifting',
     colour: '#2C72DC',
-    createdAt: '2019-06-06',
-    updatedAt: '2019-06-06'
+    createdAt: moment().format(),
+    updatedAt: moment().format()
   },
   {
     name: 'Warehouse Assistant',
     involves: 'Organising and Sorting Food',
     colour: '#F08080',
-    createdAt: '2019-06-06',
-    updatedAt: '2019-06-06'
+    createdAt: moment().format(),
+    updatedAt: moment().format()
   },
   {
     name: 'Driver',
     involves: 'Driving a van',
     colour: '#BCE7FD',
-    createdAt: '2019-06-06',
-    updatedAt: '2019-06-06'
+    createdAt: moment().format(),
+    updatedAt: moment().format()
   }
 ];
 
@@ -36,24 +36,22 @@ module.exports = {
       password: 'Admin123',
       UUID: '8fa1b90c-80b6-11e9-bc42-526af7764f00',
       firstName: 'Francesca',
-      lastName: 'Santucci',
+      lastName: 'Smith',
       isAdmin: true,
-      dob: '1997-11-25',
-      createdAt: '2019-06-06',
-      updatedAt: '2019-06-06',
-      telephone: '07979797979'
+      createdAt: moment().format(),
+      updatedAt: moment().format(),
+      telephone: '+447979797979'
     },
     {
       email: 'paula@testing.com',
       password: 'Admin123',
       UUID: '8fa1b90c-80b6-11e9-bc42-526af7764f01',
       firstName: 'Paula',
-      lastName: 'Merrony',
+      lastName: 'Smith',
       isAdmin: true,
-      dob: '1997-11-25',
-      createdAt: '2019-06-06',
-      updatedAt: '2019-06-06',
-      telephone: '07979797979'
+      createdAt: moment().format(),
+      updatedAt: moment().format(),
+      telephone: '+447979797979'
     }
   ],
 
@@ -66,10 +64,9 @@ module.exports = {
       firstName: 'Ben',
       lastName: 'Smith',
       isAdmin: false,
-      dob: '1997-11-25',
-      createdAt: '2019-06-06',
-      updatedAt: '2019-06-06',
-      telephone: '07979797979'
+      createdAt: moment().format(),
+      updatedAt: moment().format(),
+      telephone: '+447979797979'
     },
     {
       email: 'dave@testing.com',
@@ -78,22 +75,20 @@ module.exports = {
       firstName: 'Dave',
       lastName: 'Hughes',
       isAdmin: false,
-      dob: '1997-11-25',
-      createdAt: '2019-06-06',
-      updatedAt: '2019-06-06',
-      telephone: '07979797979'
+      createdAt: moment().format(),
+      updatedAt: moment().format(),
+      telephone: '+447979797979'
     },
     {
       email: 'will@testing.com',
       password: 'Volunteer123',
       UUID: '8fa1b3d0-80b6-11e9-bc42-526af7764f52',
       firstName: 'Will',
-      lastName: 'Burr',
+      lastName: 'Smith',
       isAdmin: false,
-      dob: '1997-11-25',
-      createdAt: '2019-06-06',
-      updatedAt: '2019-06-06',
-      telephone: '07979797979'
+      createdAt: moment().format(),
+      updatedAt: moment().format(),
+      telephone: '+447979797979'
     }
   ],
 
@@ -110,8 +105,8 @@ module.exports = {
       stop: '11:00',
       address: 'Food Bank, Acton',
       creatorId: '8fa1b90c-80b6-11e9-bc42-526af7764f01',
-      createdAt: moment().format('YYYY-MM-DD'),
-      updatedAt: moment().format('YYYY-MM-DD'),
+      createdAt: moment().format(),
+      updatedAt: moment().format(),
       rolesRequired: [
         {
           roleName: roles[0].name,
@@ -132,8 +127,8 @@ module.exports = {
       stop: '18:00',
       address: 'Shepherds Bush Families Project, W12 8AP',
       creatorId: '8fa1b90c-80b6-11e9-bc42-526af7764f01',
-      createdAt: '2019-06-06',
-      updatedAt: '2019-06-06',
+      createdAt: moment().format(),
+      updatedAt: moment().format(),
       rolesRequired: [
         {
           roleName: roles[0].name,
@@ -146,8 +141,8 @@ module.exports = {
     name: "meals",
     verb: "rescued",
     value: 30193,
-    createdAt: '2019-06-06',
-    updatedAt: '2019-06-06'
+    createdAt: moment().format(),
+    updatedAt: moment().format()
   }
 };
 
