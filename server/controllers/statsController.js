@@ -9,9 +9,9 @@ let StatsController = function() {
       return;
     }
 
-    let date = moment().format("YYYY-MM-DD");
-    let time = moment().format("HH:mm");
-    let lastWeek = moment()
+    let date = moment.tz('Europe/London').format("YYYY-MM-DD");
+    let time = moment.tz('Europe/London').format("HH:mm");
+    let lastWeek = moment.tz('Europe/London')
       .subtract(7, "d")
       .format("YYYY-MM-DD");
 
