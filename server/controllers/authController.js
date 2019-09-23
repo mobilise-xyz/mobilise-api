@@ -187,7 +187,7 @@ This link will expire in 24 hours.`)
           body('email').isEmail(),
           body('firstName').isString().bail().isAlpha(),
           body('lastName').isString().bail().isAlpha(),
-          body('telephone').isString(),
+          body('telephone').isNumeric(),
           body('password').isString()
         ]
       }
