@@ -19,14 +19,19 @@ let upload = multer({
 router.get('/', controller.get);
 
 /* Download a file */
-router.get('/:name', controller.downloadByName);
+router.get('/:name',
+  controller.validate('downloadByName'),
+  controller.downloadByName);
 
 /* Upload a file */
-router.post('/', upload.single("file"), function(req, res) {
+router.post('/',
+  upload.single("file"), function(req, res) {
   res.json({message: 'Successfully uploaded: ', file: req.file.originalname})
 });
 
 /* Delete a file */
-router.delete('/:name', controller.deleteByName);
+router.delete('/:name',
+  controller.validate('deleteByName'),
+  controller.deleteByName);
 
 module.exports = router;
