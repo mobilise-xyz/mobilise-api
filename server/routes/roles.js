@@ -3,12 +3,16 @@ let router = express.Router();
 let controller = require('../controllers').RoleController;
 
 /* POST role. */
-router.post('/', controller.create);
+router.post('/',
+  controller.validation('create'),
+  controller.create);
 
 /* GET roles. */
 router.get('/', controller.list);
 
 /* DELETE role */
-router.delete('/', controller.remove);
+router.delete('/',
+  controller.validation('remove'),
+  controller.remove);
 
 module.exports = router;
