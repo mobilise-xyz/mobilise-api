@@ -11,6 +11,7 @@ const {EmailClient, emailClientTypes} = require("../utils/email");
 const {isSecure, hashedPassword, validatePassword} = require("../utils/password");
 const {PhoneNumberFormat: PNF, PhoneNumberUtil} = require('google-libphonenumber');
 const crypto = require("crypto");
+const validator = require('validator');
 const phoneUtil = PhoneNumberUtil.getInstance();
 
 let AuthController = function (
@@ -40,6 +41,11 @@ let AuthController = function (
                             "Please request another invite from an admin."
                     });
                     return;
+                }
+                if (validator.isEmail(req.body.email)) {
+                  res.status(400).json({
+
+                  })
                 }
                 return userRepository.getByEmail(req.body.email)
                     .then(user => {

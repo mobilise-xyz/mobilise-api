@@ -5,16 +5,22 @@ const userContactPreferenceRepository = require("../repositories")
 const {isSecure, validatePassword, hashedPassword} = require("../utils/password");
 const moment = require("moment");
 const crypto = require("crypto");
+const {body, param, validationResult} = require('express-validator');
 const invitationTokenRepository = require("../repositories").InvitationTokenRepository;
 
 let UserController = function (userRepository) {
 
   this.getById = function (req, res) {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      return res.status(422).json({message: "Invalid request", errors: errors.array()});
+    }
+
     // Check request validity
     // 1. Request made by admin
     // 2. Request made by volunteer for their own info
     if (!req.user.isAdmin && req.user.id !== req.params.id) {
-      res.status(401).json({message: "Unauthorised request"});
+      res.status(400).json({message: "Unauthorised request"});
       return;
     }
 
@@ -39,6 +45,11 @@ let UserController = function (userRepository) {
   };
 
   this.getContactPreferences = function (req, res) {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      return res.status(422).json({message: "Invalid request", errors: errors.array()});
+    }
+
     userContactPreferenceRepository
       .getById(req.params.id)
       .then(result => {
@@ -52,14 +63,17 @@ let UserController = function (userRepository) {
   };
 
   this.updateContactPreferences = function (req, res) {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      return res.status(422).json({message: "Invalid request", errors: errors.array()});
+    }
     // Check bearer token id matches parameter id
     if (req.user.id !== req.params.id) {
       res
-        .status(401)
+        .status(400)
         .send({message: "You can only update your own contact preferences."});
       return;
     }
-
     userContactPreferenceRepository
       .update(req.params.id, req.body.contactPreferences)
       .then(result => {
@@ -73,8 +87,9 @@ let UserController = function (userRepository) {
   };
 
   this.changePassword = function (req, res) {
-    if (!req.body.oldPassword) {
-      res.status(400).json({message: "Please provide your old password"});
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      return res.status(422).json({message: "Invalid request", errors: errors.array()});
     }
     if (!validatePassword(req.body.oldPassword, req.user.password)) {
       res.status(400).json({message: "Password given is incorrect"});
@@ -93,12 +108,13 @@ let UserController = function (userRepository) {
   };
 
   this.sendFeedback = function (req, res) {
-    const emailClient = new EmailClient(emailClientTypes.NOREPLY);
 
-    if (!req.body.feedback) {
-      res.status(400);
-      return;
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      return res.status(422).json({message: "Invalid request", errors: errors.array()});
     }
+
+    const emailClient = new EmailClient(emailClientTypes.NOREPLY);
 
     // Lookup user email.
     userRepository
@@ -126,12 +142,13 @@ let UserController = function (userRepository) {
   };
 
   this.invite = function (req, res) {
-    if (!req.user.isAdmin) {
-      res.status(401).json({message: "Only admins can invite volunteers"});
-      return;
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      return res.status(422).json({message: "Invalid request", errors: errors.array()});
     }
-    if (!req.body.email) {
-      res.status(400).json({message: "No email has been specified"});
+    if (!req.user.isAdmin) {
+      res.status(400).json({message: "Only admins can invite volunteers"});
+      return;
     }
     userRepository.getByEmail(req.body.email)
       .then(user => {
@@ -164,7 +181,45 @@ This link will expire in 24 hours.`)
       })
       .then(() => res.status(200).json({message: "Success! Invitation has been sent."}))
       .catch(err => res.status(500).json({message: err}));
+  };
+
+  this.validate = function (method) {
+    switch (method) {
+      case 'getContactPreferences':
+      case 'getById': {
+        return [
+          param('id').isUUID()
+        ]
+      }
+      case 'updateContactPreferences': {
+        return [
+          param('id').isUUID(),
+          body('contactPreferences')
+            .custom((value) => {
+              return(typeof value["text"] == 'boolean' && typeof value["email"] == 'boolean')
+            })
+        ]
+      }
+      case 'changePassword': {
+        return [
+          body('oldPassword').exists(),
+          body('newPassword').exists()
+        ]
+      }
+      case 'sendFeedback': {
+        return [
+          body('feedback').exists()
+        ]
+      }
+      case 'invite': {
+        return [
+          body('email').isEmail(),
+          body('isAdmin').isBoolean()
+        ]
+      }
+    }
   }
+
 };
 
 module.exports = new UserController(userRepository);
