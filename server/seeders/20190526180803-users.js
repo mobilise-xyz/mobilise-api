@@ -49,6 +49,32 @@ module.exports = {
         },
 
         // Admins
+        {
+          id: Seeded.admins[0].UUID,
+          firstName: Seeded.admins[0].firstName,
+          lastName: Seeded.admins[0].lastName,
+          email: Seeded.admins[0].email,
+          telephone: Seeded.admins[0].telephone,
+          password: bcrypt.hashSync(Seeded.admins[0].password, bcrypt.genSaltSync(8), null),
+          isAdmin: Seeded.admins[0].isAdmin,
+          calendarAccessKey: Sequelize.NULL,
+          lastLogin: Sequelize.NULL,
+          createdAt: Seeded.admins[0].createdAt,
+          updatedAt: Seeded.admins[0].updatedAt
+        },
+        {
+          id: Seeded.admins[1].UUID,
+          firstName: Seeded.admins[1].firstName,
+          lastName: Seeded.admins[1].lastName,
+          email: Seeded.admins[1].email,
+          telephone: Seeded.admins[1].telephone,
+          password: bcrypt.hashSync(Seeded.admins[1].password, bcrypt.genSaltSync(8), null),
+          isAdmin: Seeded.admins[1].isAdmin,
+          calendarAccessKey: Sequelize.NULL,
+          lastLogin: Seeded.admins[1].createdAt,
+          createdAt: Seeded.admins[1].createdAt,
+          updatedAt: Seeded.admins[1].updatedAt
+        }
     ], {});
     
   },
