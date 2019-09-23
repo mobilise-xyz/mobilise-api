@@ -194,8 +194,8 @@ This link will expire in 24 hours.`)
       case 'updateContactPreferences': {
         return [
           param('id').isUUID(),
-          body('contactPreferences')
-            .custom((value) => {
+          body('contactPreferences').exists().bail()
+            .custom(value => {
               return(typeof value["text"] == 'boolean' && typeof value["email"] == 'boolean')
             })
         ]

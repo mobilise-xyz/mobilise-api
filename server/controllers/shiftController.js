@@ -6,6 +6,7 @@ const adminRepository = require("../repositories").AdminRepository;
 const userRepository = require("../repositories").UserRepository;
 const moment = require("moment");
 const sequelize = require("sequelize");
+const {validationResult, body, param, query} = require('express-validator');
 const uuid = require("uuid/v4");
 const {getNextDate, getDateRange, isWeekend} = require("../utils/date");
 const {
@@ -50,6 +51,11 @@ let ShiftController = function (
 ) {
 
   this.list = function (req, res) {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      return res.status(422).json({message: "Invalid request", errors: errors.array()});
+    }
+
     let withVolunteers = req.user.isAdmin;
 
     const whereTrue = getDateRange(req.query.before, req.query.after);
@@ -106,6 +112,11 @@ let ShiftController = function (
   };
 
   this.deleteById = function (req, res) {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      return res.status(422).json({message: "Invalid request", errors: errors.array()});
+    }
+
     shiftRepository
       .getById(req.params.id, [VOLUNTEERS()])
       .then(shift => {
@@ -133,6 +144,11 @@ let ShiftController = function (
   };
 
   this.cancel = function (req, res) {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      return res.status(422).json({message: "Invalid request", errors: errors.array()});
+    }
+
     let creator;
     let shift;
 
@@ -186,6 +202,11 @@ let ShiftController = function (
   };
 
   this.book = function (req, res) {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      return res.status(422).json({message: "Invalid request", errors: errors.array()});
+    }
+
     if (req.user.isAdmin) {
       res.status(401).json({message: "Admin cannot book onto shift"});
       return;
@@ -306,9 +327,14 @@ let ShiftController = function (
   };
 
   this.update = function (req, res) {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      return res.status(422).json({message: "Invalid request", errors: errors.array()});
+    }
+
     // Check if user is admin
     if (!req.user.isAdmin) {
-      res.status(401).json({message: "Only admin can edit a shift"});
+      res.status(400).json({message: "Only admin can edit a shift"});
       return;
     }
     // Check shift exists
@@ -328,6 +354,11 @@ let ShiftController = function (
   };
 
   this.updateRoles = function (req, res) {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      return res.status(422).json({message: "Invalid request", errors: errors.array()});
+    }
+
     // Check if user is admin
     if (!req.user.isAdmin) {
       res.status(401).json({message: "Only admin can edit a shift"});
@@ -361,6 +392,11 @@ let ShiftController = function (
   };
 
   this.ping = function (req, res) {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      return res.status(422).json({message: "Invalid request", errors: errors.array()});
+    }
+
     if (!req.user.isAdmin) {
       res.status(401).json({message: "Only an admin may ping volunteers for shift"});
       return;
@@ -416,6 +452,11 @@ let ShiftController = function (
   };
 
   this.create = async function (req, res) {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      return res.status(422).json({message: "Invalid request", errors: errors.array()});
+    }
+
     // Check if user is admin
     if (!req.user.isAdmin) {
       res.status(401).json({message: "Only admin can add shifts"});
@@ -479,6 +520,85 @@ let ShiftController = function (
         .catch(err => res.status(500).json({message: err}));
     }
   };
+
+  this.validate = function(method) {
+    switch (method) {
+      case 'list': {
+        return [
+          query('before').optional().custom(result => moment(result).isValid()),
+          query('after').optional().custom(result => moment(result).isValid()),
+          query('page').optional().isInt()
+        ]
+      }
+      case 'deleteById': {
+        return [
+          param('id').isUUID()
+        ]
+      }
+      case 'cancel': {
+        return [
+          param('id').isUUID(),
+          body('reason').isString()
+        ]
+      }
+      case 'book': {
+        return [
+          param('id').isUUID(),
+          body('roleName').isString(),
+          body('repeatedType').optional().isIn(Object.keys(REPEATED_TYPES)),
+          body('untilDate')
+            .if(body('repeatedType').exists())
+            .custom(result => moment(result, 'YYYY-MM-DD', true).isValid())
+        ]
+      }
+      case 'update': {
+        return [
+          param('id').isUUID(),
+          body('title').optional().isString(),
+          body('description').optional().isString(),
+          body('date').optional().custom(result => moment(result, 'YYYY-MM-DD', true).isValid()),
+          body('start').optional().custom(result => moment(result, 'HH:mm', true).isValid()),
+          body('stop').optional().custom(result => moment(result, 'HH:mm', true).isValid()),
+          body('address').optional().isString()
+        ]
+      }
+      case 'updateRoles': {
+        return [
+          param('id').isUUID(),
+          body('rolesRequired').isArray().bail()
+            .custom(result => {
+              return result.every(item =>
+              typeof item["roleName"] == 'string' && typeof item["number"] == 'number')
+            })
+        ]
+      }
+      case 'create': {
+        return [
+          body('title').isString(),
+          body('description').isString(),
+          body('date').custom(result => moment(result, 'YYYY-MM-DD', true).isValid()),
+          body('start').custom(result => moment(result, 'HH:mm', true).isValid()),
+          body('stop').custom(result => moment(result, 'HH:mm', true).isValid()),
+          body('address').isString(),
+          body('rolesRequired').isArray().bail()
+            .custom(result => {
+              return result.every(item =>
+                typeof item["roleName"] == 'string' && typeof item["number"] == 'number')
+            }),
+          body('repeatedType').optional().isIn(Object.keys(REPEATED_TYPES)),
+          body('untilDate')
+            .if(body('repeatedType').exists())
+            .custom(result => moment(result, 'YYYY-MM-DD', true).isValid())
+        ]
+      }
+      case 'ping': {
+        return [
+          param('id').isUUID(),
+          body('type').isIn(['ALL', 'AVAILABLE'])
+        ]
+      }
+    }
+  }
 };
 
 module.exports = new ShiftController(
