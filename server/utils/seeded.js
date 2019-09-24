@@ -1,5 +1,4 @@
 const moment = require('moment');
-
 // This is used for shifts, so that they don't disappear after you pass the date.
 const futureDate = moment().add(7, 'days').format('YYYY-MM-DD');
 
@@ -143,6 +142,24 @@ module.exports = {
     value: 30193,
     createdAt: moment().format(),
     updatedAt: moment().format()
-  }
+  },
+  invitationTokens: [
+    {
+      email: 'testvolunteer@testing.com',
+      token: 'eec1c7eb913106c144fd46173bb1f977',
+      expires: moment().add(1, 'day').format(),
+      isAdmin: false,
+      createdAt: moment().format(),
+      updatedAt: moment().format()
+    },
+    {
+      email: 'testadmin@testing.com',
+      token: 'eec1c7eb913106c144fd46173bb1f978',
+      expires: moment().add(1, 'day').format(),
+      isAdmin: true,
+      createdAt: moment().format(),
+      updatedAt: moment().format()
+    }
+  ]
 };
 
