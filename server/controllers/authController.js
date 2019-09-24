@@ -135,7 +135,7 @@ Please click the following link to begin creating your account on Mobilise.
 
 ${process.env.WEB_URL}/signup?token=${token}
 
-This link will expire in 24 hours.`)
+This link will expire in 24 hours.`);
           })
       })
       .then(() => res.status(200).json({message: "Success! Invitation has been sent."}))
@@ -163,7 +163,27 @@ This link will expire in 24 hours.`)
               });
             }
             if (user.passwordRetries === 0) {
-              // Update lastLocked and Send emailio.
+              const unlockDate = moment().add(10, 'minutes').format();;
+              return userRepository.update(user, {
+                lastLocked: unlockDate
+              })
+                .then(() => {
+                  const emailClient = new EmailClient(emailClientTypes.NOREPLY);
+                  return emailClient.send(req.body.email,
+                    "Incorrect Password Limit Reached",
+                    `Hello from Mobilise,
+We've noticed that someone tried to log into your account with the wrong password more times than we normally allow.
+We're just doing our best to keep your account and personal details secure. We've temporarily locked your account out for 10 minutes.
+
+If this was you, maybe you forgot your password and would like to reset it? 
+You can do so here:
+
+${process.env.WEB_URL}/forgot-password
+
+If this wasn't you please send us an email at hello@mobilise.xyz so we can keep an eye on anyone trying to access your account that's not you.
+`)
+                  }
+                );
             }
             res.status(400).json({message: "Incorrect Login details entered too many times. If this email is registered, we have sent instructions to reset your account."})
           }
