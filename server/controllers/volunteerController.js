@@ -243,7 +243,7 @@ let VolunteerController = function (volunteerRepository, shiftRepository, userRe
     }
 
     if (req.user.isAdmin) {
-      res.status(400).json({message: "User is an admin"});
+      res.status(401).json({message: "User is an admin"});
       return;
     }
 
