@@ -1,8 +1,9 @@
 let request = require("supertest");
 let app = require("../../app");
-let { describe, it } = require("mocha");
+let { describe, it, after } = require("mocha");
 
 const Seeded = require('../../server/utils/seeded');
+const {Shift} = require('../../server/models');
 
 const test = {
   shift: {
@@ -23,6 +24,11 @@ const test = {
 };
 
 describe("Add shifts", function() {
+
+  after(function () {
+    Shift.destroy({ where: { name: test.shift.name, description: test.shift.description } })
+  });
+
   it("Does not allow unauthorised request to add shift", function(done) {
     request(app)
       .post("/shifts")

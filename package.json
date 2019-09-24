@@ -7,7 +7,7 @@
     "migratedb": "./node_modules/.bin/sequelize db:migrate",
     "preloaddb": "./node_modules/.bin/sequelize db:seed:all",
     "cleardb": "./node_modules/.bin/sequelize db:seed:undo:all",
-    "test": "yarn migratedb && yarn preloaddb && mocha; yarn cleardb"
+    "test": "yarn migratedb && yarn preloaddb && mocha && yarn cleardb"
   },
   "dependencies": {
     "aws-sdk": "^2.503.0",
