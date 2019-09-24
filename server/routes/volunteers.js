@@ -4,7 +4,6 @@ let controller = require("../controllers").VolunteerController;
 
 /* Get all volunteers */
 router.get("/",
-  controller.validate('list'),
   controller.list);
 
 /* Get hall of fame of volunteers */

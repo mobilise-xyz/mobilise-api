@@ -24,11 +24,6 @@ const SECTIONS_IN_DAY = 3;
 
 let VolunteerController = function (volunteerRepository, shiftRepository, userRepository) {
   this.list = function (req, res) {
-    const errors = validationResult(req);
-    if (!errors.isEmpty()) {
-      return res.status(400).json({message: "Invalid request", errors: errors.array()});
-    }
-
     // Restrict access to admin
     if (!req.user.isAdmin) {
       res
@@ -38,15 +33,9 @@ let VolunteerController = function (volunteerRepository, shiftRepository, userRe
     }
 
     let whereTrue = {};
-    let order = [];
-
-    if (req.query.sortBy != null) {
-      const result = req.query.sortBy.match('(asc|desc)\\(([^\\)\\(]+)\\)');
-      order.push([result[2], result[1].toUpperCase()])
-    }
 
     volunteerRepository
-      .getAll({}, [USER(whereTrue), 'contacts'], order)
+      .getAll({}, [USER(whereTrue), 'contacts'])
       .then(volunteers => res.status(200).json({message: "Success", volunteers}))
       .catch(err => res.status(500).json({message: err}));
   };
@@ -466,11 +455,6 @@ let VolunteerController = function (volunteerRepository, shiftRepository, userRe
 
   this.validate = function (method) {
     switch (method) {
-      case 'list': {
-        return [
-          query('sortBy').optional().matches('(asc|desc)\\(([^\\)\\(]+)\\)')
-        ]
-      }
       case 'getContacts':
       case 'getCalendarForVolunteer':
       case 'getAvailability':
