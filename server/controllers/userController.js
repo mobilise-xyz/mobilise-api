@@ -70,7 +70,7 @@ let UserController = function (userRepository) {
     // Check bearer token id matches parameter id
     if (req.user.id !== req.params.id) {
       res
-        .status(400)
+        .status(401)
         .send({message: "You can only update your own contact preferences."});
       return;
     }

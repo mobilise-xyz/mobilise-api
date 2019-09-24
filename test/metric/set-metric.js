@@ -53,7 +53,7 @@ describe('Update metric', function() {
           )
           .set('Authorization', 'Bearer '+response.body.user.token)
           .set('Accept', 'application/json')
-          .expect(400, done);
+          .expect(401, done);
       });
   });
 

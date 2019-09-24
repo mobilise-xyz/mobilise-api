@@ -12,9 +12,15 @@ const test = {
     start: '16:00',
     stop: '18:00',
     repeatedType: 'Never',
-    address: 'SW72AZ'
+    address: 'SW72AZ',
+    rolesRequired: [
+      {
+        roleName: Seeded.roles[0].name,
+        number: 15
+      }
+    ]
   }
-}
+};
 
 describe("Add shifts", function() {
   it("Does not allow unauthorised request to add shift", function(done) {
@@ -27,7 +33,8 @@ describe("Add shifts", function() {
         start: test.shift.start,
         stop: test.shift.stop,
         repeatedType: test.shift.repeatedType,
-        address: test.shift.address
+        address: test.shift.address,
+        rolesRequired: test.shift.rolesRequired
       })
       .set("Accept", "application/json")
       .expect(401, done);
@@ -54,7 +61,8 @@ describe("Add shifts", function() {
             start: test.shift.start,
             stop: test.shift.stop,
             repeatedType: test.shift.repeatedType,
-            address: test.shift.address
+            address: test.shift.address,
+            rolesRequired: test.shift.rolesRequired
           })
           .set("Authorization", "Bearer " + response.body.user.token)
           .set("Accept", "application/json")
@@ -83,7 +91,8 @@ describe("Add shifts", function() {
             start: test.shift.start,
             stop: test.shift.stop,
             repeatedType: test.shift.repeatedType,
-            address: test.shift.address
+            address: test.shift.address,
+            rolesRequired: test.shift.rolesRequired
           })
           .set("Authorization", "Bearer " + response.body.user.token)
           .set("Accept", "application/json")
@@ -112,7 +121,8 @@ describe("Add shifts", function() {
             start: test.shift.stop,
             stop: test.shift.start,
             repeatedType: test.shift.repeatedType,
-            address: test.shift.address
+            address: test.shift.address,
+            rolesRequired: test.shift.rolesRequired
           })
           .set("Authorization", "Bearer " + response.body.user.token)
           .set("Accept", "application/json")

@@ -8,7 +8,8 @@ const Seeded = require('../../server/utils/seeded');
 const test = {
   role: {
     name: 'Test Role',
-    involves: 'Testing'
+    involves: 'Testing',
+    colour: '#0B0BD0'
   }
 };
 
@@ -25,6 +26,7 @@ describe('Add roles', function () {
         {
           name: test.role.name,
           involves: test.role.involves,
+          colour: test.role.colour
         }
       )
       .set('Accept', 'application/json')
@@ -51,6 +53,7 @@ describe('Add roles', function () {
             {
               name: test.role.name,
               involves: test.role.involves,
+              colour: test.role.colour
             }
           )
           .set('Accept', 'application/json')
@@ -79,6 +82,7 @@ describe('Add roles', function () {
             {
               name: test.role.name,
               involves: test.role.involves,
+              colour: test.role.colour
             }
           )
           .set('Accept', 'application/json')
@@ -107,6 +111,7 @@ describe('Add roles', function () {
             {
               name: Seeded.roles[0].name,
               involves: Seeded.roles[0].involves,
+              colour: Seeded.roles[0].colour
             }
           )
           .set('Accept', 'application/json')
