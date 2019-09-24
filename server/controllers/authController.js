@@ -23,7 +23,7 @@ let AuthController = function (
   this.registerUser = function (req, res) {
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
-      return res.status(422).json({message: "Invalid request", errors: errors.array()});
+      return res.status(400).json({message: "Invalid request", errors: errors.array()});
     }
     invitationTokenRepository.getByToken(req.body.token)
       .then(result => {
@@ -103,7 +103,7 @@ let AuthController = function (
   this.inviteAdmin = function (req, res) {
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
-      return res.status(422).json({message: "Invalid request", errors: errors.array()});
+      return res.status(400).json({message: "Invalid request", errors: errors.array()});
     }
     if (req.body.adminKey !== process.env.ADMIN_KEY) {
       res.status(401).json({message: "Not authenticated"});
@@ -145,7 +145,7 @@ This link will expire in 24 hours.`)
   this.loginUser = function (req, res) {
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
-      return res.status(422).json({message: "Invalid request", errors: errors.array()});
+      return res.status(400).json({message: "Invalid request", errors: errors.array()});
     }
     let lastLogin;
     let loggedInUser;

@@ -12,7 +12,7 @@ let CalendarController = function(bookingRepository) {
   this.subscribeToBookings = function(req, res) {
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
-      return res.status(422).json({message: "Invalid request", errors: errors.array()});
+      return res.status(400).json({message: "Invalid request", errors: errors.array()});
     }
     const cal = ical({name: 'City Harvest London - Bookings'});
     const now = moment.tz('Europe/London');
@@ -49,7 +49,7 @@ let CalendarController = function(bookingRepository) {
   this.subscribeToShifts = function(req, res) {
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
-      return res.status(422).json({message: "Invalid request", errors: errors.array()});
+      return res.status(400).json({message: "Invalid request", errors: errors.array()});
     }
     const cal = ical({name: 'City Harvest London - Shifts'});
     const now = moment.tz('Europe/London');

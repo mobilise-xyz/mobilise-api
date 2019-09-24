@@ -53,7 +53,7 @@ let ShiftController = function (
   this.list = function (req, res) {
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
-      return res.status(422).json({message: "Invalid request", errors: errors.array()});
+      return res.status(400).json({message: "Invalid request", errors: errors.array()});
     }
 
     let withVolunteers = req.user.isAdmin;
@@ -114,7 +114,7 @@ let ShiftController = function (
   this.deleteById = function (req, res) {
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
-      return res.status(422).json({message: "Invalid request", errors: errors.array()});
+      return res.status(400).json({message: "Invalid request", errors: errors.array()});
     }
 
     shiftRepository
@@ -146,7 +146,7 @@ let ShiftController = function (
   this.cancel = function (req, res) {
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
-      return res.status(422).json({message: "Invalid request", errors: errors.array()});
+      return res.status(400).json({message: "Invalid request", errors: errors.array()});
     }
 
     let creator;
@@ -204,7 +204,7 @@ let ShiftController = function (
   this.book = function (req, res) {
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
-      return res.status(422).json({message: "Invalid request", errors: errors.array()});
+      return res.status(400).json({message: "Invalid request", errors: errors.array()});
     }
 
     if (req.user.isAdmin) {
@@ -329,7 +329,7 @@ let ShiftController = function (
   this.update = function (req, res) {
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
-      return res.status(422).json({message: "Invalid request", errors: errors.array()});
+      return res.status(400).json({message: "Invalid request", errors: errors.array()});
     }
 
     // Check if user is admin
@@ -356,7 +356,7 @@ let ShiftController = function (
   this.updateRoles = function (req, res) {
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
-      return res.status(422).json({message: "Invalid request", errors: errors.array()});
+      return res.status(400).json({message: "Invalid request", errors: errors.array()});
     }
 
     // Check if user is admin
@@ -394,7 +394,7 @@ let ShiftController = function (
   this.ping = function (req, res) {
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
-      return res.status(422).json({message: "Invalid request", errors: errors.array()});
+      return res.status(400).json({message: "Invalid request", errors: errors.array()});
     }
 
     if (!req.user.isAdmin) {
@@ -454,7 +454,7 @@ let ShiftController = function (
   this.create = async function (req, res) {
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
-      return res.status(422).json({message: "Invalid request", errors: errors.array()});
+      return res.status(400).json({message: "Invalid request", errors: errors.array()});
     }
 
     // Check if user is admin

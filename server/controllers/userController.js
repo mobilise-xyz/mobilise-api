@@ -13,7 +13,7 @@ let UserController = function (userRepository) {
   this.getById = function (req, res) {
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
-      return res.status(422).json({message: "Invalid request", errors: errors.array()});
+      return res.status(400).json({message: "Invalid request", errors: errors.array()});
     }
 
     // Check request validity
@@ -47,7 +47,7 @@ let UserController = function (userRepository) {
   this.getContactPreferences = function (req, res) {
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
-      return res.status(422).json({message: "Invalid request", errors: errors.array()});
+      return res.status(400).json({message: "Invalid request", errors: errors.array()});
     }
 
     userContactPreferenceRepository
@@ -65,7 +65,7 @@ let UserController = function (userRepository) {
   this.updateContactPreferences = function (req, res) {
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
-      return res.status(422).json({message: "Invalid request", errors: errors.array()});
+      return res.status(400).json({message: "Invalid request", errors: errors.array()});
     }
     // Check bearer token id matches parameter id
     if (req.user.id !== req.params.id) {
@@ -89,7 +89,7 @@ let UserController = function (userRepository) {
   this.changePassword = function (req, res) {
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
-      return res.status(422).json({message: "Invalid request", errors: errors.array()});
+      return res.status(400).json({message: "Invalid request", errors: errors.array()});
     }
     if (!validatePassword(req.body.oldPassword, req.user.password)) {
       res.status(400).json({message: "Password given is incorrect"});
@@ -111,7 +111,7 @@ let UserController = function (userRepository) {
 
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
-      return res.status(422).json({message: "Invalid request", errors: errors.array()});
+      return res.status(400).json({message: "Invalid request", errors: errors.array()});
     }
 
     const emailClient = new EmailClient(emailClientTypes.NOREPLY);
@@ -144,7 +144,7 @@ let UserController = function (userRepository) {
   this.invite = function (req, res) {
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
-      return res.status(422).json({message: "Invalid request", errors: errors.array()});
+      return res.status(400).json({message: "Invalid request", errors: errors.array()});
     }
     if (!req.user.isAdmin) {
       res.status(400).json({message: "Only admins can invite volunteers"});

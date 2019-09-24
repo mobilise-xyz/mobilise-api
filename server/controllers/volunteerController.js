@@ -24,7 +24,7 @@ let VolunteerController = function (volunteerRepository, shiftRepository, userRe
   this.list = function (req, res) {
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
-      return res.status(422).json({message: "Invalid request", errors: errors.array()});
+      return res.status(400).json({message: "Invalid request", errors: errors.array()});
     }
 
     // Restrict access to admin
@@ -52,7 +52,7 @@ let VolunteerController = function (volunteerRepository, shiftRepository, userRe
   this.getStats = function (req, res) {
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
-      return res.status(422).json({message: "Invalid request", errors: errors.array()});
+      return res.status(400).json({message: "Invalid request", errors: errors.array()});
     }
 
     // Check bearer token id matches parameter id
@@ -132,7 +132,7 @@ let VolunteerController = function (volunteerRepository, shiftRepository, userRe
   this.getActivity = function (req, res) {
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
-      return res.status(422).json({message: "Invalid request", errors: errors.array()});
+      return res.status(400).json({message: "Invalid request", errors: errors.array()});
     }
 
     // Check bearer token id matches parameter id
@@ -179,7 +179,7 @@ let VolunteerController = function (volunteerRepository, shiftRepository, userRe
   this.updateAvailability = function (req, res) {
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
-      return res.status(422).json({message: "Invalid request", errors: errors.array()});
+      return res.status(400).json({message: "Invalid request", errors: errors.array()});
     }
 
     // Check bearer token id matches parameter id
@@ -211,7 +211,7 @@ let VolunteerController = function (volunteerRepository, shiftRepository, userRe
   this.getAvailability = function (req, res) {
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
-      return res.status(422).json({message: "Invalid request", errors: errors.array()});
+      return res.status(400).json({message: "Invalid request", errors: errors.array()});
     }
 
     // Check bearer token id matches parameter id
@@ -239,7 +239,7 @@ let VolunteerController = function (volunteerRepository, shiftRepository, userRe
   this.getCalendarForVolunteer = function (req, res) {
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
-      return res.status(422).json({message: "Invalid request", errors: errors.array()});
+      return res.status(400).json({message: "Invalid request", errors: errors.array()});
     }
 
     if (req.user.isAdmin) {
@@ -281,7 +281,7 @@ let VolunteerController = function (volunteerRepository, shiftRepository, userRe
   this.listShiftsForVolunteer = function (req, res) {
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
-      return res.status(422).json({message: "Invalid request", errors: errors.array()});
+      return res.status(400).json({message: "Invalid request", errors: errors.array()});
     }
 
     let volunteer;
@@ -328,7 +328,7 @@ let VolunteerController = function (volunteerRepository, shiftRepository, userRe
   this.listAvailableShiftsForVolunteer = function (req, res) {
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
-      return res.status(422).json({message: "Invalid request", errors: errors.array()});
+      return res.status(400).json({message: "Invalid request", errors: errors.array()});
     }
 
     let volunteer;
@@ -380,7 +380,7 @@ let VolunteerController = function (volunteerRepository, shiftRepository, userRe
   this.addContact = function(req, res) {
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
-      return res.status(422).json({message: "Invalid request", errors: errors.array()});
+      return res.status(400).json({message: "Invalid request", errors: errors.array()});
     }
 
 
@@ -406,7 +406,7 @@ let VolunteerController = function (volunteerRepository, shiftRepository, userRe
   this.getContacts = function(req, res) {
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
-      return res.status(422).json({message: "Invalid request", errors: errors.array()});
+      return res.status(400).json({message: "Invalid request", errors: errors.array()});
     }
 
     if (req.user.id !== req.params.id) {
@@ -431,7 +431,7 @@ let VolunteerController = function (volunteerRepository, shiftRepository, userRe
   this.removeContact = function (req, res) {
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
-      return res.status(422).json({message: "Invalid request", errors: errors.array()});
+      return res.status(400).json({message: "Invalid request", errors: errors.array()});
     }
 
     if (req.user.id !== req.params.id) {

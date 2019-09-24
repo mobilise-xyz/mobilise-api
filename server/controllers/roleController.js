@@ -6,7 +6,7 @@ let RoleController = function (roleRepository) {
   this.create = function (req, res) {
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
-      return res.status(422).json({message: "Invalid request", errors: errors.array()});
+      return res.status(400).json({message: "Invalid request", errors: errors.array()});
     }
     // Check if admin
     if (!req.user.isAdmin) {
@@ -50,7 +50,7 @@ let RoleController = function (roleRepository) {
   this.remove = function (req, res) {
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
-      return res.status(422).json({message: "Invalid request", errors: errors.array()});
+      return res.status(400).json({message: "Invalid request", errors: errors.array()});
     }
     // Check if admin
     if (!req.user.isAdmin) {
