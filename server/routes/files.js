@@ -16,6 +16,11 @@ if (process.env.NODE_ENV !== "test") {
       }
     })
   });
+
+  /* Upload a file */
+  router.post('/', upload.single("file"), function(req, res) {
+    res.json({message: 'Successfully uploaded: ', file: req.file.originalname})
+  });
 }
 
 /* List all the files. */
@@ -23,11 +28,6 @@ router.get('/', controller.get);
 
 /* Download a file */
 router.get('/:name', controller.downloadByName);
-
-/* Upload a file */
-router.post('/', upload.single("file"), function(req, res) {
-  res.json({message: 'Successfully uploaded: ', file: req.file.originalname})
-});
 
 /* Delete a file */
 router.delete('/:name', controller.deleteByName);
