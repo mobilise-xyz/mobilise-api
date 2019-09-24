@@ -30,6 +30,7 @@ let UserController = function (userRepository) {
               id: user.id,
               firstName: user.firstName,
               lastName: user.lastName,
+              passwordRetries: user.passwordRetries,
               contactPreferences: user.contactPreferences
             }
           });

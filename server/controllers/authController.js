@@ -1,5 +1,5 @@
 const userContactPreferenceRepository = require("../repositories")
-    .UserContactPreferenceRepository;
+  .UserContactPreferenceRepository;
 const userRepository = require("../repositories").UserRepository;
 const volunteerRepository = require("../repositories").VolunteerRepository;
 const adminRepository = require("../repositories").AdminRepository;
@@ -14,10 +14,10 @@ const crypto = require("crypto");
 const phoneUtil = PhoneNumberUtil.getInstance();
 
 let AuthController = function (
-    userRepository,
-    volunteerRepository,
-    adminRepository,
-    invitationTokenRepository
+  userRepository,
+  volunteerRepository,
+  adminRepository,
+  invitationTokenRepository
 ) {
     this.registerUser = function (req, res) {
         if (!req.body.token) {
@@ -86,108 +86,125 @@ let AuthController = function (
             })
             .then(user =>
 
-                res.status(201).json({
-                    message: "Successful! User created",
-                    user: {
-                        id: user.id,
-                        firstName: user.firstName,
-                        lastName: user.lastName,
-                        email: user.email,
-                        isAdmin: user.isAdmin
-                    }
-                })
-            )
-            .catch(error => res.status(500).json({message: error}));
-    };
+        res.status(201).json({
+          message: "Successful! User created",
+          user: {
+            id: user.id,
+            firstName: user.firstName,
+            lastName: user.lastName,
+            passwordRetries: user.passwordRetries,
+            email: user.email,
+            isAdmin: user.isAdmin
+          }
+        })
+      )
+      .catch(error => res.status(500).json({message: error}));
+  };
 
-    this.inviteAdmin = function (req, res) {
-        if (req.body.adminKey !== process.env.ADMIN_KEY) {
-            res.status(401).json({message: "Not authenticated"});
-            return;
+  this.inviteAdmin = function (req, res) {
+    if (req.body.adminKey !== process.env.ADMIN_KEY) {
+      res.status(401).json({message: "Not authenticated"});
+      return;
+    }
+    if (!req.body.email) {
+      res.status(400).json({message: "No email has been specified"});
+    }
+    userRepository.getByEmail(req.body.email)
+      .then(user => {
+        if (user) {
+          res.status(400).json({message: "User already has an account"});
+          return;
         }
-        if (!req.body.email) {
-            res.status(400).json({message: "No email has been specified"});
+        return invitationTokenRepository.getByEmail(req.body.email);
+      })
+      .then(invitation => {
+        if (invitation && moment().isBefore(invitation.expires)) {
+          res.status(400).json({message: "Volunteer with that email has already been invited!"});
+          return;
         }
-        userRepository.getByEmail(req.body.email)
-            .then(user => {
-                if (user) {
-                    res.status(400).json({message: "User already has an account"});
-                    return;
-                }
-                return invitationTokenRepository.getByEmail(req.body.email);
-            })
-            .then(invitation => {
-                if (invitation && moment().isBefore(invitation.expires)) {
-                    res.status(400).json({message: "Volunteer with that email has already been invited!"});
-                    return;
-                }
-                const token = crypto.randomBytes(16).toString('hex');
-                const expires = moment().add(1, 'days').format();
-                return invitationTokenRepository.add(req.body.email, token, expires, true)
-                    .then(() => {
-                        const emailClient = new EmailClient(emailClientTypes.NOREPLY);
-                        return emailClient.send(req.body.email,
-                            "Invitation to City Harvest",
-                            `Hello from Mobilise,
+        const token = crypto.randomBytes(16).toString('hex');
+        const expires = moment().add(1, 'days').format();
+        return invitationTokenRepository.add(req.body.email, token, expires, true)
+          .then(() => {
+            const emailClient = new EmailClient(emailClientTypes.NOREPLY);
+            return emailClient.send(req.body.email,
+              "Invitation to City Harvest",
+              `Hello from Mobilise,
 You have been invited to join City Harvest's Mobilise application.
 Please click the following link to begin creating your account on Mobilise.
 
 ${process.env.WEB_URL}/signup?token=${token}
 
 This link will expire in 24 hours.`)
-                    })
-            })
-            .then(() => res.status(200).json({message: "Success! Invitation has been sent."}))
-            .catch(err => res.status(500).json({message: err}));
-    };
+          })
+      })
+      .then(() => res.status(200).json({message: "Success! Invitation has been sent."}))
+      .catch(err => res.status(500).json({message: err}));
+  };
 
-    this.loginUser = function (req, res) {
-        let lastLogin;
-        let loggedInUser;
-        userRepository
-            .getByEmail(req.body.email)
-            .then(user => {
-                loggedInUser = user;
-                if (user && validatePassword(req.body.password, user.password)) {
-                    return user;
-                }
-                res.status(400).json({message: "Invalid username/password"});
-            })
-            .then(user => {
-                lastLogin = user.lastLogin;
-                const currentDate = moment();
-                return userRepository.update(user, {
-                    lastLogin: currentDate
-                });
-            })
-            .then(() => {
-                res.status(200).json({
-                    message: "Successful login!",
-                    user: {
-                        uid: loggedInUser.id,
-                        isAdmin: loggedInUser.isAdmin,
-                        lastLogin: lastLogin,
-                        token: generateToken(loggedInUser)
-                    }
-                });
-            })
-            .catch(() => res.status(500).send("An error occurred"));
-    };
+  this.loginUser = function (req, res) {
+    let lastLogin;
+    let loggedInUser;
+    userRepository
+      .getByEmail(req.body.email)
+      .then(user => {
+        loggedInUser = user;
+        if (user) {
+          const currentDate = moment();
+          if (user.lastLocked === null || user.lastLocked < currentDate) {
+            if (user.passwordRetries > 0) {
+              if (validatePassword(req.body.password, user.password)) {
+                return user;
+              }
+              const newPasswordRetries = user.passwordRetries - 1;
+              res.status(400).json({message: "Invalid Username/Password. Please try again."});
+              return userRepository.update(user, {
+                passwordRetries: newPasswordRetries
+              });
+            }
+            if (user.passwordRetries === 0) {
+              // Update lastLocked and Send emailio.
+            }
+            res.status(400).json({message: "Incorrect Login details entered too many times. If this email is registered, we have sent instructions to reset your account."})
+          }
+        }
+        res.status(400).json({message: "Invalid Username/Password. Please try again."});
+      })
+      .then(user => {
+        lastLogin = user.lastLogin;
+        const currentDate = moment();
+        return userRepository.update(user, {
+          lastLogin: currentDate
+        });
+      })
+      .then(() => {
+        res.status(200).json({
+          message: "Successful login!",
+          user: {
+            uid: loggedInUser.id,
+            isAdmin: loggedInUser.isAdmin,
+            lastLogin: lastLogin,
+            token: generateToken(loggedInUser)
+          }
+        });
+      })
+      .catch(() => res.status(500).send("An error occurred"));
+  };
 };
 
 module.exports = new AuthController(
-    userRepository,
-    volunteerRepository,
-    adminRepository,
-    invitationTokenRepository
+  userRepository,
+  volunteerRepository,
+  adminRepository,
+  invitationTokenRepository
 );
 
 function generateToken(user) {
-    return jwt.sign(
-        {
-            id: user.id
-        },
-        config["jwt-secret"],
-        {expiresIn: '24h'}
-    );
+  return jwt.sign(
+    {
+      id: user.id
+    },
+    config["jwt-secret"],
+    {expiresIn: '24h'}
+  );
 }
