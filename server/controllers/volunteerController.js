@@ -19,6 +19,8 @@ const {validationResult, body, param, query} = require('express-validator');
 const {SHIFT_BEFORE} = require("../sequelizeUtils/where");
 const EXPECTED_SHORTAGE_THRESHOLD = 2;
 const ITEMS_PER_PAGE = 5;
+const DAYS_IN_WEEK = 7;
+const SECTIONS_IN_DAY = 3;
 
 let VolunteerController = function (volunteerRepository, shiftRepository, userRepository) {
   this.list = function (req, res) {
@@ -482,8 +484,9 @@ let VolunteerController = function (volunteerRepository, shiftRepository, userRe
         return [
           param('id').isUUID(),
           body('availability').isArray().bail().custom(result => {
-            return result.length === 7 &&
-              result.every(col => col.length === 3 && col.every(item => ['0', '1', '2'].indexOf(item) >= 0))
+            return result.length === DAYS_IN_WEEK &&
+                result.every(col => col.length === SECTIONS_IN_DAY &&
+                col.every(item => ['0', '1', '2'].indexOf(item) >= 0))
           })
         ]
       }
