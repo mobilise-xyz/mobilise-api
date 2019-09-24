@@ -51,7 +51,7 @@ let FileController = function () {
     const client = new BucketClient();
 
     if (!req.user.isAdmin) {
-      res.status(400).json({message: "Only an admin can delete a file"});
+      res.status(401).json({message: "Only an admin can delete a file"});
       return;
     }
 

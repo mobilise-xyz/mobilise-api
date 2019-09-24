@@ -20,7 +20,7 @@ let UserController = function (userRepository) {
     // 1. Request made by admin
     // 2. Request made by volunteer for their own info
     if (!req.user.isAdmin && req.user.id !== req.params.id) {
-      res.status(400).json({message: "Unauthorised request"});
+      res.status(401).json({message: "Unauthorised request"});
       return;
     }
 
@@ -147,7 +147,7 @@ let UserController = function (userRepository) {
       return res.status(400).json({message: "Invalid request", errors: errors.array()});
     }
     if (!req.user.isAdmin) {
-      res.status(400).json({message: "Only admins can invite volunteers"});
+      res.status(401).json({message: "Only admins can invite volunteers"});
       return;
     }
     userRepository.getByEmail(req.body.email)

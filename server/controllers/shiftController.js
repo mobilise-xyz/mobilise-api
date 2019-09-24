@@ -334,7 +334,7 @@ let ShiftController = function (
 
     // Check if user is admin
     if (!req.user.isAdmin) {
-      res.status(400).json({message: "Only admin can edit a shift"});
+      res.status(401).json({message: "Only admin can edit a shift"});
       return;
     }
     // Check shift exists

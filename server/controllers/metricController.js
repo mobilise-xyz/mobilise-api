@@ -9,7 +9,7 @@ let MetricController = function(metricRepository) {
       return res.status(400).json({message: "Invalid request", errors: errors.array()});
     }
     if (!req.user.isAdmin) {
-      res.status(400).json({message: "Only admin can set the metric"});
+      res.status(401).json({message: "Only admin can set the metric"});
       return;
     }
     metricRepository.set(
