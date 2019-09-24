@@ -180,6 +180,33 @@ This link will expire in 24 hours.`)
       .catch(err => res.status(500).send(errorMessage(err)));
   };
 
+  this.resetPassword = function(req, res) {
+    userRepository.getByEmail(req.body.email)
+      .then(user => {
+        if (user) {
+          const token = crypto.randomBytes(16).toString('hex');
+          const expires = moment().add(30, 'minutes').format();
+          return forgotPasswordTokenRepository.add(req.body.email, token, expires, true)
+            .then(() => {
+              res.status(200).json({message: "Instructions to reset your password have been sent to the email entered if an account with that email exists."});
+              const emailClient = new EmailClient(emailClientTypes.NOREPLY);
+              return emailClient.send(req.body.email,
+                "Mobilise Password Reset",
+                `Hello from Mobilise,
+You have requested to reset your password.
+Please click the following link to create a new password. 
+Please try and use a password different to any that you have used previously.
+
+${process.env.WEB_URL}/password-reset?token=${token}
+
+This link will expire in 30 minutes.`)
+            });
+        }
+        res.status(200).json({message: "Instructions to reset your password have been sent to the email entered if an account with that email exists."});
+      })
+  }
+};
+
   this.validate = function (method) {
     switch (method) {
       case 'registerUser': {
@@ -205,9 +232,7 @@ This link will expire in 24 hours.`)
         ]
       }
     }
-  }
-
-};
+  };
 
 module.exports = new AuthController(
   userRepository,
