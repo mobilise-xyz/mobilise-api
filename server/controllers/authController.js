@@ -8,6 +8,7 @@ const config = require("../config/config.js");
 const {errorMessage} = require("../utils/error");
 const jwt = require("jsonwebtoken");
 const invitationTokenRepository = require("../repositories").InvitationTokenRepository;
+const forgotPasswordTokenRepository = require("../repositories").ForgotPasswordTokenRepository;
 const {EmailClient, emailClientTypes} = require("../utils/email");
 const {isSecure, hashedPassword, validatePassword} = require("../utils/password");
 const {PhoneNumberFormat: PNF, PhoneNumberUtil} = require('google-libphonenumber');
@@ -16,10 +17,11 @@ const {body, validationResult} = require('express-validator');
 const phoneUtil = PhoneNumberUtil.getInstance();
 
 let AuthController = function (
-  userRepository,
-  volunteerRepository,
-  adminRepository,
-  invitationTokenRepository
+    userRepository,
+    volunteerRepository,
+    adminRepository,
+    invitationTokenRepository,
+    forgotPasswordTokenRepository
 ) {
   this.registerUser = function (req, res) {
     const errors = validationResult(req);
@@ -180,19 +182,19 @@ This link will expire in 24 hours.`)
       .catch(err => res.status(500).send(errorMessage(err)));
   };
 
-  this.resetPassword = function(req, res) {
-    userRepository.getByEmail(req.body.email)
-      .then(user => {
-        if (user) {
-          const token = crypto.randomBytes(16).toString('hex');
-          const expires = moment().add(30, 'minutes').format();
-          return forgotPasswordTokenRepository.add(req.body.email, token, expires, true)
-            .then(() => {
-              res.status(200).json({message: "Instructions to reset your password have been sent to the email entered if an account with that email exists."});
-              const emailClient = new EmailClient(emailClientTypes.NOREPLY);
-              return emailClient.send(req.body.email,
-                "Mobilise Password Reset",
-                `Hello from Mobilise,
+    this.resetPassword = function(req, res) {
+      userRepository.getByEmail(req.body.email)
+        .then(user => {
+          if (user) {
+            const token = crypto.randomBytes(16).toString('hex');
+            const expires = moment().add(30, 'minutes').format();
+            return forgotPasswordTokenRepository.add(req.body.email, token, expires)
+              .then(() => {
+                res.status(200).json({message: "Instructions to reset your password have been sent to the email entered if an account with that email exists."});
+                const emailClient = new EmailClient(emailClientTypes.NOREPLY);
+                return emailClient.send(req.body.email,
+                  "Mobilise Password Reset",
+                  `Hello from Mobilise,
 You have requested to reset your password.
 Please click the following link to create a new password. 
 Please try and use a password different to any that you have used previously.
@@ -235,10 +237,11 @@ This link will expire in 30 minutes.`)
   };
 
 module.exports = new AuthController(
-  userRepository,
-  volunteerRepository,
-  adminRepository,
-  invitationTokenRepository
+    userRepository,
+    volunteerRepository,
+    adminRepository,
+    invitationTokenRepository,
+    forgotPasswordTokenRepository
 );
 
 function generateToken(user) {
