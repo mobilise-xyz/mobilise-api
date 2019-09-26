@@ -21,70 +21,80 @@ let AuthController = function (
   adminRepository,
   invitationTokenRepository
 ) {
-  this.registerUser = function (req, res) {
+
+  this.registerUser = async function (req, res) {
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
       return res.status(400).json({message: "Invalid request", errors: errors.array()});
     }
-    invitationTokenRepository.getByToken(req.body.token)
-      .then(result => {
-        if (!result) {
-          res.status(400).json({message: "Invalid token"});
-          return;
-        }
-        if (result.email !== req.body.email) {
-          res.status(400).json({message: "Please use the email that received the invitation."});
-          return;
-        }
-        if (moment.tz('Europe/London').isAfter(result.expiry)) {
-          res.status(400).json({
-            message: "Token has expired. " +
-              "Please request another invite from an admin."
-          });
-          return;
-        }
-        return userRepository.getByEmail(req.body.email)
-          .then(user => {
-            if (user) {
-              res.status(400).json({message: "An account with that email already exists"});
-            } else {
-              if (!isSecure(req.body.password)) {
-                res.status(400).json({
-                  message: "Password must be at least 8 characters, contain at least one uppercase letter, " +
-                    "one lowercase letter and one number/special character"
-                });
-              } else {
-                let hash = hashedPassword(req.body.password);
-                const number = phoneUtil.parse(req.body.telephone, 'GB');
-                if (!phoneUtil.isValidNumber(number)) {
-                  res
-                    .status(400)
-                    .json({message: "Invalid UK phone number"});
-                } else {
-                  const formattedNumber = phoneUtil.format(number, PNF.E164);
-                  return invitationTokenRepository.removeByToken(req.body.token)
-                    .then(() => userRepository.add(req.body, hash, formattedNumber, result.isAdmin));
-                }
-              }
-            }
-          });
-      })
-      .then(async user => {
+    // Check they have provided a valid invitation token
+    let result;
+    try {
+      result = await invitationTokenRepository.getByToken(req.body.token);
+    } catch (e) {
+      return res.status(500).json(errorMessage(e));
+    }
+    if (!result) {
+      return res.status(400).json({message: "Invalid token"});
+    }
+    if (result.email !== req.body.email) {
+      return res.status(400).json({message: "Please use the email that received the invitation."});
+    }
+    if (moment().isAfter(result.expiry)) {
+      return res.status(400).json({
+        message: "Token has expired. " +
+          "Please request another invite from an admin."
+      });
+    }
+    // Check there does not exist a user already
+    let existingUser;
+
+    // Check the provided values are valid
+    try {
+      existingUser = await userRepository.getByEmail(req.body.email);
+    } catch (err) {
+      return res.status(500).json(errorMessage(err));
+    }
+    if (existingUser) {
+      return res.status(400).json({message: "An account with that email already exists"});
+    }
+
+    // Check password
+    if (!isSecure(req.body.password)) {
+      return res.status(400).json({
+        message: "Password must be at least 8 characters, contain at least one uppercase letter, " +
+          "one lowercase letter and one number/special character"
+      });
+    }
+
+    // Check phone number
+    const number = phoneUtil.parse(req.body.telephone, 'GB');
+    if (!phoneUtil.isValidNumber(number)) {
+      return res
+        .status(400)
+        .json({message: "Invalid UK phone number"});
+    }
+
+    // Create the account
+
+    let hash = hashedPassword(req.body.password);
+    const formattedNumber = phoneUtil.format(number, PNF.E164);
+    invitationTokenRepository.removeByToken(req.body.token)
+      .then(() => userRepository.add(req.body, hash, formattedNumber, result.isAdmin))
+      .then(user => {
         // Add user to volunteer or admin table
         if (!user.isAdmin) {
-          await volunteerRepository.add({userId: user.id});
+          return volunteerRepository.add({userId: user.id}).then(() => user);
         } else {
-          await adminRepository.add({userId: user.id});
+          return adminRepository.add({userId: user.id}).then(() => user);
         }
-        return user;
       })
-      .then(async user => {
+      .then(user => {
         // Create entry for user's contact preferences
-        await userContactPreferenceRepository.add(user.id, {
+        return userContactPreferenceRepository.add(user.id, {
           email: false,
           text: false
-        });
-        return user;
+        }).then(() => user);
       })
       .then(user =>
         res.status(201).json({
@@ -101,43 +111,54 @@ let AuthController = function (
       .catch(error => res.status(500).json({message: errorMessage(error)}));
   };
 
-  this.inviteAdmin = function (req, res) {
+  this.inviteAdmin = async function (req, res) {
+
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
       return res.status(400).json({message: "Invalid request", errors: errors.array()});
     }
+    // Check request has the correct key
     if (req.body.adminKey !== process.env.ADMIN_KEY) {
-      res.status(401).json({message: "Not authenticated"});
-      return;
+      return res.status(401).json({message: "Not authenticated"});
     }
-    userRepository.getByEmail(req.body.email)
-      .then(user => {
-        if (user) {
-          res.status(400).json({message: "User already has an account"});
-          return;
-        }
-        return invitationTokenRepository.getByEmail(req.body.email);
-      })
-      .then(invitation => {
-        if (invitation && moment().isBefore(invitation.expires)) {
-          res.status(400).json({message: "Volunteer with that email has already been invited!"});
-          return;
-        }
-        const token = crypto.randomBytes(16).toString('hex');
-        const expires = moment().add(1, 'days').format();
-        return invitationTokenRepository.add(req.body.email, token, expires, true)
-          .then(() => {
-            const emailClient = new EmailClient(emailClientTypes.NOREPLY);
-            return emailClient.send(req.body.email,
-              "Invitation to City Harvest",
-              `Hello from Mobilise,
+
+    // Check the user does not already have an account
+    let existingUser;
+    try {
+      existingUser = await userRepository.getByEmail(req.body.email);
+    } catch (err) {
+      return res.status(500).json(errorMessage(err));
+    }
+    if (existingUser) {
+      return res.status(400).json({message: "User already has an account"});
+    }
+
+    // Check there is not already a valid invitation for user
+    let existingInvitation;
+    try {
+      existingInvitation = await invitationTokenRepository.getByEmail(req.body.email);
+    } catch (err) {
+      return res.status(500).json(errorMessage(err));
+    }
+    if (existingInvitation && moment().isBefore(existingInvitation.expires)) {
+      return res.status(400).json({message: "User with that email has already been invited!"});
+    }
+
+    // Create new invitation and send it
+    const token = crypto.randomBytes(16).toString('hex');
+    const expires = moment().add(1, 'days').format();
+    return invitationTokenRepository.add(req.body.email, token, expires, true)
+      .then(() => {
+        const emailClient = new EmailClient(emailClientTypes.NOREPLY);
+        return emailClient.send(req.body.email,
+          "Invitation to City Harvest",
+          `Hello from Mobilise,
 You have been invited to join City Harvest's Mobilise application.
 Please click the following link to begin creating your account on Mobilise.
 
 ${process.env.WEB_URL}/signup?token=${token}
 
 This link will expire in 24 hours.`)
-          })
       })
       .then(() => res.status(200).json({message: "Success! Invitation has been sent."}))
       .catch(err => res.status(500).json({message: errorMessage(err)}));
