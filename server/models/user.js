@@ -39,7 +39,7 @@ module.exports = (sequelize, DataTypes) => {
         type: INTEGER,
         allowNull: false
       },
-      lastLocked: {
+      unlockDate: {
         type: DATE,
         allowNull: true
       },

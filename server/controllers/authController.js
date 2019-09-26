@@ -151,21 +151,21 @@ This link will expire in 24 hours.`);
         loggedInUser = user;
         if (user) {
           const currentDate = moment();
-          if (user.lastLocked === null || user.lastLocked < currentDate) {
+          if (!user.unlockDate || currentDate.isAfter(user.unlockDate)) {
             if (user.passwordRetries > 0) {
               if (validatePassword(req.body.password, user.password)) {
                 return user;
               }
               const newPasswordRetries = user.passwordRetries - 1;
-              res.status(400).json({message: "Invalid Username/Password. Please try again."});
               return userRepository.update(user, {
                 passwordRetries: newPasswordRetries
-              });
+              })
+                .then(() => {res.status(400).json({message: "Invalid Username/Password. Please try again."})});
             }
             if (user.passwordRetries === 0) {
-              const unlockDate = moment().add(10, 'minutes').format();;
+              const unlockDate = moment().add(10, 'minutes').format();
               return userRepository.update(user, {
-                lastLocked: unlockDate
+                unlockDate: unlockDate
               })
                 .then(() => {
                   const emailClient = new EmailClient(emailClientTypes.NOREPLY);
@@ -183,12 +183,13 @@ ${process.env.WEB_URL}/forgot-password
 If this wasn't you please send us an email at hello@mobilise.xyz so we can keep an eye on anyone trying to access your account that's not you.
 `)
                   }
-                );
+                )
+                .then(() => {res.status(400).json({message: "Incorrect Login details entered too many times. If this email is registered, we have sent instructions to access your account."})});
             }
-            res.status(400).json({message: "Incorrect Login details entered too many times. If this email is registered, we have sent instructions to reset your account."})
           }
+          // TODO: Sort out res stuff here:
+          // res.status(400).json({message: "Incorrect Login details entered too many times. If this email is registered, we have sent instructions to access your account."})
         }
-        res.status(400).json({message: "Invalid Username/Password. Please try again."});
       })
       .then(user => {
         lastLogin = user.lastLogin;

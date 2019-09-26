@@ -6,7 +6,7 @@ module.exports = {
     return queryInterface.addColumn("Users", "passwordRetries", {
       type: Sequelize.INTEGER,
       allowNull: false,
-      defaultValue: 3
+      defaultValue: 5
     })
 
   },
