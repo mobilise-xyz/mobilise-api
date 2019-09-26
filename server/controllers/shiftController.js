@@ -112,7 +112,7 @@ let ShiftController = function (
       }
   };
 
-  this.deleteById = function (req, res) {
+  this.deleteById = async function (req, res) {
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
       return res.status(400).json({message: "Invalid request", errors: errors.array()});
@@ -122,82 +122,93 @@ let ShiftController = function (
       return res.status(401).json({message: "Only admin may delete a shift"});
     }
 
-    shiftRepository
-      .getById(req.params.id, [VOLUNTEERS()])
-      .then(shift => {
-        if (!shift) {
-          res.status(400).send({message: "No such shift"});
-          return;
-        }
-        let emailClient = new EmailClient(emailClientTypes.NOREPLY);
-        let smsClient = new SMSClient();
-        shift.volunteers.forEach(volunteer => {
-          let message = constructCancelShiftMessage(volunteer, shift);
-          if (volunteer.user.contactPreferences.email) {
-            emailClient.send(volunteer.user.email, "Shift cancelled", message);
-          }
-          if (volunteer.user.contactPreferences.text) {
-            smsClient.send(volunteer.user.telephone, message);
-          }
-        });
-        return shiftRepository.removeById(req.params.id);
-      })
-      .then(shift =>
-        res.status(200).json({message: "Successfully deleted", shift: shift})
-      )
+    // Check shift exists
+    let shift;
+    try {
+      shift = await shiftRepository.getById(req.params.id, [VOLUNTEERS()]);
+    } catch (err) {
+      return res.status(500).json({message: errorMessage(err)});
+    }
+    if (!shift) {
+      return res.status(400).send({message: "No such shift"});
+    }
+    // Notify volunteers
+    let emailClient = new EmailClient(emailClientTypes.NOREPLY);
+    let smsClient = new SMSClient();
+    shift.volunteers.forEach(volunteer => {
+      let message = constructCancelShiftMessage(volunteer, shift);
+      if (volunteer.user.contactPreferences.email) {
+        emailClient.send(volunteer.user.email, "Shift cancelled", message);
+      }
+      if (volunteer.user.contactPreferences.text) {
+        smsClient.send(volunteer.user.telephone, message);
+      }
+    });
+
+    // Remove the shift
+    return shiftRepository.removeById(req.params.id)
+      .then(shift => res.status(200).json({message: "Successfully deleted", shift: shift}))
       .catch(err => res.status(500).json({message: errorMessage(err)}));
   };
 
-  this.cancel = function (req, res) {
+  this.cancel = async function (req, res) {
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
       return res.status(400).json({message: "Invalid request", errors: errors.array()});
     }
 
-    let creator;
-    let shift;
+    // Check there is a booking
+    let booking;
+    try {
+      booking = await bookingRepository.getById(req.params.id, req.user.id);
+    } catch (err) {
+      return res.status(500).json({message: errorMessage(err)});
+    }
+    if (!booking) {
+      return res.status(400).json({message: "No such booking exists"});
+    }
 
-    bookingRepository
-      .getById(req.params.id, req.user.id)
-      .then(booking => {
-        if (!booking) {
-          res.status(400).json({message: "No such booking exists"});
-        } else {
-          shift = booking.shift;
-          return adminRepository.getById(shift.creatorId);
-        }
-      })
-      .then(admin => {
-        if (!admin) {
-          res.status(400).json({message: "Shift has no creator"});
-        } else {
-          creator = admin;
-          return volunteerRepository.getById(req.user.id);
-        }
-      })
-      .then(volunteer => {
-        if (!volunteer) {
-          res
-            .status(400)
-            .json({message: "Only a volunteer can cancel a booking"});
-        } else {
-          const message = constructCancelBookingMessage(
-            creator,
-            volunteer,
-            shift,
-            req.body.reason
-          );
-          if (creator.user.contactPreferences.email) {
-            let emailClient = new EmailClient(emailClientTypes.NOREPLY);
-            emailClient.send(creator.user.email, "Cancelled booking", message);
-          }
-          if (creator.user.contactPreferences.text) {
-            let smsClient = new SMSClient();
-            smsClient.send(creator.user.telephone, message);
-          }
-          return bookingRepository.delete(req.params.id, req.user.id);
-        }
-      })
+    let shift = booking.shift;
+
+    // Check the user is a volunteer
+    let volunteer;
+    try {
+      volunteer = await volunteerRepository.getById(req.user.id);
+    } catch (err) {
+      return res.status(500).json({message: errorMessage(err)});
+    }
+    if (!volunteer) {
+      return res.status(400).json({message: "Only a volunteer can cancel a booking"});
+    }
+
+    // Check there is a shift creator
+    let creator;
+    try {
+      creator = await adminRepository.getById(shift.creatorId);
+    } catch (err) {
+      return res.status(500).json({message: errorMessage(err)});
+    }
+    if (!creator) {
+      return res.status(400).json({message: "Shift has no creator"});
+    }
+
+    // Send message to creator and cancel shift
+    const message = constructCancelBookingMessage(
+      creator,
+      volunteer,
+      shift,
+      req.body.reason
+    );
+    if (creator.user.contactPreferences.email) {
+      let emailClient = new EmailClient(emailClientTypes.NOREPLY);
+      emailClient.send(creator.user.email, "Cancelled booking", message);
+    }
+    if (creator.user.contactPreferences.text) {
+      let smsClient = new SMSClient();
+      smsClient.send(creator.user.telephone, message);
+    }
+
+    return bookingRepository.delete(req.params.id, req.user.id)
       .then(booking =>
         res
           .status(200)
@@ -206,132 +217,118 @@ let ShiftController = function (
       .catch(err => res.status(500).json({message: errorMessage(err)}));
   };
 
-  this.book = function (req, res) {
+  this.book = async function (req, res) {
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
       return res.status(400).json({message: "Invalid request", errors: errors.array()});
     }
 
     if (req.user.isAdmin) {
-      res.status(401).json({message: "Admin cannot book onto shift"});
-      return;
+      return res.status(401).json({message: "Admin cannot book onto shift"});
     }
 
-    shiftRepository.getById(req.params.id, [REQUIREMENTS_WITH_BOOKINGS(), REPEATED_SHIFT()])
-      .then(shift => {
-        if (!shift) {
-          res
-            .status(400)
-            .json({message: "No shift with id: " + req.params.id});
-          return;
-        }
-        if (shiftRequirementIsFull(shift, req.body.roleName)) {
-          res
-            .status(400)
-            .json({message: "Shift for that role is full!" + req.params.id});
-          return;
-        }
-        if (volunteerBookedOnShift({userId: req.user.id}, shift)) {
-          res
-            .status(400)
-            .json({message: "You have already booked this shift!" + req.params.id});
-          return;
-        }
-        if (!req.body.repeatedType || req.body.repeatedType === "Never") {
-          return bookingRepository.add(shift, req.user.id, req.body.roleName)
-            .then(booking => {
-              res
-                .status(200)
-                .json({message: "Successfully created booking", shiftIds: [booking.shiftId]});
-            })
-        }
-        let startDate = moment(shift.date, "YYYY-MM-DD");
+    // Check the shift is valid and free to book
+    let shift;
+    try {
+      shift = await shiftRepository.getById(req.params.id, [REQUIREMENTS_WITH_BOOKINGS(), REPEATED_SHIFT()]);
+    } catch (err) {
+      return res.status(500).json({message: errorMessage(err)})
+    }
+    if (!shift) {
+      return res.status(400).json({message: "No shift with id: " + req.params.id});
+    }
+    if (shiftRequirementIsFull(shift, req.body.roleName)) {
+      return res.status(400).json({message: "Shift for that role is full!" + req.params.id});
+    }
+    if (volunteerBookedOnShift({userId: req.user.id}, shift)) {
+      return res.status(400).json({message: "You have already booked this shift!" + req.params.id});
+    }
 
-        if (!repeatedTypeIsValid(req.body.repeatedType, startDate)) {
-          res.status(400).json({
-            message: "Invalid repeated type: " + req.body.repeatedType
+    // Book the shift if it is one off
+    if (!req.body.repeatedType || req.body.repeatedType === "Never") {
+      return bookingRepository
+        .add(shift, req.user.id, req.body.roleName)
+        .then(booking => res.status(200).json({message: "Successfully created booking", shiftIds: [booking.shiftId]}));
+    }
+
+    let startDate = moment(shift.date, "YYYY-MM-DD");
+
+    if (!repeatedTypeIsValid(req.body.repeatedType, startDate)) {
+      return res.status(400).json({message: "Invalid repeated type: " + req.body.repeatedType});
+    }
+    if (!repeatedTypesCompatible(shift.repeated.type, req.body.repeatedType)) {
+      return res.status(400).json({message: "Repeated type incompatible with shift"});
+    }
+
+    let lastDate = moment(req.body.untilDate, "YYYY-MM-DD");
+
+    if (lastDate.isBefore(startDate)) {
+      return res.status(400).json({message: "untilDate is before the shift date"});
+    }
+
+    return shiftRepository.getRepeatedById(
+      shift.repeated.id,
+      [SHIFTS_WITH_REQUIREMENTS_WITH_BOOKINGS(shift.date,
+      req.body.untilDate,
+      [sequelize.literal("date, start"), "asc"])])
+      .then(shifts => {
+        return bookingRepository.createRepeatedId(req.body.repeatedType, req.body.untilDate)
+          .then(repeated => {
+            let bookings = [];
+            let shiftIndex = 0;
+            do  {
+              // Find the next booking for this repeated shift
+              let nextShiftDate = moment(shifts[shiftIndex].date, "YYYY-MM-DD");
+
+              while (startDate.isBefore(nextShiftDate)) {
+                // Increment with respect to the next
+                startDate = getNextDate(startDate, req.body.repeatedType);
+              }
+              // If the booking increment is larger than shift increment
+              // then get the shift that is either after or the same as the
+              // booking
+              while (
+                shiftIndex !== shifts.length - 1 &&
+                startDate.isAfter(nextShiftDate)
+                ) {
+                shiftIndex += 1;
+                nextShiftDate = moment(shifts[shiftIndex].date, "YYYY-MM-DD");
+              }
+
+              if (startDate.isSame(nextShiftDate)) {
+                const shift = shifts[shiftIndex];
+                if (!shiftRequirementIsFull(shift, req.body.roleName)
+                  && !volunteerBookedOnShift({userId: req.user.id}, shift)) {
+                  bookings.push({
+                    shiftId: shift.id,
+                    repeatedId: repeated.id,
+                    roleName: req.body.roleName,
+                    volunteerId: req.user.id
+                  });
+                }
+              }
+              // Consider next shift
+              shiftIndex += 1;
+            } while (
+              (startDate.isBefore(lastDate) || startDate.isSame(lastDate)) &&
+              shiftIndex !== shifts.length
+              );
+            return bookingRepository.addRepeated(bookings);
           });
-          return;
-        }
-        if (
-          !repeatedTypesCompatible(shift.repeated.type, req.body.repeatedType)
-        ) {
-          res
-            .status(400)
-            .json({message: "Repeated type incompatible with shift"});
-          return;
-        }
-
-        let lastDate = moment(req.body.untilDate, "YYYY-MM-DD");
-
-        if (lastDate.isBefore(startDate)) {
-          res.status(400)
-            .json({message: "untilDate is before the shift date"});
-          return;
-        }
-
-        return shiftRepository.getRepeatedById(shift.repeated.id, [SHIFTS_WITH_REQUIREMENTS_WITH_BOOKINGS(shift.date, req.body.untilDate,
-          [sequelize.literal("date, start"), "asc"])])
-          .then(shifts => {
-            return bookingRepository.createRepeatedId(req.body.repeatedType, req.body.untilDate)
-              .then(repeated => {
-                let bookings = [];
-                let shiftIndex = 0;
-                do  {
-                  // Find the next booking for this repeated shift
-                  let nextShiftDate = moment(shifts[shiftIndex].date, "YYYY-MM-DD");
-
-                  while (startDate.isBefore(nextShiftDate)) {
-                    // Increment with respect to the next
-                    startDate = getNextDate(startDate, req.body.repeatedType);
-                  }
-                  // If the booking increment is larger than shift increment
-                  // then get the shift that is either after or the same as the
-                  // booking
-                  while (
-                    shiftIndex !== shifts.length - 1 &&
-                    startDate.isAfter(nextShiftDate)
-                    ) {
-                    shiftIndex += 1;
-                    nextShiftDate = moment(shifts[shiftIndex].date, "YYYY-MM-DD");
-                  }
-
-                  if (startDate.isSame(nextShiftDate)) {
-                    const shift = shifts[shiftIndex];
-                    if (!shiftRequirementIsFull(shift, req.body.roleName)
-                      && !volunteerBookedOnShift({userId: req.user.id}, shift)) {
-                      bookings.push({
-                        shiftId: shift.id,
-                        repeatedId: repeated.id,
-                        roleName: req.body.roleName,
-                        volunteerId: req.user.id
-                      });
-                    }
-                  }
-                  // Consider next shift
-                  shiftIndex += 1;
-                } while (
-                  (startDate.isBefore(lastDate) || startDate.isSame(lastDate)) &&
-                  shiftIndex !== shifts.length
-                  );
-                return bookingRepository.addRepeated(bookings);
-              });
-           })
-          .then(bookings => {
-            res
-              .status(200)
-              .json({
-                message: "Successfully created repeated booking",
-                shiftIds: bookings.map(booking => booking.shiftId),
-                bookingsMade: bookings.length});
-          })
+       })
+      .then(bookings => {
+        res.status(200)
+          .json({
+            message: "Successfully created repeated booking",
+            shiftIds: bookings.map(booking => booking.shiftId),
+            bookingsMade: bookings.length});
       })
       .catch(err => {
         res.status(500).send(errorMessage(err));
       });
   };
 
-  this.update = function (req, res) {
+  this.update = async function (req, res) {
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
       return res.status(400).json({message: "Invalid request", errors: errors.array()});
@@ -339,121 +336,116 @@ let ShiftController = function (
 
     // Check if user is admin
     if (!req.user.isAdmin) {
-      res.status(401).json({message: "Only admin can edit a shift"});
-      return;
+      return res.status(401).json({message: "Only admin can edit a shift"});
     }
     // Check shift exists
-    shiftRepository
-      .getById(req.params.id)
-      .then(async shift => {
-        if (!shift) {
-          res.status(400).json({message: "Shift does not exist"});
-          return;
-        }
-        return shiftRepository.update(shift, req.body);
-      })
-      .then(() => {
-        res.status(200).json({message: "Shift updated"});
-      })
+    let shift;
+    try {
+      shift = await shiftRepository.getById(req.params.id);
+    } catch (err) {
+      return res.status(500).json({message: errorMessage(err)});
+    }
+    if (!shift) {
+      return res.status(400).json({message: "Shift does not exist"});
+    }
+    return shiftRepository.update(shift, req.body)
+      .then(() => res.status(200).json({message: "Shift updated"}))
       .catch(err => res.status(500).json({message: errorMessage(err)}));
   };
 
-  this.updateRoles = function (req, res) {
+  this.updateRoles = async function (req, res) {
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
       return res.status(400).json({message: "Invalid request", errors: errors.array()});
     }
-
+    // Check shift exists
+    let shift;
+    try {
+      shift = await shiftRepository.getById(req.params.id);
+    } catch (err) {
+      return res.status(500).json({message: errorMessage(err)});
+    }
+    if (!shift) {
+      return res.status(400).json({message: "Shift does not exist"});
+    }
     // Check if user is admin
     if (!req.user.isAdmin) {
-      res.status(401).json({message: "Only admin can edit a shift"});
-      return;
+      return res.status(401).json({message: "Only admin can edit a shift"});
     }
-    // Check shift exists
-    shiftRepository
-      .getById(req.params.id)
-      .then(async shift => {
-        if (!shift) {
-          res.status(400).json({message: "Shift does not exist"});
-          return;
-        }
-        // Check the referenced roles
-        let {errs, rolesRequired} = await checkRoles(
-          req.body.rolesRequired,
-          roleRepository
-        );
-        if (errs.length > 0) {
-          res
-            .status(400)
-            .send({"Could not modify shift due to invalid roles": errs});
-          return;
-        }
-        return shiftRepository.updateRoles(shift, rolesRequired);
-      })
-      .then(shift => {
-        res.status(200).json({message: "Success! Updated shift!", shift});
-      })
+    // Check the referenced roles
+    let errs, rolesRequired;
+    try {
+      ({errs, rolesRequired} = await checkRoles(req.body.rolesRequired, roleRepository));
+    } catch (err) {
+      return res.status(500).json({message: errorMessage(err)});
+    }
+    if (errs.length > 0) {
+      return res.status(400).send({"Could not modify shift due to invalid roles": errs});
+    }
+    // Update the roles
+    return shiftRepository.updateRoles(shift, rolesRequired)
+      .then(shift => res.status(200).json({message: "Success! Updated shift!", shift}))
       .catch(err => res.status(500).send({message: errorMessage(err)}));
   };
 
-  this.ping = function (req, res) {
+  this.ping = async function (req, res) {
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
       return res.status(400).json({message: "Invalid request", errors: errors.array()});
     }
-
     if (!req.user.isAdmin) {
-      res.status(401).json({message: "Only an admin may ping volunteers for shift"});
-      return;
+      return res.status(401).json({message: "Only an admin may ping volunteers for shift"});
     }
-    let shiftToPing;
-    shiftRepository
-      .getById(req.params.id, [REQUIREMENTS_WITH_BOOKINGS()])
-      .then(shift => {
-        if (!shift) {
-          res.status(400).json({message: "No shift with that id"});
-          return;
+    // Check the shift exists
+    let shift;
+    try {
+      shift = await shiftRepository.getById(req.params.id, [REQUIREMENTS_WITH_BOOKINGS()]);
+    } catch (err) {
+      return res.status(500).send({message: errorMessage(err)});
+    }
+    if (!shift) {
+      return res.status(400).json({message: "No shift with that id"});
+    }
+    let volunteers = [];
+    try {
+      switch (req.body.type) {
+        case "AVAILABLE":
+          volunteers = await volunteerRepository.getAll({}, [USER()])
+            .then(volunteers => {
+              return volunteers.filter(volunteer =>
+                !volunteerBookedOnShift(volunteer, shift) && volunteerIsAvailableForShift(volunteer, shift)
+              )
+            });
+          break;
+        case "ALL":
+          volunteers = await volunteerRepository.getAll({}, [USER()])
+            .then(volunteers => {
+              return volunteers.filter(volunteer => !volunteerBookedOnShift(volunteer, shift))
+            });
+          break;
+        default: {
+          return res.status(400).json({message: "Invalid type of ping"});
         }
-        shiftToPing = shift;
-        // Identify volunteers to contact
-        switch (req.body.type) {
-          case "AVAILABLE":
-            return volunteerRepository.getAll({}, [USER()])
-                .then(volunteers => {
-                  return volunteers.filter(volunteer =>
-                      !volunteerBookedOnShift(volunteer, shift) && volunteerIsAvailableForShift(volunteer, shift)
-                  )
-                });
-          case "ALL":
-            return volunteerRepository.getAll({}, [USER()])
-                .then(volunteers => {
-                  return volunteers.filter(volunteer => !volunteerBookedOnShift(volunteer, shift))
-                });
-          default: {
-            res.status(400).json({message: "Invalid type of ping"});
-            return;
-          }
-        }
-      })
-      .then(volunteers => {
-        const emailClient = new EmailClient(emailClientTypes.NOREPLY);
-        const smsClient = new SMSClient();
-        volunteers.forEach(volunteer => {
-          let message = constructHelpMessage(volunteer, shiftToPing);
-          if (volunteer.user.contactPreferences.email) {
-            emailClient.send(
-                volunteer.user.email,
-                "Help needed for shift!",
-                message
-            );
-          }
-          if (volunteer.user.contactPreferences.text) {
-            smsClient.send(volunteer.user.telephone, message)
-          }
-        });
-        res.status(200).json({message: "Sending alerts to volunteers"});
-      })
-      .catch(err => res.status(500).json({message: errorMessage(err)}));
+      }
+    } catch (err) {
+      return res.status(500).send({message: errorMessage(err)});
+    }
+    const emailClient = new EmailClient(emailClientTypes.NOREPLY);
+    const smsClient = new SMSClient();
+    volunteers.forEach(volunteer => {
+      let message = constructHelpMessage(volunteer, shift);
+      if (volunteer.user.contactPreferences.email) {
+        emailClient.send(
+            volunteer.user.email,
+            "Help needed for shift!",
+            message
+        );
+      }
+      if (volunteer.user.contactPreferences.text) {
+        smsClient.send(volunteer.user.telephone, message)
+      }
+    });
+    res.status(200).json({message: "Sending alerts to volunteers"});
   };
 
   this.create = async function (req, res) {
@@ -464,66 +456,53 @@ let ShiftController = function (
 
     // Check if user is admin
     if (!req.user.isAdmin) {
-      res.status(401).json({message: "Only admin can add shifts"});
-      return;
+      return res.status(401).json({message: "Only admin can add shifts"});
     }
     // Check the referenced roles
-    let {errs, rolesRequired} = await checkRoles(
-      req.body.rolesRequired,
-      roleRepository
-    );
-    if (errs.length > 0) {
-      res
-        .status(400)
-        .json({"Could not add shift due to invalid roles": errs});
-      return;
+    let errs, rolesRequired;
+    try {
+      ({errs, rolesRequired} = await checkRoles(req.body.rolesRequired, roleRepository));
+    } catch (err) {
+      return res.status(500).send({message: errorMessage(err)});
     }
-
-    if (
-      !moment(req.body.start, "HH:mm").isBefore(moment(req.body.stop, "HH:mm"))
-    ) {
-      res.status(400).json({
+    if (errs.length > 0) {
+      return res.status(400).json({"Could not add shift due to invalid roles": errs});
+    }
+    if (!moment(req.body.start, "HH:mm").isBefore(moment(req.body.stop, "HH:mm"))) {
+      return res.status(400).json({
         message: "Start time is not before end time"
       });
-      return;
     }
 
     let type = req.body.repeatedType;
 
     if (!type || type === "Never") {
-      shiftRepository
+      return shiftRepository
         .add(req.body, req.user.id, rolesRequired)
-        .then(shift => {
-          res.status(201).send({message: "Success! Created shift!", shift});
-        })
-        .catch(err => res.status(500).json({message: errorMessage(err)}));
-    } else {
-      let startDate = moment(req.body.date, "YYYY-MM-DD");
-      let untilDate = moment(req.body.untilDate, "YYYY-MM-DD");
-
-      if (untilDate.isBefore(startDate)) {
-        res.status(400).json({
-          message: "Until date is before start date"
-        });
-        return;
-      }
-
-      // Check if valid request
-      if (!repeatedTypeIsValid(type, startDate)) {
-        res.status(400).json({
-          message:
-            "Invalid repeatedType (check starting day if Weekends/Week Days): " +
-            type
-        });
-        return;
-      }
-      shiftRepository
-        .addRepeated(req.body, req.user.id, rolesRequired, type)
-        .then(shifts => {
-          res.status(201).json({message: "Success! Created repeated shift!", lastShift: shifts[shifts.length - 1]});
-        })
+        .then(shift => res.status(201).send({message: "Success! Created shift!", shift}))
         .catch(err => res.status(500).json({message: errorMessage(err)}));
     }
+    let startDate = moment(req.body.date, "YYYY-MM-DD");
+    let untilDate = moment(req.body.untilDate, "YYYY-MM-DD");
+
+    if (untilDate.isBefore(startDate)) {
+      return res.status(400).json({
+        message: "Until date is before start date"
+      });
+    }
+
+    // Check if valid request
+    if (!repeatedTypeIsValid(type, startDate)) {
+      return res.status(400).json({
+        message: "Invalid repeatedType (check starting day if Weekends/Week Days): " + type
+      });
+    }
+    return shiftRepository
+      .addRepeated(req.body, req.user.id, rolesRequired, type)
+      .then(shifts => {
+        res.status(201).json({message: "Success! Created repeated shift!", lastShift: shifts[shifts.length - 1]});
+      })
+      .catch(err => res.status(500).json({message: errorMessage(err)}));
   };
 
   this.validate = function(method) {
