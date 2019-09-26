@@ -15,8 +15,8 @@ const test = {
 
 describe('Add roles', function () {
 
-  after(function () {
-    Role.destroy({ where: { name: test.role.name } })
+  after(async () => {
+    await Role.destroy({ where: { name: test.role.name } });
   });
 
   it('Does not allow unauthorised request to add role', function (done) {

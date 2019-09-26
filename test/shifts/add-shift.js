@@ -25,8 +25,8 @@ const test = {
 
 describe("Add shifts", function() {
 
-  after(function () {
-    Shift.destroy({ where: { name: test.shift.name, description: test.shift.description } })
+  after(async () => {
+    await Shift.destroy({ where: { title: test.shift.title } })
   });
 
   it("Does not allow unauthorised request to add shift", function(done) {

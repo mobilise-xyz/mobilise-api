@@ -117,6 +117,10 @@ let ShiftController = function (
       return res.status(400).json({message: "Invalid request", errors: errors.array()});
     }
 
+    if (!req.user.isAdmin) {
+      return res.status(401).json({message: "Only admin may delete a shift"});
+    }
+
     shiftRepository
       .getById(req.params.id, [VOLUNTEERS()])
       .then(shift => {
