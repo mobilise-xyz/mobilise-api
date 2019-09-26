@@ -185,8 +185,8 @@ This link will expire in 24 hours.`)
         return [
           body('token').isString(),
           body('email').isEmail(),
-          body('firstName').isString().bail().isAlpha(),
-          body('lastName').isString().bail().isAlpha(),
+          body('firstName').isString(),
+          body('lastName').isString(),
           body('telephone').isNumeric(),
           body('password').isString()
         ]
