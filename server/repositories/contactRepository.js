@@ -7,46 +7,30 @@ let ContactRepository = Object.create(
 );
 
 ContactRepository.add = function (volunteerId, contact) {
-  let deferred = Q.defer();
-
-  Contact.create({
+  return Contact.create({
     firstName: contact.firstName,
     lastName: contact.lastName,
     email: contact.email,
     telephone: contact.telephone,
     relation: contact.relation,
     volunteerId: volunteerId
-  })
-    .then(contact => deferred.resolve(contact))
-    .catch(error => deferred.reject(error));
-
-  return deferred.promise;
+  });
 };
 
 ContactRepository.getAllByVolunteerId = function (volunteerId) {
-  let deferred = Q.defer();
-  Contact.findAll({
+  return Contact.findAll({
     where: {
       volunteerId: volunteerId
     }
-  })
-    .then(contacts => deferred.resolve(contacts))
-    .catch(err => deferred.reject(err));
-
-  return deferred.promise;
+  });
 };
 
 ContactRepository.getById = function (id) {
-  let deferred = Q.defer();
-  Contact.findOne({
+  return Contact.findOne({
     where: {
       id: id
     }
-  })
-    .then(contact => deferred.resolve(contact))
-    .catch(err => deferred.reject(err));
-
-  return deferred.promise;
+  });
 };
 
 ContactRepository.removeById = function(id) {

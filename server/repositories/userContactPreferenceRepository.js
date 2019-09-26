@@ -7,32 +7,19 @@ let UserContactPreferenceRepository = Object.create(
 );
 
 UserContactPreferenceRepository.add = function(userId, contactPreferences) {
-  let deferred = Q.defer();
-
-  UserContactPreference.create({
+  return UserContactPreference.create({
     userId: userId,
     email: contactPreferences.email,
     text: contactPreferences.text
-  })
-    .then(contactPreferences => deferred.resolve(contactPreferences))
-    .catch(error => deferred.reject(error));
-
-  return deferred.promise;
+  });
 };
 
 UserContactPreferenceRepository.getById = function(userId) {
-  let deferred = Q.defer();
-
-  UserContactPreference.findOne({ where: { userId: userId } })
-    .then(contactPreferences => deferred.resolve(contactPreferences))
-    .catch(error => deferred.reject(error));
-
-  return deferred.promise;
+  return UserContactPreference.findOne({ where: { userId: userId } });
 };
 
 UserContactPreferenceRepository.update = function(userId, contactPreferences) {
-  let deferred = Q.defer();
-  UserContactPreference.update(
+  return UserContactPreference.update(
     {
       email: contactPreferences.email,
       text: contactPreferences.text
@@ -40,11 +27,7 @@ UserContactPreferenceRepository.update = function(userId, contactPreferences) {
     {
       where: { userId: userId }
     }
-  )
-    .then(contactPreferences => deferred.resolve(contactPreferences))
-    .catch(error => deferred.reject(error));
-
-  return deferred.promise;
+  );
 };
 
 module.exports = UserContactPreferenceRepository;

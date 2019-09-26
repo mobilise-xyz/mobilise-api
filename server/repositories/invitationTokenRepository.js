@@ -7,18 +7,12 @@ let InvitationTokenRepository = Object.create(
 );
 
 InvitationTokenRepository.add = function(email, token, expires, isAdmin) {
-  let deferred = Q.defer();
-
-  InvitationToken.create({
+  return InvitationToken.create({
     email: email,
     token: token,
     isAdmin: isAdmin,
     expires: expires
-  })
-    .then(result => deferred.resolve(result))
-    .catch(error => deferred.reject(error));
-
-  return deferred.promise;
+  });
 };
 
 InvitationTokenRepository.getByEmail = function(email) {

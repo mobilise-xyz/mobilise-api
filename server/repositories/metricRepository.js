@@ -5,26 +5,14 @@ const MetricRepositoryInterface = require("./interfaces/metricRepositoryInterfac
 let MetricRepository = Object.create(MetricRepositoryInterface);
 
 MetricRepository.set = function(name, verb, value) {
-  let deferred = Q.defer();
-
-  Metric.destroy({ truncate: true })
+  return Metric.destroy({ truncate: true })
     .then(() => {
       return Metric.create({ name: name, verb: verb, value: value });
-    })
-    .then(metric => deferred.resolve(metric))
-    .catch(error => deferred.reject(error));
-
-  return deferred.promise;
+    });
 };
 
 MetricRepository.get = function() {
-  let deferred = Q.defer();
-
-  Metric.findOne()
-    .then(metric => deferred.resolve(metric))
-    .catch(error => deferred.reject(error));
-
-  return deferred.promise;
+  return Metric.findOne();
 };
 
 module.exports = MetricRepository;

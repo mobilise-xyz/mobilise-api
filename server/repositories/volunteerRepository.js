@@ -5,105 +5,56 @@ const { USER, SHIFTS } = require("../sequelizeUtils/include");
 let VolunteerRepository = Object.create(VolunteerRepositoryInterface);
 
 VolunteerRepository.add = function(volunteer) {
-  let deferred = Q.defer();
-
-  Volunteer.create({
+  return Volunteer.create({
     userId: volunteer.userId
-  })
-    .then(volunteer => deferred.resolve(volunteer))
-    .catch(error => deferred.reject(error));
-
-  return deferred.promise;
+  });
 };
 
 VolunteerRepository.getTotalHoursFromLastWeek = function() {
-  let deferred = Q.defer();
-
-  Volunteer.sum("lastWeekHours")
-    .then(hours => deferred.resolve(hours))
-    .catch(error => deferred.reject(error));
-
-  return deferred.promise;
+  return Volunteer.sum("lastWeekHours");
 };
 
 VolunteerRepository.getTop = function(orderBy, limit) {
-  let deferred = Q.defer();
-
-  Volunteer.findAll({
+  return Volunteer.findAll({
     include: [USER()],
     order: orderBy,
     limit: limit
-  })
-    .then(volunteers => deferred.resolve(volunteers))
-    .catch(err => deferred.reject(err));
-
-  return deferred.promise;
+  });
 };
 
 VolunteerRepository.getAll = function(whereTrue, include) {
-  let deferred = Q.defer();
-
-  Volunteer.findAll({
+  return Volunteer.findAll({
     where: whereTrue,
     include: include
-  })
-    .then(volunteers => deferred.resolve(volunteers))
-    .catch(err => deferred.reject(err));
-
-  return deferred.promise;
+  });
 };
 
 VolunteerRepository.getAllWithShifts = function(whereShift) {
-  let deferred = Q.defer();
-
-  Volunteer.findAll({
+  return Volunteer.findAll({
     include: [SHIFTS(false, whereShift)]
-  })
-    .then(volunteers => deferred.resolve(volunteers))
-    .catch(err => deferred.reject(err));
-
-  return deferred.promise;
+  });
 };
 
 VolunteerRepository.getById = function(id) {
-  let deferred = Q.defer();
-
-  Volunteer.findOne({
+  return Volunteer.findOne({
     where: { userId: id },
     include: [USER()]
-  })
-    .then(volunteer => deferred.resolve(volunteer))
-    .catch(err => deferred.reject(err));
-
-  return deferred.promise;
+  });
 };
 
 VolunteerRepository.update = function(volunteer, body) {
-  let deferred = Q.defer();
-  Volunteer.update(body, { where: { userId: volunteer.userId } })
-    .then(result => deferred.resolve(result))
-    .catch(error => deferred.reject(error));
-  return deferred.promise;
+  return Volunteer.update(body, { where: { userId: volunteer.userId } });
 };
 
 VolunteerRepository.updateAvailability = function(id, availability) {
-  let deferred = Q.defer();
-
-  Volunteer.update({ availability: availability }, { where: { userId: id } })
-    .then(result => deferred.resolve(result))
-    .catch(error => deferred.reject(error));
-
-  return deferred.promise;
+  return Volunteer.update({ availability: availability }, { where: { userId: id } });
 };
 
 VolunteerRepository.getAvailability = function(id) {
-  let deferred = Q.defer();
-
-  Volunteer.findOne({ where: { userId: id } })
-    .then(volunteer => deferred.resolve(volunteer.availability))
-    .catch(error => deferred.reject(error));
-
-  return deferred.promise;
+  return Volunteer.findOne({ where: { userId: id } })
+    .then(volunteer => {
+      return volunteer.availability
+    })
 };
 
 module.exports = VolunteerRepository;
