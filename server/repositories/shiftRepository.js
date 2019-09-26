@@ -1,7 +1,6 @@
 /* eslint-disable require-atomic-updates */
 const {Shift, ShiftRequirement, RepeatedShift} = require("../models");
 const getNextDate = require("../utils/date").getNextDate;
-const Q = require("q");
 const sequelize = require("sequelize");
 const moment = require("moment");
 const ShiftRepositoryInterface = require("./interfaces/shiftRepositoryInterface");

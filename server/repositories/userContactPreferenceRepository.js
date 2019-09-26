@@ -1,5 +1,4 @@
 const {UserContactPreference} = require("../models");
-const Q = require("q");
 const UserContactPreferenceRepositoryInterface = require("./interfaces/userContactPreferenceRepositoryInterface");
 
 let UserContactPreferenceRepository = Object.create(

@@ -1,5 +1,4 @@
 const {Metric} = require("../models");
-const Q = require("q");
 const MetricRepositoryInterface = require("./interfaces/metricRepositoryInterface");
 
 let MetricRepository = Object.create(MetricRepositoryInterface);

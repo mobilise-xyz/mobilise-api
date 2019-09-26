@@ -1,5 +1,4 @@
 const {User} = require("../models");
-const Q = require("q");
 const UserRepositoryInterface = require("./interfaces/userRepositoryInterface");
 const { CONTACT_PREFERENCES } = require("../sequelizeUtils/include");
 

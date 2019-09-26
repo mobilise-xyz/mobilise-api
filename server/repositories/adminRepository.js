@@ -1,5 +1,4 @@
 const {Admin} = require("../models");
-const Q = require("q");
 const AdminRepositoryInterface = require("./interfaces/adminRepositoryInterface");
 const { USER } = require("../sequelizeUtils/include");
 let AdminRepository = Object.create(AdminRepositoryInterface);

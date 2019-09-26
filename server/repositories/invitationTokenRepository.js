@@ -1,5 +1,4 @@
 const {InvitationToken} = require("../models");
-const Q = require("q");
 const InvitationTokenRepositoryInterface = require("./interfaces/invitationTokenRepositoryInterface");
 
 let InvitationTokenRepository = Object.create(
@@ -16,33 +15,15 @@ InvitationTokenRepository.add = function(email, token, expires, isAdmin) {
 };
 
 InvitationTokenRepository.getByEmail = function(email) {
-  let deferred = Q.defer();
-
-  InvitationToken.findOne({ where: { email: email } })
-    .then(invite => deferred.resolve(invite))
-    .catch(error => deferred.reject(error));
-
-  return deferred.promise;
+  return InvitationToken.findOne({ where: { email: email } });
 };
 
 InvitationTokenRepository.getByToken = function(token) {
-  let deferred = Q.defer();
-
-  InvitationToken.findOne({ where: { token: token } })
-    .then(invite => deferred.resolve(invite))
-    .catch(error => deferred.reject(error));
-
-  return deferred.promise;
+  return InvitationToken.findOne({ where: { token: token } });
 };
 
 InvitationTokenRepository.removeByToken = function(token) {
-  let deferred = Q.defer();
-
-  InvitationToken.destroy({ where: { token: token } })
-    .then(result => deferred.resolve(result))
-    .catch(error => deferred.reject(error));
-
-  return deferred.promise;
+  return InvitationToken.destroy({ where: { token: token } });
 };
 
 

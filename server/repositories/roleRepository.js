@@ -1,6 +1,4 @@
 const {Role} = require("../models");
-const Q = require("q");
-
 const RoleRepositoryInterface = require("./interfaces/roleRepositoryInterface");
 
 let RoleRepository = Object.create(RoleRepositoryInterface);

@@ -1,5 +1,4 @@
 const {Contact} = require("../models");
-const Q = require("q");
 const ContactRepositoryInterface = require("./interfaces/contactRepositoryInterface");
 
 let ContactRepository = Object.create(
@@ -34,14 +33,11 @@ ContactRepository.getById = function (id) {
 };
 
 ContactRepository.removeById = function(id) {
-  let deferred = Q.defer();
-  Contact.destroy({
+  return Contact.destroy({
     where: {
       id: id
     }
-  })
-    .then(result => deferred.resolve(result))
-    .catch(err => deferred.reject(err));
+  });
 };
 
 module.exports = ContactRepository;

@@ -1,5 +1,4 @@
 const {Booking, RepeatedBooking} = require("../models");
-const Q = require("q");
 const BookingRepositoryInterface = require("./interfaces/bookingRepositoryInterface");
 const { SHIFT } = require("../sequelizeUtils/include");
 
