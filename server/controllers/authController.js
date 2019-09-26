@@ -5,6 +5,7 @@ const volunteerRepository = require("../repositories").VolunteerRepository;
 const adminRepository = require("../repositories").AdminRepository;
 const moment = require("moment");
 const config = require("../config/config.js");
+const {errorMessage} = require("../utils/error");
 const jwt = require("jsonwebtoken");
 const invitationTokenRepository = require("../repositories").InvitationTokenRepository;
 const {EmailClient, emailClientTypes} = require("../utils/email");
@@ -97,7 +98,7 @@ let AuthController = function (
           }
         })
       )
-      .catch(error => res.status(500).json({message: error}));
+      .catch(error => res.status(500).json({message: errorMessage(error)}));
   };
 
   this.inviteAdmin = function (req, res) {
@@ -139,7 +140,7 @@ This link will expire in 24 hours.`)
           })
       })
       .then(() => res.status(200).json({message: "Success! Invitation has been sent."}))
-      .catch(err => res.status(500).json({message: err}));
+      .catch(err => res.status(500).json({message: errorMessage(err)}));
   };
 
   this.loginUser = function (req, res) {
@@ -176,7 +177,7 @@ This link will expire in 24 hours.`)
           }
         });
       })
-      .catch(() => res.status(500).send("An error occurred"));
+      .catch(err => res.status(500).send(errorMessage(err)));
   };
 
   this.validate = function (method) {

@@ -1,5 +1,6 @@
 const roleRepository = require("../repositories").RoleRepository;
 const {validationResult, body} = require('express-validator');
+const {errorMessage} = require("../utils/error");
 
 let RoleController = function (roleRepository) {
 // Create a new role
@@ -35,7 +36,7 @@ let RoleController = function (roleRepository) {
         }
       })
       .then(role => res.status(201).json({message: "Success! Role created.", role}))
-      .catch(error => res.status(500).json({message: error}));
+      .catch(error => res.status(500).json({message: errorMessage(error)}));
   };
 
   // Retrieve all existing roles
@@ -43,7 +44,7 @@ let RoleController = function (roleRepository) {
     return roleRepository
       .getAll()
       .then(roles => res.status(200).json({message: "Success!", roles}))
-      .catch(error => res.status(500).json({message: error}));
+      .catch(error => res.status(500).json({message: errorMessage(error)}));
   };
 
   // Removing a role
@@ -61,7 +62,7 @@ let RoleController = function (roleRepository) {
         .then(() => {
           res.status(200).json({message: "Successfully removed role"});
         })
-        .catch(error => res.status(500).json({message: error}));
+        .catch(error => res.status(500).json({message: errorMessage(error)}));
     }
   };
 

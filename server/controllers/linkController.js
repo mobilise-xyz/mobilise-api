@@ -1,5 +1,6 @@
 const linkRepository = require("../repositories").LinkRepository;
 const {validationResult, body, param} = require('express-validator');
+const {errorMessage} = require("../utils/error");
 
 let LinkController = function (linkRepository) {
 
@@ -20,7 +21,7 @@ let LinkController = function (linkRepository) {
     }
     linkRepository.add(req.body)
       .then(link => res.status(201).json({message: "Added link", link: link}))
-      .catch(err => res.status(500).json({message: err}));
+      .catch(err => res.status(500).json({message: errorMessage(err)}));
   };
 
   this.deleteById = function (req, res) {
@@ -41,7 +42,7 @@ let LinkController = function (linkRepository) {
         return linkRepository.removeById(req.params.id);
       })
       .then(() => res.status(200).json({message: "Success! Removed link!"}))
-      .catch(err => res.status(500).json({message: err}));
+      .catch(err => res.status(500).json({message: errorMessage(err)}));
   };
 
   this.validate = function(method) {

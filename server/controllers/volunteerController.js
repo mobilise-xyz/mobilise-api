@@ -4,6 +4,7 @@ const shiftRepository = require("../repositories").ShiftRepository;
 const bookingRepository = require("../repositories").BookingRepository;
 const metricRepository = require("../repositories").MetricRepository;
 const contactRepository = require("../repositories").ContactRepository;
+const {errorMessage} = require("../utils/error");
 const moment = require("moment");
 const uuid = require("uuid/v4");
 const Op = require("../models").Sequelize.Op;
@@ -37,7 +38,7 @@ let VolunteerController = function (volunteerRepository, shiftRepository, userRe
     volunteerRepository
       .getAll({}, [USER(whereTrue), 'contacts'])
       .then(volunteers => res.status(200).json({message: "Success", volunteers}))
-      .catch(err => res.status(500).json({message: err}));
+      .catch(err => res.status(500).json({message: errorMessage(err)}));
   };
 
   this.getStats = function (req, res) {
@@ -117,7 +118,7 @@ let VolunteerController = function (volunteerRepository, shiftRepository, userRe
             });
           });
       })
-      .catch(err => res.status(500).send(err));
+      .catch(err => res.status(500).send(errorMessage(err)));
   };
 
   this.getActivity = function (req, res) {
@@ -161,7 +162,7 @@ let VolunteerController = function (volunteerRepository, shiftRepository, userRe
       response[fields[i]] = ranking;
     }
     if (errs.length > 0) {
-      res.status(500).json({message: errs});
+      res.status(500).json({message: errorMessage(errs)});
     } else {
       res.status(200).send({message: "Success!", hallOfFame: response});
     }
@@ -196,7 +197,7 @@ let VolunteerController = function (volunteerRepository, shiftRepository, userRe
             )
         }
       })
-      .catch(error => res.status(500).json({message: error}));
+      .catch(error => res.status(500).json({message: errorMessage(error)}));
   };
 
   this.getAvailability = function (req, res) {
@@ -224,7 +225,7 @@ let VolunteerController = function (volunteerRepository, shiftRepository, userRe
             .then(result => res.status(200).json({message: "Success!", availability: result}))
         }
       })
-      .catch(error => res.status(500).json({message: error}));
+      .catch(error => res.status(500).json({message: errorMessage(error)}));
   };
 
   this.getCalendarForVolunteer = function (req, res) {
@@ -266,7 +267,7 @@ let VolunteerController = function (volunteerRepository, shiftRepository, userRe
             })
         }
       })
-      .catch(err => res.status(500).json({message: err}));
+      .catch(err => res.status(500).json({message: errorMessage(error)}));
   };
 
   this.listShiftsForVolunteer = function (req, res) {
@@ -313,7 +314,7 @@ let VolunteerController = function (volunteerRepository, shiftRepository, userRe
           });
       })
       .then(shifts => res.status(200).json({message: "Success!", shifts, count: shifts.length}))
-      .catch(err => res.status(500).json({message: err}));
+      .catch(err => res.status(500).json({message: errorMessage(error)}));
   };
 
   this.listAvailableShiftsForVolunteer = function (req, res) {
@@ -365,7 +366,7 @@ let VolunteerController = function (volunteerRepository, shiftRepository, userRe
           });
       })
       .then(shifts => res.status(200).json({message: "Success!", shifts, count: shifts.length}))
-      .catch(err => res.status(500).json({message: err}));
+      .catch(err => res.status(500).json({message: errorMessage(error)}));
   };
 
   this.addContact = function(req, res) {
@@ -390,7 +391,7 @@ let VolunteerController = function (volunteerRepository, shiftRepository, userRe
       .then(contact => {
         res.status(201).json({message: "Success! Contact added.", contact})
       })
-      .catch(err => res.status(500).json({message: err}))
+      .catch(err => res.status(500).json({message: errorMessage(error)}))
   };
 
   this.getContacts = function(req, res) {
@@ -415,7 +416,7 @@ let VolunteerController = function (volunteerRepository, shiftRepository, userRe
       .then(contacts => {
         res.status(200).json({message: "Success! Contacts retrieved.", contacts})
       })
-      .catch(err => res.status(500).json({message: err}))
+      .catch(err => res.status(500).json({message: errorMessage(error)}))
   };
 
   this.removeContact = function (req, res) {
@@ -449,7 +450,7 @@ let VolunteerController = function (volunteerRepository, shiftRepository, userRe
         return contactRepository.removeById(req.params.contactId);
       })
       .then(() => res.status(200).json({message: "Success! Contact removed!"}))
-      .catch(err => res.status(500).json({message: err}));
+      .catch(err => res.status(500).json({message: errorMessage(error)}));
   };
 
   this.validate = function (method) {
