@@ -400,8 +400,8 @@ let VolunteerController = function (volunteerRepository, shiftRepository, userRe
       return res.status(400).json({message: "Invalid request", errors: errors.array()});
     }
 
-    if (req.user.id !== req.params.id) {
-      res.status(400).json({message: "You can only get your own contacts!"});
+    if (req.user.id !== req.params.id && !req.user.isAdmin) {
+      res.status(401).json({message: "You can only get your own contacts!"});
       return;
     }
 
@@ -414,7 +414,7 @@ let VolunteerController = function (volunteerRepository, shiftRepository, userRe
         return contactRepository.getAllByVolunteerId(req.params.id);
       })
       .then(contacts => {
-        res.status(201).json({message: "Success! Contacts retrieved.", contacts})
+        res.status(200).json({message: "Success! Contacts retrieved.", contacts})
       })
       .catch(err => res.status(500).json({message: err}))
   };
