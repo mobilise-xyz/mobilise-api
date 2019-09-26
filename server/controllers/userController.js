@@ -2,6 +2,7 @@ const {EmailClient, emailClientTypes} = require("../utils/email");
 const userRepository = require("../repositories").UserRepository;
 const userContactPreferenceRepository = require("../repositories")
   .UserContactPreferenceRepository;
+const {errorMessage} = require("../utils/error");
 const {isSecure, validatePassword, hashedPassword} = require("../utils/password");
 const moment = require("moment");
 const crypto = require("crypto");
@@ -41,7 +42,7 @@ let UserController = function (userRepository) {
           });
         }
       })
-      .catch(error => res.status(500).json({message: error}));
+      .catch(error => res.status(500).json({message: errorMessage(error)}));
   };
 
   this.getContactPreferences = function (req, res) {
@@ -59,7 +60,7 @@ let UserController = function (userRepository) {
           res.status(200).json({message: "Success!", contactPreferences: result});
         }
       })
-      .catch(error => res.status(500).json({message: error}));
+      .catch(error => res.status(500).json({message: errorMessage(error)}));
   };
 
   this.updateContactPreferences = function (req, res) {
@@ -83,7 +84,7 @@ let UserController = function (userRepository) {
           res.status(200).send({message: "Success! Updated contact preferences", contactPreferences: result});
         }
       })
-      .catch(error => res.status(500).json({message: error}));
+      .catch(error => res.status(500).json({message: errorMessage(error)}));
   };
 
   this.changePassword = function (req, res) {
@@ -104,7 +105,7 @@ let UserController = function (userRepository) {
     }
     userRepository.update(req.user, {password: hashedPassword(req.body.newPassword)})
       .then(() => res.status(200).json({message: "Success! Password has been changed."}))
-      .catch(() => res.status(500).json({message: "An error occurred"}));
+      .catch(err => res.status(500).json({message: errorMessage(err)}));
   };
 
   this.sendFeedback = function (req, res) {
@@ -138,7 +139,7 @@ let UserController = function (userRepository) {
         res.status(200).json({
           message: "Success!",
         }))
-      .catch(error => res.status(500).json({message: error}));
+      .catch(error => res.status(500).json({message: errorMessage(error)}));
   };
 
   this.invite = function (req, res) {
@@ -180,7 +181,7 @@ This link will expire in 24 hours.`)
           })
       })
       .then(() => res.status(200).json({message: "Success! Invitation has been sent."}))
-      .catch(err => res.status(500).json({message: err}));
+      .catch(err => res.status(500).json({message: errorMessage(err)}));
   };
 
   this.validate = function (method) {

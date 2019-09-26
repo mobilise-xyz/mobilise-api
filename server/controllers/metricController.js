@@ -1,5 +1,6 @@
 const metricRepository = require("../repositories").MetricRepository;
 const {validationResult, body} = require('express-validator');
+const {errorMessage} = require("../utils/error");
 
 let MetricController = function(metricRepository) {
 
@@ -17,12 +18,12 @@ let MetricController = function(metricRepository) {
       req.body.verb,
       req.body.value
     ).then(metric => res.status(200).json({message: "Successfully updated metric", metric}))
-      .catch(err => res.status(500).send(err));
+      .catch(err => res.status(500).send(errorMessage(err)));
   };
 
   this.get = function(req, res) {
     metricRepository.get().then(metric => res.status(200).json({message: "Success!", metric}))
-      .catch(err => res.status(500).send(err));
+      .catch(err => res.status(500).send(errorMessage(err)));
   };
 
   this.validate = function(method) {

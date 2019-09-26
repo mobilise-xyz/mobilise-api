@@ -4,6 +4,7 @@ const bookingRepository = require("../repositories").BookingRepository;
 const volunteerRepository = require("../repositories").VolunteerRepository;
 const adminRepository = require("../repositories").AdminRepository;
 const userRepository = require("../repositories").UserRepository;
+const {errorMessage} = require("../utils/error");
 const moment = require("moment");
 const sequelize = require("sequelize");
 const {validationResult, body, param, query} = require('express-validator');
@@ -74,7 +75,7 @@ let ShiftController = function (
           count: shifts.length
         })
       })
-      .catch(err => res.status(500).json({message: err}));
+      .catch(err => res.status(500).json({message: errorMessage(err)}));
   };
 
   this.listTitles = function (req, res) {
@@ -89,7 +90,7 @@ let ShiftController = function (
         });
         res.status(200).json({message: "Success!", titles});
       })
-      .catch(err => res.status(500).json({message: err}));
+      .catch(err => res.status(500).json({message: errorMessage(err)}));
   };
 
   this.getCalendarForShifts = function (req, res) {
@@ -107,7 +108,7 @@ let ShiftController = function (
               link: `${process.env.WEB_CAL_URL}/calendar/${key}/shifts.ics`
             })
           })
-          .catch(err => res.status(500).json({message: err}));
+          .catch(err => res.status(500).json({message: errorMessage(err)}));
       }
   };
 
@@ -144,7 +145,7 @@ let ShiftController = function (
       .then(shift =>
         res.status(200).json({message: "Successfully deleted", shift: shift})
       )
-      .catch(err => res.status(500).json({message: err}));
+      .catch(err => res.status(500).json({message: errorMessage(err)}));
   };
 
   this.cancel = function (req, res) {
@@ -202,7 +203,7 @@ let ShiftController = function (
           .status(200)
           .json({message: "Successfully cancelled booking", booking: booking})
       )
-      .catch(err => res.status(500).json({message: err}));
+      .catch(err => res.status(500).json({message: errorMessage(err)}));
   };
 
   this.book = function (req, res) {
@@ -326,7 +327,7 @@ let ShiftController = function (
           })
       })
       .catch(err => {
-        res.status(500).send(err);
+        res.status(500).send(errorMessage(err));
       });
   };
 
@@ -354,7 +355,7 @@ let ShiftController = function (
       .then(() => {
         res.status(200).json({message: "Shift updated"});
       })
-      .catch(err => res.status(500).json({message: err}));
+      .catch(err => res.status(500).json({message: errorMessage(err)}));
   };
 
   this.updateRoles = function (req, res) {
@@ -392,7 +393,7 @@ let ShiftController = function (
       .then(shift => {
         res.status(200).json({message: "Success! Updated shift!", shift});
       })
-      .catch(err => res.status(500).send({message: err}));
+      .catch(err => res.status(500).send({message: errorMessage(err)}));
   };
 
   this.ping = function (req, res) {
@@ -452,7 +453,7 @@ let ShiftController = function (
         });
         res.status(200).json({message: "Sending alerts to volunteers"});
       })
-      .catch(err => res.status(500).json({message: err}));
+      .catch(err => res.status(500).json({message: errorMessage(err)}));
   };
 
   this.create = async function (req, res) {
@@ -495,7 +496,7 @@ let ShiftController = function (
         .then(shift => {
           res.status(201).send({message: "Success! Created shift!", shift});
         })
-        .catch(err => res.status(500).json({message: err}));
+        .catch(err => res.status(500).json({message: errorMessage(err)}));
     } else {
       let startDate = moment(req.body.date, "YYYY-MM-DD");
       let untilDate = moment(req.body.untilDate, "YYYY-MM-DD");
@@ -521,7 +522,7 @@ let ShiftController = function (
         .then(shifts => {
           res.status(201).json({message: "Success! Created repeated shift!", lastShift: shifts[shifts.length - 1]});
         })
-        .catch(err => res.status(500).json({message: err}));
+        .catch(err => res.status(500).json({message: errorMessage(err)}));
     }
   };
 
