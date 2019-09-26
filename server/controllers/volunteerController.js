@@ -15,9 +15,12 @@ const {
   REPEATED_SHIFT,
   USER
 } = require("../sequelizeUtils/include");
+const {validationResult, body, param, query} = require('express-validator');
 const {SHIFT_BEFORE} = require("../sequelizeUtils/where");
 const EXPECTED_SHORTAGE_THRESHOLD = 2;
 const ITEMS_PER_PAGE = 5;
+const DAYS_IN_WEEK = 7;
+const SECTIONS_IN_DAY = 3;
 
 let VolunteerController = function (volunteerRepository, shiftRepository, userRepository) {
   this.list = function (req, res) {
@@ -30,24 +33,19 @@ let VolunteerController = function (volunteerRepository, shiftRepository, userRe
     }
 
     let whereTrue = {};
-    let order = [];
-
-    if (req.query.sortBy != null) {
-      console.log(req.query.sortBy);
-      // eslint-disable-next-line no-useless-escape
-      const result = req.query.sortBy.match('(asc|desc)\\(([^\\)\\(]+)\\)');
-      if (result != null) {
-        order.push([result[2], result[1].toUpperCase()])
-      }
-    }
 
     volunteerRepository
-      .getAll({}, [USER(whereTrue), 'contacts'], order)
+      .getAll({}, [USER(whereTrue), 'contacts'])
       .then(volunteers => res.status(200).json({message: "Success", volunteers}))
       .catch(err => res.status(500).json({message: err}));
   };
 
   this.getStats = function (req, res) {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      return res.status(400).json({message: "Invalid request", errors: errors.array()});
+    }
+
     // Check bearer token id matches parameter id
     if (req.user.id !== req.params.id) {
       res.status(401).send({message: "You can only view your own stats."});
@@ -123,6 +121,11 @@ let VolunteerController = function (volunteerRepository, shiftRepository, userRe
   };
 
   this.getActivity = function (req, res) {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      return res.status(400).json({message: "Invalid request", errors: errors.array()});
+    }
+
     // Check bearer token id matches parameter id
     if (req.user.id !== req.params.id) {
       res.status(401).json({message: "You can only view your own stats."});
@@ -165,6 +168,11 @@ let VolunteerController = function (volunteerRepository, shiftRepository, userRe
   };
 
   this.updateAvailability = function (req, res) {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      return res.status(400).json({message: "Invalid request", errors: errors.array()});
+    }
+
     // Check bearer token id matches parameter id
     if (req.user.id !== req.params.id) {
       res
@@ -192,6 +200,11 @@ let VolunteerController = function (volunteerRepository, shiftRepository, userRe
   };
 
   this.getAvailability = function (req, res) {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      return res.status(400).json({message: "Invalid request", errors: errors.array()});
+    }
+
     // Check bearer token id matches parameter id
     if (req.user.id !== req.params.id) {
       res
@@ -215,37 +228,53 @@ let VolunteerController = function (volunteerRepository, shiftRepository, userRe
   };
 
   this.getCalendarForVolunteer = function (req, res) {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      return res.status(400).json({message: "Invalid request", errors: errors.array()});
+    }
+
+    if (req.user.isAdmin) {
+      res.status(401).json({message: "User is an admin"});
+      return;
+    }
+
+    if (req.params.id !== req.user.id) {
+      res.status(400).json({message: "You can not get someone else's calendar!"});
+      return;
+    }
+
     userRepository
       .getById(req.params.id)
       .then(user => {
         if (!user) {
           res.status(400).json({message: "No volunteer with that id"});
-        } else if (user.id !== req.user.id) {
-          res.status(400).json({message: "You can not get someone else's calendar!"})
-        } else if (user.isAdmin) {
-          res.status(400).json({message: "User is an admin!"})
+          return;
+        }
+        if (user.calendarAccessKey) {
+          res.status(200).json({
+            message: "Success!",
+            link: `${process.env.WEB_CAL_URL}/calendar/${user.calendarAccessKey}/bookings.ics`
+          })
         } else {
-          if (user.calendarAccessKey) {
-            res.status(200).json({
-              message: "Success!",
-              link: `${process.env.WEB_CAL_URL}/calendar/${user.calendarAccessKey}/bookings.ics`
-            })
-          } else {
-            const key = uuid();
-            return userRepository.update(user, {calendarAccessKey: key})
-              .then(() => {
-                res.status(200).json({
-                  message: "Success!",
-                  link: `${process.env.WEB_CAL_URL}/calendar/${key}/bookings.ics`
-                })
+          const key = uuid();
+          return userRepository.update(user, {calendarAccessKey: key})
+            .then(() => {
+              res.status(200).json({
+                message: "Success!",
+                link: `${process.env.WEB_CAL_URL}/calendar/${key}/bookings.ics`
               })
-          }
+            })
         }
       })
       .catch(err => res.status(500).json({message: err}));
   };
 
   this.listShiftsForVolunteer = function (req, res) {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      return res.status(400).json({message: "Invalid request", errors: errors.array()});
+    }
+
     let volunteer;
     const whereTrue = getDateRange(req.query.before, req.query.after);
     const page = req.query.page;
@@ -288,6 +317,11 @@ let VolunteerController = function (volunteerRepository, shiftRepository, userRe
   };
 
   this.listAvailableShiftsForVolunteer = function (req, res) {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      return res.status(400).json({message: "Invalid request", errors: errors.array()});
+    }
+
     let volunteer;
     const whereTrue = getDateRange(req.query.before, req.query.after);
     const page = req.query.page;
@@ -335,9 +369,13 @@ let VolunteerController = function (volunteerRepository, shiftRepository, userRe
   };
 
   this.addContact = function(req, res) {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      return res.status(400).json({message: "Invalid request", errors: errors.array()});
+    }
 
     if (req.user.id !== req.params.id) {
-      res.status(400).json({message: "You can only add your own contacts!"});
+      res.status(401).json({message: "You can only add your own contacts!"});
       return;
     }
 
@@ -356,9 +394,13 @@ let VolunteerController = function (volunteerRepository, shiftRepository, userRe
   };
 
   this.getContacts = function(req, res) {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      return res.status(400).json({message: "Invalid request", errors: errors.array()});
+    }
 
-    if (req.user.id !== req.params.id) {
-      res.status(400).json({message: "You can only get your own contacts!"});
+    if (req.user.id !== req.params.id && !req.user.isAdmin) {
+      res.status(401).json({message: "You can only get your own contacts!"});
       return;
     }
 
@@ -371,12 +413,17 @@ let VolunteerController = function (volunteerRepository, shiftRepository, userRe
         return contactRepository.getAllByVolunteerId(req.params.id);
       })
       .then(contacts => {
-        res.status(201).json({message: "Success! Contacts retrieved.", contacts})
+        res.status(200).json({message: "Success! Contacts retrieved.", contacts})
       })
       .catch(err => res.status(500).json({message: err}))
   };
 
   this.removeContact = function (req, res) {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      return res.status(400).json({message: "Invalid request", errors: errors.array()});
+    }
+
     if (req.user.id !== req.params.id) {
       res.status(400).json({message: "You can only remove your own contacts!"});
       return;
@@ -403,7 +450,56 @@ let VolunteerController = function (volunteerRepository, shiftRepository, userRe
       })
       .then(() => res.status(200).json({message: "Success! Contact removed!"}))
       .catch(err => res.status(500).json({message: err}));
-  }
+  };
+
+  this.validate = function (method) {
+    switch (method) {
+      case 'getContacts':
+      case 'getCalendarForVolunteer':
+      case 'getAvailability':
+      case 'getActivity':
+      case 'getStats': {
+        return [
+          param('id').isUUID()
+        ]
+      }
+      case 'updateAvailability': {
+        return [
+          param('id').isUUID(),
+          body('availability').isArray().bail().custom(result => {
+            return result.length === DAYS_IN_WEEK &&
+                result.every(col => col.length === SECTIONS_IN_DAY &&
+                col.every(item => ['0', '1', '2'].indexOf(item) >= 0))
+          })
+        ]
+      }
+      case 'listAvailableShiftsForVolunteer':
+      case 'listShiftsForVolunteer': {
+        return [
+          param('id').isUUID(),
+          query('before').optional().custom(result => moment(result).isValid()),
+          query('after').optional().custom(result => moment(result).isValid()),
+          query('page').optional().isInt()
+        ]
+      }
+      case 'addContact': {
+        return [
+          param('id').isUUID(),
+          body('firstName').isString(),
+          body('lastName').isString(),
+          body('telephone').isNumeric(),
+          body('email').optional().isEmail(),
+          body('relation').isString()
+        ]
+      }
+      case 'removeContact': {
+        return [
+          param('id').isUUID(),
+          param('contactId').isUUID()
+        ]
+      }
+    }
+  };
 };
 
 function roundIfNotInteger(num, numDP) {

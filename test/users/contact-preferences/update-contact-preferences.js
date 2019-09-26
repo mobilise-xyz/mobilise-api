@@ -6,7 +6,7 @@ const Seeded = require('../../../server/utils/seeded');
 const test = {
   contactPreferences: {
     email: true,
-    text: true
+    text: false
   }
 };
 

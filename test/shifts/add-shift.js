@@ -1,8 +1,9 @@
 let request = require("supertest");
 let app = require("../../app");
-let { describe, it } = require("mocha");
+let { describe, it, after } = require("mocha");
 
 const Seeded = require('../../server/utils/seeded');
+const {Shift} = require('../../server/models');
 
 const test = {
   shift: {
@@ -12,11 +13,22 @@ const test = {
     start: '16:00',
     stop: '18:00',
     repeatedType: 'Never',
-    address: 'SW72AZ'
+    address: 'SW72AZ',
+    rolesRequired: [
+      {
+        roleName: Seeded.roles[0].name,
+        number: 15
+      }
+    ]
   }
-}
+};
 
 describe("Add shifts", function() {
+
+  after(async () => {
+    await Shift.destroy({ where: { title: test.shift.title } })
+  });
+
   it("Does not allow unauthorised request to add shift", function(done) {
     request(app)
       .post("/shifts")
@@ -27,7 +39,8 @@ describe("Add shifts", function() {
         start: test.shift.start,
         stop: test.shift.stop,
         repeatedType: test.shift.repeatedType,
-        address: test.shift.address
+        address: test.shift.address,
+        rolesRequired: test.shift.rolesRequired
       })
       .set("Accept", "application/json")
       .expect(401, done);
@@ -54,7 +67,8 @@ describe("Add shifts", function() {
             start: test.shift.start,
             stop: test.shift.stop,
             repeatedType: test.shift.repeatedType,
-            address: test.shift.address
+            address: test.shift.address,
+            rolesRequired: test.shift.rolesRequired
           })
           .set("Authorization", "Bearer " + response.body.user.token)
           .set("Accept", "application/json")
@@ -83,7 +97,8 @@ describe("Add shifts", function() {
             start: test.shift.start,
             stop: test.shift.stop,
             repeatedType: test.shift.repeatedType,
-            address: test.shift.address
+            address: test.shift.address,
+            rolesRequired: test.shift.rolesRequired
           })
           .set("Authorization", "Bearer " + response.body.user.token)
           .set("Accept", "application/json")
@@ -112,7 +127,8 @@ describe("Add shifts", function() {
             start: test.shift.stop,
             stop: test.shift.start,
             repeatedType: test.shift.repeatedType,
-            address: test.shift.address
+            address: test.shift.address,
+            rolesRequired: test.shift.rolesRequired
           })
           .set("Authorization", "Bearer " + response.body.user.token)
           .set("Accept", "application/json")

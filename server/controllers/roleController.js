@@ -1,8 +1,13 @@
 const roleRepository = require("../repositories").RoleRepository;
+const {validationResult, body} = require('express-validator');
 
 let RoleController = function (roleRepository) {
 // Create a new role
   this.create = function (req, res) {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      return res.status(400).json({message: "Invalid request", errors: errors.array()});
+    }
     // Check if admin
     if (!req.user.isAdmin) {
       res.status(401).json({message: "Only admins can add roles"});
@@ -43,6 +48,10 @@ let RoleController = function (roleRepository) {
 
   // Removing a role
   this.remove = function (req, res) {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      return res.status(400).json({message: "Invalid request", errors: errors.array()});
+    }
     // Check if admin
     if (!req.user.isAdmin) {
       res.status(401).json({message: "Only admins can remove roles"});
@@ -55,6 +64,23 @@ let RoleController = function (roleRepository) {
         .catch(error => res.status(500).json({message: error}));
     }
   };
+
+  this.validation = function(method) {
+    switch (method) {
+      case 'create': {
+        return [
+          body('name').isString(),
+          body('involves').isString(),
+          body('colour').isString()
+        ]
+      }
+      case 'remove': {
+        return [
+          body('name').isString()
+        ]
+      }
+    }
+  }
 };
 
 module.exports = new RoleController(roleRepository);

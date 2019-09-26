@@ -160,6 +160,24 @@ module.exports = {
       createdAt: moment().format(),
       updatedAt: moment().format()
     }
+  ],
+  contacts: [
+    {
+      UUID: '8fa1b90c-80b6-11e9-bc42-526af7764f6b',
+      firstName: 'James',
+      lastName: 'Smith',
+      telephone: '+447979797979',
+      email: 'james@test.com',
+      relation: 'Father'
+    },
+    {
+      UUID: '8fa1b90c-80b6-11e9-bc42-526af7764f6d',
+      firstName: 'Jane',
+      lastName: 'Doe',
+      telephone: '+447979797979',
+      email: 'jane@test.com',
+      relation: 'Friend'
+    }
   ]
 };
 
