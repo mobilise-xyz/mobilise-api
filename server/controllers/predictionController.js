@@ -9,14 +9,16 @@ let PredictionController = function () {
       return res.status(400).json({message: "Invalid request", errors: errors.array()});
     }
     if (process.env.COMPUTATION_TRIGGER_KEY !== req.body.key) {
-      res.status(401).json({ message: "Unauthorised request" });
-    } else {
-      Predictor.computeExpectedShortages();
-      res.status(200).json({ message: "Computation Triggered" });
+      return res.status(401).json({message: "Unauthorised request"});
     }
+    Predictor.computeExpectedShortages()
+      .catch(err => {
+        console.log(err);
+      });
+    res.status(200).json({message: "Computation Triggered"});
   };
 
-  this.validate = function(method) {
+  this.validate = function (method) {
     switch (method) {
       case 'computeExpectedShortages': {
         return [
@@ -24,7 +26,7 @@ let PredictionController = function () {
         ]
       }
     }
-  }
+  };
 };
 
 module.exports = new PredictionController();

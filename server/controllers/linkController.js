@@ -16,8 +16,7 @@ let LinkController = function (linkRepository) {
       return res.status(400).json({message: "Invalid request", errors: errors.array()});
     }
     if (!req.user.isAdmin) {
-      res.status(401).json({message: "Only admin can add a link"});
-      return;
+      return res.status(401).json({message: "Only admin can add a link"});
     }
     linkRepository.add(req.body)
       .then(link => res.status(201).json({message: "Added link", link: link}))

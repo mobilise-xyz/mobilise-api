@@ -10,8 +10,7 @@ let MetricController = function(metricRepository) {
       return res.status(400).json({message: "Invalid request", errors: errors.array()});
     }
     if (!req.user.isAdmin) {
-      res.status(401).json({message: "Only admin can set the metric"});
-      return;
+      return res.status(401).json({message: "Only admin can set the metric"});
     }
     metricRepository.set(
       req.body.name,
@@ -22,7 +21,8 @@ let MetricController = function(metricRepository) {
   };
 
   this.get = function(req, res) {
-    metricRepository.get().then(metric => res.status(200).json({message: "Success!", metric}))
+    metricRepository.get()
+      .then(metric => res.status(200).json({message: "Success!", metric}))
       .catch(err => res.status(500).send(errorMessage(err)));
   };
 
