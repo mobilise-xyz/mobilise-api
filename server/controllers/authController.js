@@ -230,7 +230,7 @@ This link will expire in 30 minutes.`)
           });
           return;
         }
-        if (!isSecure(req.body.password)) {
+        if (!isSecure(req.body.newPassword)) {
           res.status(400).json({
             message: "Password must be at least 8 characters, contain at least one uppercase letter, " +
               "one lowercase letter and one number/special character"
@@ -241,7 +241,7 @@ This link will expire in 30 minutes.`)
           .then(user => {
             if (user) {
               return forgotPasswordTokenRepository.removeByToken(req.body.token)
-                .then(() => userRepository.update(user, {password: hashedPassword(req.body.password)}))
+                .then(() => userRepository.update(user, {password: hashedPassword(req.body.newPassword)}))
                 .then(() => res.status(200).json({message: "Success! Password has been changed."}))
             }
             res.status(400).json({
@@ -274,6 +274,16 @@ This link will expire in 30 minutes.`)
         return [
           body('email').isEmail(),
           body('password').isString()
+        ]
+      }
+      case 'forgotPassword': {
+        return [
+          body('email').isEmail()
+        ]
+      }
+      case 'resetPassword': {
+        return [
+          body('newPassword').isString()
         ]
       }
     }
