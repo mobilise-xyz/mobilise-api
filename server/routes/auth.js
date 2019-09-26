@@ -6,6 +6,14 @@ router.post('/login',
   controller.validate('loginUser'),
   controller.loginUser);
 
+router.post('/forgot-password',
+  controller.validate('forgotPassword'),
+  controller.forgotPassword);
+
+router.put('/password-reset',
+  controller.validate('resetPassword'),
+  controller.resetPassword);
+
 router.post('/register',
   controller.validate('registerUser'),
   controller.registerUser);
