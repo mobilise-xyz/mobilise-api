@@ -212,21 +212,34 @@ This link will expire in 24 hours.`)
       .catch(err => res.status(500).send(errorMessage(err)));
   };
 
-  this.forgotPassword = function (req, res) {
-    userRepository.getByEmail(req.body.email)
-      .then(user => {
-        if (!user) {
-          res.status(200).json({message: "Instructions to reset your password have been sent to the email entered if an account with that email exists."});
-          return;
-        }
-        const token = crypto.randomBytes(16).toString('hex');
-        const expires = moment().add(30, 'minutes').format();
-        return forgotPasswordTokenRepository.add(req.body.email, token, expires)
-          .then(() => {
-            const emailClient = new EmailClient(emailClientTypes.NOREPLY);
-            return emailClient.send(req.body.email,
-              "Mobilise Password Reset",
-              `Hello from Mobilise,
+  this.forgotPassword = async function (req, res) {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      return res.status(400).json({
+        message: "Invalid request",
+        errors: errors.array()
+      });
+    }
+    // Check for user
+    let user;
+    try {
+      user = await userRepository.getByEmail(req.body.email);
+    } catch (err) {
+      return res.status(500).json({message: errorMessage(err)})
+    }
+    if (!user) {
+      res.status(200).json({message: "Instructions to reset your password have been sent to the email entered if an account with that email exists."});
+      return;
+    }
+    // Create token and send it
+    const token = crypto.randomBytes(16).toString('hex');
+    const expires = moment().add(30, 'minutes').format();
+    return forgotPasswordTokenRepository.add(req.body.email, token, expires)
+      .then(() => {
+        const emailClient = new EmailClient(emailClientTypes.NOREPLY);
+        return emailClient.send(req.body.email,
+          "Mobilise Password Reset",
+          `Hello from Mobilise,
 You have requested to reset your password.
 Please click the following link to create a new password. 
 Please try and use a password different to any that you have used previously.
@@ -234,54 +247,63 @@ Please try and use a password different to any that you have used previously.
 ${process.env.WEB_URL}/password-reset?token=${token}
 
 This link will expire in 30 minutes.`)
-          })
-          .then(() => {
-            res.status(200).json({message: "Instructions to reset your password have been sent to the email entered if an account with that email exists."});
-          });
+      })
+      .then(() => {
+        res.status(200).json({message: "Instructions to reset your password have been sent to the email entered if an account with that email exists."});
       })
       .catch(err => {
-        console.log(err);
-        res.status(500).send({message: err})
+        res.status(500).json({message: errorMessage(err)})
       });
   };
 
-  this.resetPassword = function (req, res) {
-    if (!req.body.token) {
-      res.status(400).json({message: "Token not present"});
-      return;
+  this.resetPassword = async function (req, res) {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      return res.status(400).json({
+        message: "Invalid request",
+        errors: errors.array()
+      });
     }
-    forgotPasswordTokenRepository.getByToken(req.body.token)
-      .then(token => {
-        if (!token) {
-          res.status(400).json({message: "Invalid token"});
-          return;
-        }
-        if (moment.tz('Europe/London').isAfter(token.expiry)) {
-          res.status(400).json({
-            message: "Token has expired. " +
-              "Please request to reset your password again."
-          });
-          return;
-        }
-        if (!isSecure(req.body.newPassword)) {
-          res.status(400).json({
-            message: "Password must be at least 8 characters, contain at least one uppercase letter, " +
-              "one lowercase letter and one number/special character"
-          });
-          return;
-        }
-        userRepository.getByEmail(token.email)
-          .then(user => {
-            if (user) {
-              return forgotPasswordTokenRepository.removeByToken(req.body.token)
-                .then(() => userRepository.update(user, {password: hashedPassword(req.body.newPassword)}))
-                .then(() => res.status(200).json({message: "Success! Password has been changed."}))
-            }
-            res.status(400).json({
-              message: "Invalid token"
-            });
-          })
-      })
+    // Check they have provided a valid forgot password token
+    let token;
+    try {
+      token = await forgotPasswordTokenRepository.getByToken(req.body.token);
+    } catch (err) {
+      return res.status(500).json({message: errorMessage(err)});
+    }
+    if (!token) {
+      return res.status(400).json({message: "Invalid token"});
+    }
+    if (moment().isAfter(token.expiry)) {
+      return res.status(400).json({
+        message: "Token has expired. " +
+          "Please request to reset your password again."
+      });
+    }
+
+    // Check password
+    if (!isSecure(req.body.newPassword)) {
+      return res.status(400).json({
+        message: "Password must be at least 8 characters, contain at least one uppercase letter, " +
+          "one lowercase letter and one number/special character"
+      });
+    }
+
+    // Check there is a user for the email
+    let user;
+    try {
+      user = await userRepository.getByEmail(token.email);
+    } catch (err) {
+      return res.status(500).json({message: errorMessage(err)})
+    }
+    if (!user) {
+      return res.status(400).json({message: "Invalid token"});
+    }
+
+    // Remove the token and update the password
+    return forgotPasswordTokenRepository.removeByToken(req.body.token)
+      .then(() => userRepository.update(user, {password: hashedPassword(req.body.newPassword)}))
+      .then(() => res.status(200).json({message: "Success! Password has been changed."}))
       .catch(err => res.status(500).json({message: errorMessage(err)}))
   };
 
