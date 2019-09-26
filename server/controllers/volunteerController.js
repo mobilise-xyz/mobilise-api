@@ -374,9 +374,8 @@ let VolunteerController = function (volunteerRepository, shiftRepository, userRe
       return res.status(400).json({message: "Invalid request", errors: errors.array()});
     }
 
-
     if (req.user.id !== req.params.id) {
-      res.status(400).json({message: "You can only add your own contacts!"});
+      res.status(401).json({message: "You can only add your own contacts!"});
       return;
     }
 
