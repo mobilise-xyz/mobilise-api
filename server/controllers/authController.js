@@ -172,7 +172,7 @@ This link will expire in 24 hours.`)
       .catch(err => res.status(500).json({message: errorMessage(err)}));
   };
 
-  this.loginUser = function (req, res) {
+  this.loginUser = async function (req, res) {
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
       return res.status(400).json({
@@ -180,32 +180,29 @@ This link will expire in 24 hours.`)
         errors: errors.array()
       });
     }
-    let lastLogin;
-    let loggedInUser;
-    userRepository
-      .getByEmail(req.body.email)
-      .then(user => {
-        loggedInUser = user;
-        if (user && validatePassword(req.body.password, user.password)) {
-          return user;
-        }
-        res.status(400).json({message: "Invalid username/password"});
-      })
-      .then(user => {
-        lastLogin = user.lastLogin;
-        const currentDate = moment();
-        return userRepository.update(user, {
-          lastLogin: currentDate
-        });
-      })
+    // Check the credentials
+    let user;
+    try {
+      user = await userRepository.getByEmail(req.body.email);
+    } catch (err) {
+      return res.status(500).json({message: errorMessage(err)});
+    }
+    if (!user || !validatePassword(req.body.password, user.password)) {
+      return res.status(400).json({message: "Invalid username/password"})
+    }
+    let lastLogin = user.lastLogin;
+    const currentDate = moment();
+    return userRepository.update(user, {
+      lastLogin: currentDate
+    })
       .then(() => {
         res.status(200).json({
           message: "Successful login!",
           user: {
-            uid: loggedInUser.id,
-            isAdmin: loggedInUser.isAdmin,
+            uid: user.id,
+            isAdmin: user.isAdmin,
             lastLogin: lastLogin,
-            token: generateToken(loggedInUser)
+            token: generateToken(user)
           }
         });
       })
