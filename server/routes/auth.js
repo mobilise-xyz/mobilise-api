@@ -8,6 +8,10 @@ router.post('/login',
 
 router.post('/forgot-password',
   controller.validate('forgotPassword'),
+  controller.forgotPassword);
+
+router.put('/password-reset',
+  controller.validate('resetPassword'),
   controller.resetPassword);
 
 router.post('/register',

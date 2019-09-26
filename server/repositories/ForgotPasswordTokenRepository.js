@@ -6,7 +6,7 @@ let ForgotPasswordTokenRepository = Object.create(
   ForgotPasswordTokenRepositoryInterface
 );
 
-InvitationTokenRepository.add = function(email, token, expires) {
+ForgotPasswordTokenRepository.add = function(email, token, expires) {
   let deferred = Q.defer();
 
   ForgotPasswordToken.create({
