@@ -26,7 +26,10 @@ let AuthController = function (
   this.registerUser = function (req, res) {
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
-      return res.status(400).json({message: "Invalid request", errors: errors.array()});
+      return res.status(400).json({
+        message: "Invalid request",
+        errors: errors.array()
+      });
     }
     invitationTokenRepository.getByToken(req.body.token)
       .then(result => {
@@ -106,7 +109,10 @@ let AuthController = function (
   this.inviteAdmin = function (req, res) {
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
-      return res.status(400).json({message: "Invalid request", errors: errors.array()});
+      return res.status(400).json({
+        message: "Invalid request",
+        errors: errors.array()
+      });
     }
     if (req.body.adminKey !== process.env.ADMIN_KEY) {
       res.status(401).json({message: "Not authenticated"});
@@ -148,7 +154,10 @@ This link will expire in 24 hours.`)
   this.loginUser = function (req, res) {
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
-      return res.status(400).json({message: "Invalid request", errors: errors.array()});
+      return res.status(400).json({
+        message: "Invalid request",
+        errors: errors.array()
+      });
     }
     let lastLogin;
     let loggedInUser;
@@ -209,7 +218,10 @@ This link will expire in 30 minutes.`)
             res.status(200).json({message: "Instructions to reset your password have been sent to the email entered if an account with that email exists."});
           });
       })
-      .catch(err => res.status(500).send({message: err}));
+      .catch(err => {
+        console.log(err);
+        res.status(500).send({message: err})
+      });
   };
 
   this.resetPassword = function (req, res) {
@@ -249,7 +261,7 @@ This link will expire in 30 minutes.`)
             });
           })
       })
-      .catch(err => res.status(500).json({message: err}))
+      .catch(err => res.status(500).json({message: errorMessage(err)}))
   };
 
   this.validate = function (method) {
