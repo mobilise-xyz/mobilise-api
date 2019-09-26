@@ -10,8 +10,7 @@ let StatsController = function() {
       return res.status(400).json({message: "Invalid request", errors: errors.array()});
     }
     if (process.env.COMPUTATION_TRIGGER_KEY !== req.body.key) {
-      res.status(401).send({ message: "Unauthorised request" });
-      return;
+      return res.status(401).send({ message: "Unauthorised request" });
     }
 
     let date = moment.tz('Europe/London').format("YYYY-MM-DD");
