@@ -192,6 +192,13 @@ This link will expire in 24 hours.`)
   };
 
   this.forgotPassword = function (req, res) {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      return res.status(400).json({
+        message: "Invalid request",
+        errors: errors.array()
+      });
+    }
     userRepository.getByEmail(req.body.email)
       .then(user => {
         if (!user) {
@@ -219,15 +226,17 @@ This link will expire in 30 minutes.`)
           });
       })
       .catch(err => {
-        console.log(err);
         res.status(500).send({message: err})
       });
   };
 
   this.resetPassword = function (req, res) {
-    if (!req.body.token) {
-      res.status(400).json({message: "Token not present"});
-      return;
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      return res.status(400).json({
+        message: "Invalid request",
+        errors: errors.array()
+      });
     }
     forgotPasswordTokenRepository.getByToken(req.body.token)
       .then(token => {
