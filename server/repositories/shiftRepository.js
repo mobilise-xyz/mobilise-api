@@ -1,20 +1,18 @@
 /* eslint-disable require-atomic-updates */
 const {Shift, ShiftRequirement, RepeatedShift} = require("../models");
 const getNextDate = require("../utils/date").getNextDate;
-const Q = require("q");
 const sequelize = require("sequelize");
 const moment = require("moment");
 const ShiftRepositoryInterface = require("./interfaces/shiftRepositoryInterface");
 
 let ShiftRepository = Object.create(ShiftRepositoryInterface);
 
-ShiftRepository.add = async function(shift, creatorId, rolesRequired) {
-  let deferred = Q.defer();
+ShiftRepository.add = function (shift, creatorId, rolesRequired) {
   let createdShift;
   if (!rolesRequired) {
     rolesRequired = [];
   }
-  await Shift.create({
+  return Shift.create({
     title: shift.title,
     creatorId: creatorId,
     description: shift.description,
@@ -38,60 +36,40 @@ ShiftRepository.add = async function(shift, creatorId, rolesRequired) {
       return ShiftRequirement.bulkCreate(shiftRequirements);
     })
     .then(() => {
-      deferred.resolve(createdShift);
-    })
-    .catch(err => deferred.reject(err));
-  return deferred.promise;
+      return createdShift
+    });
 };
 
-ShiftRepository.addRepeated = async function(
-    shift,
-    creatorId,
-    rolesRequired,
-    type
-  ) {
-    let deferred = Q.defer();
-    let repeatedId;
-    let successful = true;
-    await RepeatedShift.create({
-      type: type,
-      untilDate: shift.untilDate
-    })
-      .then(result => (repeatedId = result.id))
-      .catch(err => {
-        successful = false;
-        deferred.reject(err);
-      });
-    if (!successful) {
-      return deferred.promise;
-    }
-    // Create repeated shift
-    let shifts = [];
-    let startDate = moment(shift.date, "YYYY-MM-DD");
-    let untilDate = moment(shift.untilDate, "YYYY-MM-DD");
-    shift["creatorId"] = creatorId;
-    shift["repeatedId"] = repeatedId;
-    while (startDate.isBefore(untilDate) || startDate.isSame(untilDate)) {
-      let newShift = JSON.parse(JSON.stringify(shift));
-      newShift["date"] = startDate.format("YYYY-MM-DD");
-      shifts.push(newShift);
-      startDate = getNextDate(startDate, type);
-    }
-    ShiftRepository.addAll(shifts, rolesRequired)
-      .then(shifts =>
-        deferred.resolve(shifts)
-      )
-      .catch(err => {
-        deferred.reject(err);
-      });
-
-    return deferred.promise;
+ShiftRepository.addRepeated = async function (
+  shift,
+  creatorId,
+  rolesRequired,
+  type
+) {
+  return RepeatedShift.create({
+    type: type,
+    untilDate: shift.untilDate
+  })
+    .then(result => {
+      // Create repeated shift
+      let shifts = [];
+      let startDate = moment(shift.date, "YYYY-MM-DD");
+      let untilDate = moment(shift.untilDate, "YYYY-MM-DD");
+      shift["creatorId"] = creatorId;
+      shift["repeatedId"] = result.id;
+      while (startDate.isBefore(untilDate) || startDate.isSame(untilDate)) {
+        let newShift = JSON.parse(JSON.stringify(shift));
+        newShift["date"] = startDate.format("YYYY-MM-DD");
+        shifts.push(newShift);
+        startDate = getNextDate(startDate, type);
+      }
+      return ShiftRepository.addAll(shifts, rolesRequired);
+    });
 };
 
-ShiftRepository.updateRoles = function(shift, rolesRequired) {
-  let deferred = Q.defer();
-  ShiftRequirement.destroy({
-    where: { shiftId: shift.id }
+ShiftRepository.updateRoles = function (shift, rolesRequired) {
+  return ShiftRequirement.destroy({
+    where: {shiftId: shift.id}
   })
     .then(() => {
       let shiftRequirements = [];
@@ -106,23 +84,18 @@ ShiftRepository.updateRoles = function(shift, rolesRequired) {
       });
       return ShiftRequirement.bulkCreate(shiftRequirements);
     })
-    .then(() => deferred.resolve(shift))
-    .catch(err => deferred.reject(err));
-  return deferred.promise;
+    .then(() => {
+      return shift;
+    })
 };
 
-ShiftRepository.update = function(shift, body) {
-  let deferred = Q.defer();
-  Shift.update(body, { where: { id: shift.id } })
-    .then(result => deferred.resolve(result))
-    .catch(error => deferred.reject(error));
-  return deferred.promise;
+ShiftRepository.update = function (shift, body) {
+  return Shift.update(body, {where: {id: shift.id}});
 };
 
-ShiftRepository.addAll = function(shifts, rolesRequired) {
-  let deferred = Q.defer();
+ShiftRepository.addAll = function (shifts, rolesRequired) {
   let allShifts;
-  Shift.bulkCreate(shifts)
+  return Shift.bulkCreate(shifts)
     .then(shifts => {
       allShifts = shifts;
       let shiftRequirements = [];
@@ -138,62 +111,38 @@ ShiftRepository.addAll = function(shifts, rolesRequired) {
       });
       return ShiftRequirement.bulkCreate(shiftRequirements);
     })
-    .then(() => deferred.resolve(allShifts))
-    .catch(err => deferred.reject(err));
-
-  return deferred.promise;
+    .then(() => {
+      return allShifts;
+    });
 };
 
-ShiftRepository.getAll = function(attributes, whereTrue, include, limit=null, offset=0) {
-  let deferred = Q.defer();
-  Shift.findAll({
+ShiftRepository.getAll = function (attributes, whereTrue, include, limit = null, offset = 0) {
+  return Shift.findAll({
     attributes: attributes,
     where: whereTrue,
     include: include,
     limit: limit,
     offset: offset,
     order: [[sequelize.literal("date, start"), "asc"]]
-  })
-    .then(shifts => {
-      deferred.resolve(shifts);
-    })
-    .catch(err => deferred.reject(err));
-
-  return deferred.promise;
+  });
 };
 
-ShiftRepository.getById = function(id, include) {
-  let deferred = Q.defer();
-
-  Shift.findOne({
-    where: { id: id },
-    include: include
-  })
-    .then(shift => deferred.resolve(shift))
-    .catch(err => deferred.reject(err));
-
-  return deferred.promise;
-};
-
-ShiftRepository.getRepeatedById = function(id, include) {
-  let deferred = Q.defer();
-  RepeatedShift.findOne({
+ShiftRepository.getById = function (id, include) {
+  return Shift.findOne({
     where: {id: id},
     include: include
-  })
-    .then(result => deferred.resolve(result.shifts))
-    .catch(err => deferred.reject(err));
-  return deferred.promise;
+  });
 };
 
-ShiftRepository.removeById = function(id) {
-  let deferred = Q.defer();
+ShiftRepository.getRepeatedById = function (id, include) {
+  return RepeatedShift.findOne({
+    where: {id: id},
+    include: include
+  });
+};
 
-  Shift.destroy({ where: { id: id } })
-    .then(shift => deferred.resolve(shift))
-    .catch(err => deferred.reject(err));
-
-  return deferred.promise;
+ShiftRepository.removeById = function (id) {
+  return Shift.destroy({where: {id: id}});
 };
 
 module.exports = ShiftRepository;

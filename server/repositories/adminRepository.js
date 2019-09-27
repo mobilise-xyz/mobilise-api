@@ -1,33 +1,21 @@
 const {Admin} = require("../models");
-const Q = require("q");
 const AdminRepositoryInterface = require("./interfaces/adminRepositoryInterface");
 const { USER } = require("../sequelizeUtils/include");
 let AdminRepository = Object.create(AdminRepositoryInterface);
 
 AdminRepository.add = function(admin) {
-  let deferred = Q.defer();
-
-  Admin.create({
+  return Admin.create({
     userId: admin.userId
-  })
-    .then(admin => deferred.resolve(admin))
-    .catch(error => deferred.reject(error));
-
-  return deferred.promise;
+  });
 };
 
 AdminRepository.getById = function(id) {
-  let deferred = Q.defer();
-  Admin.findOne({
+  return Admin.findOne({
     where: {
       userId: id
     },
     include: [USER()]
-  })
-    .then(admin => deferred.resolve(admin))
-    .catch(error => deferred.reject(error));
-
-  return deferred.promise;
+  });
 };
 
 module.exports = AdminRepository;

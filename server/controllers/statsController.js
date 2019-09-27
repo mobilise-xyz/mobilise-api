@@ -4,10 +4,11 @@ const volunteerRepository = require("../repositories").VolunteerRepository;
 const {body, validationResult} = require("express-validator");
 
 let StatsController = function() {
-  this.computeHallOfFame = function(req, res) {
+  this.computeHallOfFame = async function(req, res) {
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
-      return res.status(400).json({message: "Invalid request", errors: errors.array()});
+      res.status(400).json({message: "Invalid request", errors: errors.array()});
+      return;
     }
     if (process.env.COMPUTATION_TRIGGER_KEY !== req.body.key) {
       res.status(401).send({ message: "Unauthorised request" });
@@ -20,7 +21,7 @@ let StatsController = function() {
       .subtract(7, "d")
       .format("YYYY-MM-DD");
 
-    volunteerRepository
+    await volunteerRepository
       .getAllWithShifts(SHIFT_BETWEEN(lastWeek, time, date, time))
       .then(async volunteers => {
         for (let i = 0; i < volunteers.length; i++) {

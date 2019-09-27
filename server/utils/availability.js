@@ -1,5 +1,5 @@
 const moment = require("moment");
-const Q = require("q");
+
 const volunteerRepository = require('../repositories').VolunteerRepository;
 
 const AVAILABILITY_THRESHOLD = 0.5;
@@ -52,11 +52,9 @@ function volunteerBookedOnShift(volunteer, shift) {
   return false;
 }
 
-async function getCumulativeAvailability() {
+function getCumulativeAvailability() {
 
-  let deferred = Q.defer();
-
-  await volunteerRepository.getAll()
+  return volunteerRepository.getAll()
     .then(volunteers => {
 
       // Initialise array to build cumulative availability
@@ -88,13 +86,8 @@ async function getCumulativeAvailability() {
           }
         }
       }
-
       return array;
-    })
-    .then(result => deferred.resolve(result))
-    .catch(error => deferred.reject(error));
-
-  return deferred.promise;
+    });
 }
 
 module.exports = {
