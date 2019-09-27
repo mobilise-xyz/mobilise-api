@@ -27,9 +27,13 @@ if (process.env.NODE_ENV !== "test") {
 router.get('/', controller.get);
 
 /* Download a file */
-router.get('/:name', controller.downloadByName);
+router.get('/:name',
+  controller.validate('downloadByName'),
+  controller.downloadByName);
 
 /* Delete a file */
-router.delete('/:name', controller.deleteByName);
+router.delete('/:name',
+  controller.validate('deleteByName'),
+  controller.deleteByName);
 
 module.exports = router;

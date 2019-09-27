@@ -6,9 +6,13 @@ let controller = require('../controllers').LinkController;
 router.get('/', controller.get);
 
 /* Upload a link */
-router.post('/', controller.add);
+router.post('/',
+  controller.validate('add'),
+  controller.add);
 
 /* Delete a link */
-router.delete('/:id', controller.deleteById);
+router.delete('/:id',
+  controller.validate('deleteById'),
+  controller.deleteById);
 
 module.exports = router;

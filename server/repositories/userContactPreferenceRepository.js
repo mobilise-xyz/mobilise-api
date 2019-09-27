@@ -32,7 +32,6 @@ UserContactPreferenceRepository.getById = function(userId) {
 
 UserContactPreferenceRepository.update = function(userId, contactPreferences) {
   let deferred = Q.defer();
-
   UserContactPreference.update(
     {
       email: contactPreferences.email,

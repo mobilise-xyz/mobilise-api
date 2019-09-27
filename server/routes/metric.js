@@ -3,7 +3,9 @@ let router = express.Router();
 let controller = require('../controllers').MetricController;
 
 /* POST metric. */
-router.post('/', controller.update);
+router.post('/',
+  controller.validate('update'),
+  controller.update);
 
 /* GET metric. */
 router.get('/', controller.get);

@@ -3,12 +3,18 @@ const moment = require("moment");
 const bookingRepository = require("../repositories").BookingRepository;
 const shiftRepository = require("../repositories").ShiftRepository;
 const userRepository = require("../repositories").UserRepository;
+const {errorMessage} = require("../utils/error");
+const {validationResult, param} = require('express-validator');
 
 const {SHIFT_AFTER} = require("../sequelizeUtils/where");
 
 let CalendarController = function(bookingRepository) {
 
   this.subscribeToBookings = function(req, res) {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      return res.status(400).json({message: "Invalid request", errors: errors.array()});
+    }
     const cal = ical({name: 'City Harvest London - Bookings'});
     const now = moment.tz('Europe/London');
     const whereShift = SHIFT_AFTER(now.format("YYYY-MM-DD"), now.format("HH:mm:ss"));
@@ -38,10 +44,14 @@ let CalendarController = function(bookingRepository) {
         res.set('Content-Type', 'text/calendar;charset=utf-8');
         res.status(200).send(cal.toString());
       })
-      .catch(err => res.status(500).json({message: err}));
+      .catch(err => res.status(500).json({message: errorMessage(err)}));
   };
 
   this.subscribeToShifts = function(req, res) {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      return res.status(400).json({message: "Invalid request", errors: errors.array()});
+    }
     const cal = ical({name: 'City Harvest London - Shifts'});
     const now = moment.tz('Europe/London');
     const whereShift = SHIFT_AFTER(now.format("YYYY-MM-DD"), now.format("HH:mm:ss"));
@@ -69,8 +79,19 @@ let CalendarController = function(bookingRepository) {
         res.set('Content-Type', 'text/calendar;charset=utf-8');
         res.status(200).send(cal.toString());
       })
-      .catch(err => res.status(500).json({message: err}));
+      .catch(err => res.status(500).json({message: errorMessage(err)}));
   };
+
+  this.validate = function(method) {
+    switch (method) {
+      case 'subscribeToBookings':
+      case 'subscribeToShifts': {
+        return [
+          param('key').isUUID()
+        ]
+      }
+    }
+  }
 
 };
 

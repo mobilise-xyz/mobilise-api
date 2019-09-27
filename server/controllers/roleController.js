@@ -1,8 +1,14 @@
 const roleRepository = require("../repositories").RoleRepository;
+const {validationResult, body} = require('express-validator');
+const {errorMessage} = require("../utils/error");
 
 let RoleController = function (roleRepository) {
 // Create a new role
   this.create = function (req, res) {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      return res.status(400).json({message: "Invalid request", errors: errors.array()});
+    }
     // Check if admin
     if (!req.user.isAdmin) {
       res.status(401).json({message: "Only admins can add roles"});
@@ -30,7 +36,7 @@ let RoleController = function (roleRepository) {
         }
       })
       .then(role => res.status(201).json({message: "Success! Role created.", role}))
-      .catch(error => res.status(500).json({message: error}));
+      .catch(error => res.status(500).json({message: errorMessage(error)}));
   };
 
   // Retrieve all existing roles
@@ -38,11 +44,15 @@ let RoleController = function (roleRepository) {
     return roleRepository
       .getAll()
       .then(roles => res.status(200).json({message: "Success!", roles}))
-      .catch(error => res.status(500).json({message: error}));
+      .catch(error => res.status(500).json({message: errorMessage(error)}));
   };
 
   // Removing a role
   this.remove = function (req, res) {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      return res.status(400).json({message: "Invalid request", errors: errors.array()});
+    }
     // Check if admin
     if (!req.user.isAdmin) {
       res.status(401).json({message: "Only admins can remove roles"});
@@ -52,9 +62,26 @@ let RoleController = function (roleRepository) {
         .then(() => {
           res.status(200).json({message: "Successfully removed role"});
         })
-        .catch(error => res.status(500).json({message: error}));
+        .catch(error => res.status(500).json({message: errorMessage(error)}));
     }
   };
+
+  this.validation = function(method) {
+    switch (method) {
+      case 'create': {
+        return [
+          body('name').isString(),
+          body('involves').isString(),
+          body('colour').isString()
+        ]
+      }
+      case 'remove': {
+        return [
+          body('name').isString()
+        ]
+      }
+    }
+  }
 };
 
 module.exports = new RoleController(roleRepository);

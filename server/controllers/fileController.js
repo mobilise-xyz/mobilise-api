@@ -1,10 +1,17 @@
 const { BucketClient } = require("../utils/bucket");
+const {errorMessage} = require("../utils/error");
 const moment = require('moment');
+const {validationResult, param} = require('express-validator');
 
 
 let FileController = function () {
 
   this.get = function (req, res) {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      return res.status(400).json({message: "Invalid request", errors: errors.array()});
+    }
+
     const client = new BucketClient();
 
     client.listContents()
@@ -20,7 +27,7 @@ let FileController = function () {
         res.status(200).send({message: "Success!", files: files});
       })
       .catch(err => {
-        res.status(500).json({message: err});
+        res.status(500).json({message: errorMessage(err)});
       });
   };
 
@@ -36,16 +43,33 @@ let FileController = function () {
   };
 
   this.deleteByName = function (req, res) {
+
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      return res.status(400).json({message: "Invalid request", errors: errors.array()});
+    }
+
     const client = new BucketClient();
 
     if (!req.user.isAdmin) {
-      res.status(400).json({message: "Only an admin can delete a file"});
+      res.status(401).json({message: "Only an admin can delete a file"});
       return;
     }
 
     client.deleteByName(req.params.name)
       .then(data => res.status(200).json({message: "File deleted", data: data}))
-      .catch(err => res.status(500).json({message: err}));
+      .catch(err => res.status(500).json({message: errorMessage(err)}));
+  };
+
+  this.validate = function(method) {
+    switch (method) {
+      case 'deleteByName':
+      case 'downloadByName': {
+        return [
+          param('name').isString()
+        ]
+      }
+    }
   }
 };
 
