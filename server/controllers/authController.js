@@ -178,11 +178,12 @@ This link will expire in 24 hours.`)
       // Check password
       if (!validatePassword(req.body.password, user.password)) {
         const newPasswordRetries = user.passwordRetries - 1;
-        if (newPasswordRetries === 0) {
+        if (newPasswordRetries <= 0) {
           // Lock account if that was last try
           const unlockDate = moment().add(10, 'minutes').format();
           return userRepository.update(user, {
-            unlockDate: unlockDate
+            unlockDate: unlockDate,
+            passwordRetries: 0
           })
             .then(() => {
               // Inform user that account is locked
@@ -191,7 +192,8 @@ This link will expire in 24 hours.`)
                 "Incorrect Password Limit Reached",
                 `Hello from Mobilise,
 We've noticed that someone tried to log into your account with the wrong password more times than we normally allow.
-We're just doing our best to keep your account and personal details secure. We've temporarily locked your account out for 10 minutes.
+We're just doing our best to keep your account and personal details secure. 
+We've temporarily locked your account out for 10 minutes.
 
 If this was you, maybe you forgot your password and would like to reset it? 
 You can do so here:
@@ -219,7 +221,8 @@ If this wasn't you please send us an email at hello@mobilise.xyz so we can keep 
       }
       const lastLogin = user.lastLogin;
       return userRepository.update(user, {
-        lastLogin: currentDate
+        lastLogin: currentDate,
+        passwordRetries: 3
       })
         .then(() => {
           res.status(200).json({
