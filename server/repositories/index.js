@@ -8,6 +8,7 @@ const MetricRepository = require("./metricRepository");
 const ContactRepository = require("./contactRepository");
 const LinkRepository = require("./linkRepository");
 const InvitationTokenRepository = require("./invitationTokenRepository");
+const ForgotPasswordTokenRepository = require("./forgotPasswordTokenRepository");
 const UserContactPreferenceRepository = require("./userContactPreferenceRepository");
 
 module.exports = {
@@ -21,5 +22,6 @@ module.exports = {
   ContactRepository,
   LinkRepository,
   InvitationTokenRepository,
-  UserContactPreferenceRepository
+  ForgotPasswordTokenRepository,
+  UserContactPreferenceRepository,
 };

@@ -13,10 +13,12 @@ if (process.env.NODE_ENV !== "production" && process.env.NODE_ENV !== "test") {
 
 require("./passport");
 
-AWS.config.update({
-  accessKeyId: process.env.AWS_ACCESS_KEY,
-  secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY
-});
+if (process.env.NODE_ENV !== "test") {
+  AWS.config.update({
+    accessKeyId: process.env.AWS_ACCESS_KEY,
+    secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY
+  });
+}
 
 let app = express();
 

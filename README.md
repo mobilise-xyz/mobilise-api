@@ -106,6 +106,12 @@ To test:
 yarn test
 ```
 
+If tests fail, then make sure to run the following after:
+```bash
+yarn cleardb
+```
+This will remove test data from your database.
+
 ## Created by
 - Joon-Ho Son
 - Arjun Singh

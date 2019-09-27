@@ -1,52 +1,26 @@
 const {Role} = require("../models");
-const Q = require("q");
-
 const RoleRepositoryInterface = require("./interfaces/roleRepositoryInterface");
 
 let RoleRepository = Object.create(RoleRepositoryInterface);
 
 RoleRepository.add = function(role) {
-  const deferred = Q.defer();
-
-  Role.create({
+  return Role.create({
     name: role.name,
     involves: role.involves,
     colour: role.colour
-  })
-    .then(role => deferred.resolve(role))
-    .catch(error => deferred.reject(error));
-
-  return deferred.promise;
+  });
 };
 
 RoleRepository.getByName = function(name) {
-  let deferred = Q.defer();
-
-  Role.findOne({ where: { name: name } })
-    .then(role => deferred.resolve(role))
-    .catch(error => deferred.reject(error));
-
-  return deferred.promise;
+  return Role.findOne({ where: { name: name } });
 };
 
 RoleRepository.getAll = function() {
-  let deferred = Q.defer();
-
-  Role.findAll()
-    .then(roles => deferred.resolve(roles))
-    .catch(error => deferred.reject(error));
-
-  return deferred.promise;
+  return Role.findAll();
 };
 
 RoleRepository.removeByName = function(name) {
-  let deferred = Q.defer();
-
-  Role.destroy({ where: { name: name } })
-    .then(role => deferred.resolve(role))
-    .catch(error => deferred.reject(error));
-
-  return deferred.promise;
+  return Role.destroy({ where: { name: name } });
 };
 
 module.exports = RoleRepository;

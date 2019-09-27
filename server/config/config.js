@@ -25,4 +25,4 @@ module.exports = {
     "port" : process.env.RDS_PORT,
     "dialect": "postgres"
   }
-}
+};
