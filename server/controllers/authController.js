@@ -16,6 +16,8 @@ const crypto = require("crypto");
 const {body, validationResult} = require('express-validator');
 const phoneUtil = PhoneNumberUtil.getInstance();
 
+const PASSWORD_ATTEMPTS = 3;
+
 let AuthController = function (
   userRepository,
   volunteerRepository,
@@ -180,10 +182,11 @@ This link will expire in 24 hours.`)
         const newPasswordRetries = user.passwordRetries - 1;
         if (newPasswordRetries <= 0) {
           // Lock account if that was last try
+          // Restore password retries so when account unlocks they can try again
           const unlockDate = moment().add(10, 'minutes').format();
           return userRepository.update(user, {
             unlockDate: unlockDate,
-            passwordRetries: 0
+            passwordRetries: PASSWORD_ATTEMPTS
           })
             .then(() => {
               // Inform user that account is locked
@@ -222,7 +225,7 @@ If this wasn't you please send us an email at hello@mobilise.xyz so we can keep 
       const lastLogin = user.lastLogin;
       return userRepository.update(user, {
         lastLogin: currentDate,
-        passwordRetries: 3
+        passwordRetries: PASSWORD_ATTEMPTS
       })
         .then(() => {
           res.status(200).json({
@@ -309,7 +312,10 @@ This link will expire in 30 minutes.`)
             .then(user => {
               if (user) {
                 return forgotPasswordTokenRepository.removeByToken(req.body.token)
-                  .then(() => userRepository.update(user, {password: hashedPassword(req.body.newPassword)}))
+                  .then(() => userRepository.update(user, {
+                    password: hashedPassword(req.body.newPassword),
+                    passwordRetries: PASSWORD_ATTEMPTS
+                  }))
                   .then(() => res.status(200).json({message: "Success! Password has been changed."}))
               }
               res.status(400).json({
