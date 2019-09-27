@@ -431,7 +431,7 @@ let VolunteerController = function (volunteerRepository, shiftRepository, userRe
       return res.status(400).json({message: "No contact with that id"});
     }
     if (contact.volunteerId !== req.params.id) {
-      return res.status(400).json({message: "You can only remove your own contacts!"});
+      return res.status(401).json({message: "You can only remove your own contacts!"});
     }
     return contactRepository.removeById(req.params.contactId)
       .then(() => res.status(200).json({message: "Success! Contact removed!"}))

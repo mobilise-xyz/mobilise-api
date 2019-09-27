@@ -33,19 +33,19 @@ let AuthController = function (
       });
     }
     // Check they have provided a valid invitation token
-    let result;
+    let invitation;
     try {
-      result = await invitationTokenRepository.getByToken(req.body.token);
+      invitation = await invitationTokenRepository.getByToken(req.body.token);
     } catch (e) {
       return res.status(500).json(errorMessage(e));
     }
-    if (!result) {
+    if (!invitation) {
       return res.status(400).json({message: "Invalid token"});
     }
-    if (result.email !== req.body.email) {
+    if (invitation.email !== req.body.email) {
       return res.status(400).json({message: "Please use the email that received the invitation."});
     }
-    if (moment().isAfter(result.expiry)) {
+    if (moment().isAfter(invitation.expiry)) {
       return res.status(400).json({
         message: "Token has expired. " +
           "Please request another invite from an admin."
@@ -82,10 +82,10 @@ let AuthController = function (
 
     // Create the account
 
-    let hash = hashedPassword(req.body.password);
+    const hash = hashedPassword(req.body.password);
     const formattedNumber = phoneUtil.format(number, PNF.E164);
     invitationTokenRepository.removeByToken(req.body.token)
-      .then(() => userRepository.add(req.body, hash, formattedNumber, result.isAdmin))
+      .then(() => userRepository.add(req.body, hash, formattedNumber, invitation.isAdmin))
       .then(user => {
         // Add user to volunteer or admin table
         if (!user.isAdmin) {
@@ -190,7 +190,7 @@ This link will expire in 24 hours.`)
     if (!user || !validatePassword(req.body.password, user.password)) {
       return res.status(400).json({message: "Invalid username/password"})
     }
-    let lastLogin = user.lastLogin;
+    const lastLogin = user.lastLogin;
     const currentDate = moment();
     return userRepository.update(user, {
       lastLogin: currentDate

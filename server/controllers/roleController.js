@@ -2,6 +2,10 @@ const roleRepository = require("../repositories").RoleRepository;
 const {validationResult, body} = require('express-validator');
 const {errorMessage} = require("../utils/error");
 
+function isValidHexColour(colour) {
+  return /^#[0-9A-F]{6}$/i.test(colour);
+}
+
 let RoleController = function (roleRepository) {
 // Create a new role
   this.create = async function (req, res) {
@@ -15,7 +19,7 @@ let RoleController = function (roleRepository) {
     }
     // Check if valid hex string
     if (req.body.colour) {
-      if (!/^#[0-9A-F]{6}$/i.test(req.body.colour)) {
+      if (!isValidHexColour(req.body.colour)) {
         return res.status(400).json({message: req.body.colour + " is not a valid hex colour"});
       }
     }

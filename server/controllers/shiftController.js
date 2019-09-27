@@ -133,10 +133,10 @@ let ShiftController = function (
       return res.status(400).send({message: "No such shift"});
     }
     // Notify volunteers
-    let emailClient = new EmailClient(emailClientTypes.NOREPLY);
-    let smsClient = new SMSClient();
+    const emailClient = new EmailClient(emailClientTypes.NOREPLY);
+    const smsClient = new SMSClient();
     shift.volunteers.forEach(volunteer => {
-      let message = constructCancelShiftMessage(volunteer, shift);
+      const message = constructCancelShiftMessage(volunteer, shift);
       if (volunteer.user.contactPreferences.email) {
         emailClient.send(volunteer.user.email, "Shift cancelled", message);
       }
@@ -200,11 +200,11 @@ let ShiftController = function (
       req.body.reason
     );
     if (creator.user.contactPreferences.email) {
-      let emailClient = new EmailClient(emailClientTypes.NOREPLY);
+      const emailClient = new EmailClient(emailClientTypes.NOREPLY);
       emailClient.send(creator.user.email, "Cancelled booking", message);
     }
     if (creator.user.contactPreferences.text) {
-      let smsClient = new SMSClient();
+      const smsClient = new SMSClient();
       smsClient.send(creator.user.telephone, message);
     }
 
@@ -433,7 +433,7 @@ let ShiftController = function (
     const emailClient = new EmailClient(emailClientTypes.NOREPLY);
     const smsClient = new SMSClient();
     volunteers.forEach(volunteer => {
-      let message = constructHelpMessage(volunteer, shift);
+      const message = constructHelpMessage(volunteer, shift);
       if (volunteer.user.contactPreferences.email) {
         emailClient.send(
             volunteer.user.email,
