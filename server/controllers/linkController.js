@@ -13,10 +13,12 @@ let LinkController = function (linkRepository) {
   this.add = function (req, res) {
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
-      return res.status(400).json({message: "Invalid request", errors: errors.array()});
+      res.status(400).json({message: "Invalid request", errors: errors.array()});
+      return;
     }
     if (!req.user.isAdmin) {
-      return res.status(401).json({message: "Only admin can add a link"});
+      res.status(401).json({message: "Only admin can add a link"});
+      return;
     }
     linkRepository.add(req.body)
       .then(link => res.status(201).json({message: "Added link", link: link}))
@@ -26,7 +28,8 @@ let LinkController = function (linkRepository) {
   this.deleteById = function (req, res) {
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
-      return res.status(400).json({message: "Invalid request", errors: errors.array()});
+      res.status(400).json({message: "Invalid request", errors: errors.array()});
+      return;
     }
     if (!req.user.isAdmin) {
       res.status(401).json({message: "Only admin can add a link"});

@@ -27,9 +27,8 @@ let VolunteerController = function (volunteerRepository, shiftRepository, userRe
   this.list = function (req, res) {
     // Restrict access to admin
     if (!req.user.isAdmin) {
-      return res
-        .status(401)
-        .json({message: "Only admins can access volunteer catalogue"});
+      res.status(401).json({message: "Only admins can access volunteer catalogue"});
+      return;
     }
 
     let whereTrue = {};
@@ -43,22 +42,26 @@ let VolunteerController = function (volunteerRepository, shiftRepository, userRe
   this.getStats = async function (req, res) {
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
-      return res.status(400).json({message: "Invalid request", errors: errors.array()});
+      res.status(400).json({message: "Invalid request", errors: errors.array()});
+      return;
     }
 
     // Check bearer token id matches parameter id
     if (req.user.id !== req.params.id) {
-      return res.status(401).json({message: "You can only view your own stats."});
+      res.status(401).json({message: "You can only view your own stats."});
+      return;
     }
     // Check volunteer exists
     let volunteer;
     try {
       volunteer = await volunteerRepository.getById(req.user.id);
     } catch (err) {
-      return res.status(500).json({message: errorMessage(err)});
+      res.status(500).json({message: errorMessage(err)});
+      return;
     }
     if (!volunteer) {
-      return res.status(400).send({message: "No volunteer with that id"});
+      res.status(400).send({message: "No volunteer with that id"});
+      return;
     }
     const now = moment.tz('Europe/London');
     const date = now.format("YYYY-MM-DD");
@@ -106,12 +109,14 @@ let VolunteerController = function (volunteerRepository, shiftRepository, userRe
   this.getActivity = function (req, res) {
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
-      return res.status(400).json({message: "Invalid request", errors: errors.array()});
+      res.status(400).json({message: "Invalid request", errors: errors.array()});
+      return;
     }
 
     // Check bearer token id matches parameter id
     if (req.user.id !== req.params.id) {
-      return res.status(401).json({message: "You can only view your own stats."});
+      res.status(401).json({message: "You can only view your own stats."});
+      return;
     }
 
     res.status(200).json({
@@ -152,23 +157,23 @@ let VolunteerController = function (volunteerRepository, shiftRepository, userRe
   this.updateAvailability = function (req, res) {
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
-      return res.status(400).json({message: "Invalid request", errors: errors.array()});
+      res.status(400).json({message: "Invalid request", errors: errors.array()});
+      return;
     }
 
     // Check bearer token id matches parameter id
     if (req.user.id !== req.params.id) {
-      return res
-        .status(401)
-        .json({message: "You can only update your own availability."});
+      res.status(401).json({message: "You can only update your own availability."});
+      return;
     }
 
     volunteerRepository
       .getById(req.params.id)
       .then(volunteer => {
         if (!volunteer) {
-          return res.status(400).json({message: "No volunteer with that id"});
+          res.status(400).json({message: "No volunteer with that id"});
         }
-        return volunteerRepository
+        volunteerRepository
           .updateAvailability(req.params.id, req.body.availability)
           .then(() =>
             res.status(201).json({
@@ -182,21 +187,21 @@ let VolunteerController = function (volunteerRepository, shiftRepository, userRe
   this.getAvailability = function (req, res) {
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
-      return res.status(400).json({message: "Invalid request", errors: errors.array()});
+      res.status(400).json({message: "Invalid request", errors: errors.array()});
+      return;
     }
 
     // Check bearer token id matches parameter id
     if (req.user.id !== req.params.id) {
-      return res
-        .status(401)
-        .json({message: "You can only get your own availability."});
+      res.status(401).json({message: "You can only get your own availability."});
+      return;
     }
 
     volunteerRepository
       .getById(req.params.id)
       .then(volunteer => {
         if (!volunteer) {
-          return res.status(400).json({message: "No volunteer with that id"});
+          res.status(400).json({message: "No volunteer with that id"});
         } else {
           return volunteerRepository
             .getAvailability(req.params.id)
@@ -209,25 +214,28 @@ let VolunteerController = function (volunteerRepository, shiftRepository, userRe
   this.getCalendarForVolunteer = function (req, res) {
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
-      return res.status(400).json({message: "Invalid request", errors: errors.array()});
+      res.status(400).json({message: "Invalid request", errors: errors.array()});
+      return;
     }
 
     if (req.user.isAdmin) {
-      return res.status(401).json({message: "User is an admin"});
+      res.status(401).json({message: "User is an admin"});
+      return;
     }
 
     if (req.params.id !== req.user.id) {
-      return res.status(400).json({message: "You can not get someone else's calendar!"});
+      res.status(400).json({message: "You can not get someone else's calendar!"});
+      return;
     }
 
     userRepository
       .getById(req.params.id)
       .then(user => {
         if (!user) {
-          return res.status(400).json({message: "No volunteer with that id"});
+          res.status(400).json({message: "No volunteer with that id"});
         }
         if (user.calendarAccessKey) {
-          return res.status(200).json({
+          res.status(200).json({
             message: "Success!",
             link: `${process.env.WEB_CAL_URL}/calendar/${user.calendarAccessKey}/bookings.ics`
           })
@@ -247,7 +255,8 @@ let VolunteerController = function (volunteerRepository, shiftRepository, userRe
   this.listShiftsForVolunteer = async function (req, res) {
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
-      return res.status(400).json({message: "Invalid request", errors: errors.array()});
+      res.status(400).json({message: "Invalid request", errors: errors.array()});
+      return;
     }
 
     // Check there is a volunteer
@@ -255,10 +264,12 @@ let VolunteerController = function (volunteerRepository, shiftRepository, userRe
     try {
       volunteer = await volunteerRepository.getById(req.params.id);
     } catch (err) {
-      return res.status(500).json({message: errorMessage(err)});
+      res.status(500).json({message: errorMessage(err)});
+      return;
     }
     if (!volunteer) {
-      return res.status(400).json({message: "No volunteer with that id"});
+      res.status(400).json({message: "No volunteer with that id"});
+      return;
     }
     const whereTrue = getDateRange(req.query.before, req.query.after);
     const page = req.query.page;
@@ -294,17 +305,20 @@ let VolunteerController = function (volunteerRepository, shiftRepository, userRe
   this.listAvailableShiftsForVolunteer = async function (req, res) {
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
-      return res.status(400).json({message: "Invalid request", errors: errors.array()});
+      res.status(400).json({message: "Invalid request", errors: errors.array()});
+      return;
     }
     // Check there is a volunteer
     let volunteer;
     try {
       volunteer = await volunteerRepository.getById(req.params.id);
     } catch (err) {
-      return res.status(500).json({message: errorMessage(err)});
+      res.status(500).json({message: errorMessage(err)});
+      return;
     }
     if (!volunteer) {
-      return res.status(400).json({message: "No volunteer with that id"});
+      res.status(400).json({message: "No volunteer with that id"});
+      return;
     }
     const whereTrue = getDateRange(req.query.before, req.query.after);
     const page = req.query.page;
@@ -346,11 +360,13 @@ let VolunteerController = function (volunteerRepository, shiftRepository, userRe
   this.addContact = async function(req, res) {
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
-      return res.status(400).json({message: "Invalid request", errors: errors.array()});
+      res.status(400).json({message: "Invalid request", errors: errors.array()});
+      return;
     }
 
     if (req.user.id !== req.params.id) {
-      return res.status(401).json({message: "You can only add your own contacts!"});
+      res.status(401).json({message: "You can only add your own contacts!"});
+      return;
     }
 
     // Check there is a volunteer
@@ -358,10 +374,12 @@ let VolunteerController = function (volunteerRepository, shiftRepository, userRe
     try {
       volunteer = await volunteerRepository.getById(req.params.id);
     } catch (err) {
-      return res.status(500).json({message: errorMessage(err)});
+      res.status(500).json({message: errorMessage(err)});
+      return;
     }
     if (!volunteer) {
-      return res.status(400).json({message: "No volunteer with that id"});
+      res.status(400).json({message: "No volunteer with that id"});
+      return;
     }
 
     return contactRepository.add(req.params.id, req.body)
@@ -374,11 +392,13 @@ let VolunteerController = function (volunteerRepository, shiftRepository, userRe
   this.getContacts = async function(req, res) {
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
-      return res.status(400).json({message: "Invalid request", errors: errors.array()});
+      res.status(400).json({message: "Invalid request", errors: errors.array()});
+      return;
     }
 
     if (req.user.id !== req.params.id && !req.user.isAdmin) {
-      return res.status(401).json({message: "You can only get your own contacts!"});
+      res.status(401).json({message: "You can only get your own contacts!"});
+      return;
     }
 
     // Check there is a volunteer
@@ -386,10 +406,12 @@ let VolunteerController = function (volunteerRepository, shiftRepository, userRe
     try {
       volunteer = await volunteerRepository.getById(req.params.id);
     } catch (err) {
-      return res.status(500).json({message: errorMessage(err)});
+      res.status(500).json({message: errorMessage(err)});
+      return;
     }
     if (!volunteer) {
-      return res.status(400).json({message: "No volunteer with that id"});
+      res.status(400).json({message: "No volunteer with that id"});
+      return;
     }
 
     return contactRepository.getAllByVolunteerId(req.params.id)
@@ -402,7 +424,8 @@ let VolunteerController = function (volunteerRepository, shiftRepository, userRe
   this.removeContact = async function (req, res) {
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
-      return res.status(400).json({message: "Invalid request", errors: errors.array()});
+      res.status(400).json({message: "Invalid request", errors: errors.array()});
+      return;
     }
 
     if (req.user.id !== req.params.id) {
@@ -414,10 +437,12 @@ let VolunteerController = function (volunteerRepository, shiftRepository, userRe
     try {
       volunteer = await volunteerRepository.getById(req.params.id);
     } catch (err) {
-      return res.status(500).json({message: errorMessage(err)});
+      res.status(500).json({message: errorMessage(err)});
+      return;
     }
     if (!volunteer) {
-      return res.status(400).json({message: "No volunteer with that id"});
+      res.status(400).json({message: "No volunteer with that id"});
+      return;
     }
 
     // Check there is a valid contact
@@ -425,13 +450,16 @@ let VolunteerController = function (volunteerRepository, shiftRepository, userRe
     try {
       contact = await contactRepository.getById(req.params.contactId)
     } catch (err) {
-      return res.status(500).json({message: errorMessage(err)});
+      res.status(500).json({message: errorMessage(err)});
+      return;
     }
     if (!contact) {
-      return res.status(400).json({message: "No contact with that id"});
+      res.status(400).json({message: "No contact with that id"});
+      return;
     }
     if (contact.volunteerId !== req.params.id) {
-      return res.status(401).json({message: "You can only remove your own contacts!"});
+      res.status(401).json({message: "You can only remove your own contacts!"});
+      return;
     }
     return contactRepository.removeById(req.params.contactId)
       .then(() => res.status(200).json({message: "Success! Contact removed!"}))

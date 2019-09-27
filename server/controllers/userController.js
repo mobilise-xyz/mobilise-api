@@ -14,14 +14,16 @@ let UserController = function (userRepository) {
   this.getById = function (req, res) {
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
-      return res.status(400).json({message: "Invalid request", errors: errors.array()});
+      res.status(400).json({message: "Invalid request", errors: errors.array()});
+      return;
     }
 
     // Check request validity
     // 1. Request made by admin
     // 2. Request made by volunteer for their own info
     if (!req.user.isAdmin && req.user.id !== req.params.id) {
-      return res.status(401).json({message: "Unauthorised request"});
+      res.status(401).json({message: "Unauthorised request"});
+      return;
     }
 
     userRepository
@@ -47,7 +49,8 @@ let UserController = function (userRepository) {
   this.getContactPreferences = function (req, res) {
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
-      return res.status(400).json({message: "Invalid request", errors: errors.array()});
+      res.status(400).json({message: "Invalid request", errors: errors.array()});
+      return;
     }
 
     userContactPreferenceRepository
@@ -65,11 +68,13 @@ let UserController = function (userRepository) {
   this.updateContactPreferences = function (req, res) {
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
-      return res.status(400).json({message: "Invalid request", errors: errors.array()});
+      res.status(400).json({message: "Invalid request", errors: errors.array()});
+      return;
     }
     // Check bearer token id matches parameter id
     if (req.user.id !== req.params.id) {
-      return res.status(401).send({message: "You can only update your own contact preferences."});
+      res.status(401).send({message: "You can only update your own contact preferences."});
+      return;
     }
     userContactPreferenceRepository
       .update(req.params.id, req.body.contactPreferences)
@@ -86,16 +91,19 @@ let UserController = function (userRepository) {
   this.changePassword = function (req, res) {
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
-      return res.status(400).json({message: "Invalid request", errors: errors.array()});
+      res.status(400).json({message: "Invalid request", errors: errors.array()});
+      return;
     }
     if (!validatePassword(req.body.oldPassword, req.user.password)) {
-      return res.status(400).json({message: "Password given is incorrect"});
+      res.status(400).json({message: "Password given is incorrect"});
+      return;
     }
     if (!isSecure(req.body.newPassword)) {
-      return res.status(400).json({
+      res.status(400).json({
         message: "New password must be at least 8 characters, contain at least one uppercase " +
           "letter, one lowercase letter and one number/special character"
       });
+      return;
     }
     userRepository.update(req.user, {password: hashedPassword(req.body.newPassword)})
       .then(() => res.status(200).json({message: "Success! Password has been changed."}))
@@ -106,17 +114,20 @@ let UserController = function (userRepository) {
 
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
-      return res.status(400).json({message: "Invalid request", errors: errors.array()});
+      res.status(400).json({message: "Invalid request", errors: errors.array()});
+      return;
     }
     // Check for user
     let user;
     try {
       user = await userRepository.getById(req.params.id);
     } catch (err) {
-      return res.status(500).json({message: errorMessage(err)});
+      res.status(500).json({message: errorMessage(err)});
+      return;
     }
     if (!user) {
-      return res.status(400).json({message: "No user with that id"});
+      res.status(400).json({message: "No user with that id"});
+      return;
     }
 
     const emailClient = new EmailClient(emailClientTypes.NOREPLY);
@@ -136,20 +147,24 @@ let UserController = function (userRepository) {
   this.invite = async function (req, res) {
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
-      return res.status(400).json({message: "Invalid request", errors: errors.array()});
+      res.status(400).json({message: "Invalid request", errors: errors.array()});
+      return;
     }
     if (!req.user.isAdmin) {
-      return res.status(401).json({message: "Only admins can invite volunteers"});
+      res.status(401).json({message: "Only admins can invite volunteers"});
+      return;
     }
     // Check if user already has account
     let existingUser;
     try {
       existingUser = await userRepository.getByEmail(req.body.email);
     } catch (err) {
-      return res.status(500).json({message: errorMessage(err)});
+      res.status(500).json({message: errorMessage(err)});
+      return;
     }
     if (existingUser) {
-      return res.status(400).json({message: "User already has an account"});
+      res.status(400).json({message: "User already has an account"});
+      return;
     }
 
     // Check if user already has a valid invitation token
@@ -157,10 +172,12 @@ let UserController = function (userRepository) {
     try {
       existingInvitation = await invitationTokenRepository.getByEmail(req.body.email);
     } catch (err) {
-      return res.status(500).json({message: errorMessage(err)});
+      res.status(500).json({message: errorMessage(err)});
+      return;
     }
     if (existingInvitation && moment().isBefore(existingInvitation.expires)) {
-      return res.status(400).json({message: "Volunteer with that email has already been invited!"});
+      res.status(400).json({message: "Volunteer with that email has already been invited!"});
+      return;
     }
 
     // Create token and send it

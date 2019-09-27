@@ -9,7 +9,8 @@ let FileController = function () {
   this.get = function (req, res) {
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
-      return res.status(400).json({message: "Invalid request", errors: errors.array()});
+      res.status(400).json({message: "Invalid request", errors: errors.array()});
+      return;
     }
 
     const client = new BucketClient();
@@ -46,13 +47,15 @@ let FileController = function () {
 
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
-      return res.status(400).json({message: "Invalid request", errors: errors.array()});
+      res.status(400).json({message: "Invalid request", errors: errors.array()});
+      return;
     }
 
     const client = new BucketClient();
 
     if (!req.user.isAdmin) {
-      return res.status(401).json({message: "Only an admin can delete a file"});
+      res.status(401).json({message: "Only an admin can delete a file"});
+      return;
     }
 
     client.deleteByName(req.params.name)

@@ -13,7 +13,8 @@ let CalendarController = function(bookingRepository) {
   this.subscribeToBookings = async function(req, res) {
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
-      return res.status(400).json({message: "Invalid request", errors: errors.array()});
+      res.status(400).json({message: "Invalid request", errors: errors.array()});
+      return;
     }
     const cal = ical({name: 'City Harvest London - Bookings'});
     const now = moment.tz('Europe/London');
@@ -24,13 +25,16 @@ let CalendarController = function(bookingRepository) {
     try {
       user = await userRepository.getByCalendarKey(req.params.key);
     } catch (err) {
-      return res.status(500).json({message: errorMessage(err)});
+      res.status(500).json({message: errorMessage(err)});
+      return;
     }
     if (!user) {
-      return res.status(400).json({message: "Not a valid key"});
+      res.status(400).json({message: "Not a valid key"});
+      return;
     }
     if (user.isAdmin) {
-      return res.status(400).json({message: "Admin cannot subscribe to bookings"});
+      res.status(400).json({message: "Admin cannot subscribe to bookings"});
+      return;
     }
 
     // Retrieve bookings for volunteer and generate ical events
@@ -56,7 +60,8 @@ let CalendarController = function(bookingRepository) {
   this.subscribeToShifts = async function(req, res) {
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
-      return res.status(400).json({message: "Invalid request", errors: errors.array()});
+      res.status(400).json({message: "Invalid request", errors: errors.array()});
+      return;
     }
     const cal = ical({name: 'City Harvest London - Shifts'});
     const now = moment.tz('Europe/London');
@@ -66,10 +71,12 @@ let CalendarController = function(bookingRepository) {
     try {
       user = await userRepository.getByCalendarKey(req.params.key);
     } catch (err) {
-      return res.status(500).json({message: errorMessage(err)});
+      res.status(500).json({message: errorMessage(err)});
+      return;
     }
     if (!user) {
-      return res.status(400).json({message: "Not a valid key"});
+      res.status(400).json({message: "Not a valid key"});
+      return;
     }
     // Retrieve shifts and generate ical events
     return shiftRepository.getAll(null, whereShift)

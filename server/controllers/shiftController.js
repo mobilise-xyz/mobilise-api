@@ -54,7 +54,8 @@ let ShiftController = function (
   this.list = function (req, res) {
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
-      return res.status(400).json({message: "Invalid request", errors: errors.array()});
+      res.status(400).json({message: "Invalid request", errors: errors.array()});
+      return;
     }
 
     let withVolunteers = req.user.isAdmin;
@@ -98,7 +99,7 @@ let ShiftController = function (
         res.status(200).json({
           message: "Success!",
           link: `${process.env.WEB_CAL_URL}/calendar/${req.user.calendarAccessKey}/shifts.ics`
-        })
+        });
       } else {
         const key = uuid();
         userRepository.update(req.user, {calendarAccessKey: key})
@@ -115,11 +116,13 @@ let ShiftController = function (
   this.deleteById = async function (req, res) {
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
-      return res.status(400).json({message: "Invalid request", errors: errors.array()});
+      res.status(400).json({message: "Invalid request", errors: errors.array()});
+      return;
     }
 
     if (!req.user.isAdmin) {
-      return res.status(401).json({message: "Only admin may delete a shift"});
+      res.status(401).json({message: "Only admin may delete a shift"});
+      return;
     }
 
     // Check shift exists
@@ -127,10 +130,12 @@ let ShiftController = function (
     try {
       shift = await shiftRepository.getById(req.params.id, [VOLUNTEERS()]);
     } catch (err) {
-      return res.status(500).json({message: errorMessage(err)});
+      res.status(500).json({message: errorMessage(err)});
+      return;
     }
     if (!shift) {
-      return res.status(400).send({message: "No such shift"});
+      res.status(400).send({message: "No such shift"});
+      return;
     }
     // Notify volunteers
     const emailClient = new EmailClient(emailClientTypes.NOREPLY);
@@ -146,7 +151,7 @@ let ShiftController = function (
     });
 
     // Remove the shift
-    return shiftRepository.removeById(req.params.id)
+    shiftRepository.removeById(req.params.id)
       .then(shift => res.status(200).json({message: "Successfully deleted", shift: shift}))
       .catch(err => res.status(500).json({message: errorMessage(err)}));
   };
@@ -154,7 +159,8 @@ let ShiftController = function (
   this.cancel = async function (req, res) {
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
-      return res.status(400).json({message: "Invalid request", errors: errors.array()});
+      res.status(400).json({message: "Invalid request", errors: errors.array()});
+      return;
     }
 
     // Check there is a booking
@@ -162,10 +168,12 @@ let ShiftController = function (
     try {
       booking = await bookingRepository.getById(req.params.id, req.user.id);
     } catch (err) {
-      return res.status(500).json({message: errorMessage(err)});
+      res.status(500).json({message: errorMessage(err)});
+      return;
     }
     if (!booking) {
-      return res.status(400).json({message: "No such booking exists"});
+      res.status(400).json({message: "No such booking exists"});
+      return;
     }
 
     let shift = booking.shift;
@@ -175,10 +183,12 @@ let ShiftController = function (
     try {
       volunteer = await volunteerRepository.getById(req.user.id);
     } catch (err) {
-      return res.status(500).json({message: errorMessage(err)});
+      res.status(500).json({message: errorMessage(err)});
+      return;
     }
     if (!volunteer) {
-      return res.status(400).json({message: "Only a volunteer can cancel a booking"});
+      res.status(400).json({message: "Only a volunteer can cancel a booking"});
+      return;
     }
 
     // Check there is a shift creator
@@ -186,10 +196,12 @@ let ShiftController = function (
     try {
       creator = await adminRepository.getById(shift.creatorId);
     } catch (err) {
-      return res.status(500).json({message: errorMessage(err)});
+      res.status(500).json({message: errorMessage(err)});
+      return;
     }
     if (!creator) {
-      return res.status(400).json({message: "Shift has no creator"});
+      res.status(400).json({message: "Shift has no creator"});
+      return;
     }
 
     // Send message to creator and cancel shift
@@ -220,11 +232,13 @@ let ShiftController = function (
   this.book = async function (req, res) {
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
-      return res.status(400).json({message: "Invalid request", errors: errors.array()});
+      res.status(400).json({message: "Invalid request", errors: errors.array()});
+      return;
     }
 
     if (req.user.isAdmin) {
-      return res.status(401).json({message: "Admin cannot book onto shift"});
+      res.status(401).json({message: "Admin cannot book onto shift"});
+      return;
     }
 
     // Check the shift is valid and free to book
@@ -232,16 +246,20 @@ let ShiftController = function (
     try {
       shift = await shiftRepository.getById(req.params.id, [REQUIREMENTS_WITH_BOOKINGS(), REPEATED_SHIFT()]);
     } catch (err) {
-      return res.status(500).json({message: errorMessage(err)})
+      res.status(500).json({message: errorMessage(err)});
+      return;
     }
     if (!shift) {
-      return res.status(400).json({message: "No shift with id: " + req.params.id});
+      res.status(400).json({message: "No shift with id: " + req.params.id});
+      return;
     }
     if (shiftRequirementIsFull(shift, req.body.roleName)) {
-      return res.status(400).json({message: "Shift for that role is full!" + req.params.id});
+      res.status(400).json({message: "Shift for that role is full!" + req.params.id});
+      return;
     }
     if (volunteerBookedOnShift({userId: req.user.id}, shift)) {
-      return res.status(400).json({message: "You have already booked this shift!" + req.params.id});
+      res.status(400).json({message: "You have already booked this shift!" + req.params.id});
+      return;
     }
 
     // Book the shift if it is one off
@@ -254,16 +272,19 @@ let ShiftController = function (
     let startDate = moment(shift.date, "YYYY-MM-DD");
 
     if (!repeatedTypeIsValid(req.body.repeatedType, startDate)) {
-      return res.status(400).json({message: "Invalid repeated type: " + req.body.repeatedType});
+      res.status(400).json({message: "Invalid repeated type: " + req.body.repeatedType});
+      return;
     }
     if (!repeatedTypesCompatible(shift.repeated.type, req.body.repeatedType)) {
-      return res.status(400).json({message: "Repeated type incompatible with shift"});
+      res.status(400).json({message: "Repeated type incompatible with shift"});
+      return;
     }
 
     let lastDate = moment(req.body.untilDate, "YYYY-MM-DD");
 
     if (lastDate.isBefore(startDate)) {
-      return res.status(400).json({message: "untilDate is before the shift date"});
+      res.status(400).json({message: "untilDate is before the shift date"});
+      return;
     }
 
     return shiftRepository.getRepeatedById(
@@ -331,22 +352,26 @@ let ShiftController = function (
   this.update = async function (req, res) {
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
-      return res.status(400).json({message: "Invalid request", errors: errors.array()});
+      res.status(400).json({message: "Invalid request", errors: errors.array()});
+      return;
     }
 
     // Check if user is admin
     if (!req.user.isAdmin) {
-      return res.status(401).json({message: "Only admin can edit a shift"});
+      res.status(401).json({message: "Only admin can edit a shift"});
+      return;
     }
     // Check shift exists
     let shift;
     try {
       shift = await shiftRepository.getById(req.params.id);
     } catch (err) {
-      return res.status(500).json({message: errorMessage(err)});
+      res.status(500).json({message: errorMessage(err)});
+      return;
     }
     if (!shift) {
-      return res.status(400).json({message: "Shift does not exist"});
+      res.status(400).json({message: "Shift does not exist"});
+      return;
     }
     return shiftRepository.update(shift, req.body)
       .then(() => res.status(200).json({message: "Shift updated"}))
@@ -356,31 +381,37 @@ let ShiftController = function (
   this.updateRoles = async function (req, res) {
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
-      return res.status(400).json({message: "Invalid request", errors: errors.array()});
+      res.status(400).json({message: "Invalid request", errors: errors.array()});
+      return;
     }
     // Check shift exists
     let shift;
     try {
       shift = await shiftRepository.getById(req.params.id);
     } catch (err) {
-      return res.status(500).json({message: errorMessage(err)});
+      res.status(500).json({message: errorMessage(err)});
+      return;
     }
     if (!shift) {
-      return res.status(400).json({message: "Shift does not exist"});
+      res.status(400).json({message: "Shift does not exist"});
+      return;
     }
     // Check if user is admin
     if (!req.user.isAdmin) {
-      return res.status(401).json({message: "Only admin can edit a shift"});
+      res.status(401).json({message: "Only admin can edit a shift"});
+      return;
     }
     // Check the referenced roles
     let errs, rolesRequired;
     try {
       ({errs, rolesRequired} = await checkRoles(req.body.rolesRequired, roleRepository));
     } catch (err) {
-      return res.status(500).json({message: errorMessage(err)});
+      res.status(500).json({message: errorMessage(err)});
+      return;
     }
     if (errs.length > 0) {
-      return res.status(400).send({"Could not modify shift due to invalid roles": errs});
+      res.status(400).send({"Could not modify shift due to invalid roles": errs});
+      return;
     }
     // Update the roles
     return shiftRepository.updateRoles(shift, rolesRequired)
@@ -391,20 +422,24 @@ let ShiftController = function (
   this.ping = async function (req, res) {
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
-      return res.status(400).json({message: "Invalid request", errors: errors.array()});
+      res.status(400).json({message: "Invalid request", errors: errors.array()});
+      return;
     }
     if (!req.user.isAdmin) {
-      return res.status(401).json({message: "Only an admin may ping volunteers for shift"});
+      res.status(401).json({message: "Only an admin may ping volunteers for shift"});
+      return;
     }
     // Check the shift exists
     let shift;
     try {
       shift = await shiftRepository.getById(req.params.id, [REQUIREMENTS_WITH_BOOKINGS()]);
     } catch (err) {
-      return res.status(500).send({message: errorMessage(err)});
+      res.status(500).send({message: errorMessage(err)});
+      return;
     }
     if (!shift) {
-      return res.status(400).json({message: "No shift with that id"});
+      res.status(400).json({message: "No shift with that id"});
+      return;
     }
     let volunteers = [];
     try {
@@ -424,11 +459,13 @@ let ShiftController = function (
             });
           break;
         default: {
-          return res.status(400).json({message: "Invalid type of ping"});
+          res.status(400).json({message: "Invalid type of ping"});
+          return;
         }
       }
     } catch (err) {
-      return res.status(500).send({message: errorMessage(err)});
+      res.status(500).send({message: errorMessage(err)});
+      return;
     }
     const emailClient = new EmailClient(emailClientTypes.NOREPLY);
     const smsClient = new SMSClient();
@@ -451,27 +488,32 @@ let ShiftController = function (
   this.create = async function (req, res) {
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
-      return res.status(400).json({message: "Invalid request", errors: errors.array()});
+      res.status(400).json({message: "Invalid request", errors: errors.array()});
+      return;
     }
 
     // Check if user is admin
     if (!req.user.isAdmin) {
-      return res.status(401).json({message: "Only admin can add shifts"});
+      res.status(401).json({message: "Only admin can add shifts"});
+      return;
     }
     // Check the referenced roles
     let errs, rolesRequired;
     try {
       ({errs, rolesRequired} = await checkRoles(req.body.rolesRequired, roleRepository));
     } catch (err) {
-      return res.status(500).send({message: errorMessage(err)});
+      res.status(500).send({message: errorMessage(err)});
+      return;
     }
     if (errs.length > 0) {
-      return res.status(400).json({"Could not add shift due to invalid roles": errs});
+      res.status(400).json({"Could not add shift due to invalid roles": errs});
+      return;
     }
     if (!moment(req.body.start, "HH:mm").isBefore(moment(req.body.stop, "HH:mm"))) {
-      return res.status(400).json({
+      res.status(400).json({
         message: "Start time is not before end time"
       });
+      return;
     }
 
     let type = req.body.repeatedType;
@@ -486,16 +528,18 @@ let ShiftController = function (
     let untilDate = moment(req.body.untilDate, "YYYY-MM-DD");
 
     if (untilDate.isBefore(startDate)) {
-      return res.status(400).json({
+      res.status(400).json({
         message: "Until date is before start date"
       });
+      return;
     }
 
     // Check if valid request
     if (!repeatedTypeIsValid(type, startDate)) {
-      return res.status(400).json({
+      res.status(400).json({
         message: "Invalid repeatedType (check starting day if Weekends/Week Days): " + type
       });
+      return;
     }
     return shiftRepository
       .addRepeated(req.body, req.user.id, rolesRequired, type)

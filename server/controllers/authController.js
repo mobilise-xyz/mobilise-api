@@ -27,29 +27,34 @@ let AuthController = function (
   this.registerUser = async function (req, res) {
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
-      return res.status(400).json({
+      res.status(400).json({
         message: "Invalid request",
         errors: errors.array()
       });
+      return;
     }
     // Check they have provided a valid invitation token
     let invitation;
     try {
       invitation = await invitationTokenRepository.getByToken(req.body.token);
     } catch (e) {
-      return res.status(500).json(errorMessage(e));
+      res.status(500).json(errorMessage(e));
+      return;
     }
     if (!invitation) {
-      return res.status(400).json({message: "Invalid token"});
+      res.status(400).json({message: "Invalid token"});
+      return;
     }
     if (invitation.email !== req.body.email) {
-      return res.status(400).json({message: "Please use the email that received the invitation."});
+      res.status(400).json({message: "Please use the email that received the invitation."});
+      return;
     }
     if (moment().isAfter(invitation.expiry)) {
-      return res.status(400).json({
+      res.status(400).json({
         message: "Token has expired. " +
           "Please request another invite from an admin."
       });
+      return;
     }
     // Check there does not exist a user already
     let existingUser;
@@ -58,50 +63,48 @@ let AuthController = function (
     try {
       existingUser = await userRepository.getByEmail(req.body.email);
     } catch (err) {
-      return res.status(500).json(errorMessage(err));
+      res.status(500).json(errorMessage(err));
+      return;
     }
     if (existingUser) {
-      return res.status(400).json({message: "An account with that email already exists"});
+      res.status(400).json({message: "An account with that email already exists"});
+      return;
     }
 
     // Check password
     if (!isSecure(req.body.password)) {
-      return res.status(400).json({
+      res.status(400).json({
         message: "Password must be at least 8 characters, contain at least one uppercase letter, " +
           "one lowercase letter and one number/special character"
       });
+      return;
     }
 
     // Check phone number
     const number = phoneUtil.parse(req.body.telephone, 'GB');
     if (!phoneUtil.isValidNumber(number)) {
-      return res
-        .status(400)
-        .json({message: "Invalid UK phone number"});
+      res.status(400).json({message: "Invalid UK phone number"});
+      return;
     }
 
     // Create the account
 
     const hash = hashedPassword(req.body.password);
     const formattedNumber = phoneUtil.format(number, PNF.E164);
-    invitationTokenRepository.removeByToken(req.body.token)
+    await invitationTokenRepository.removeByToken(req.body.token)
       .then(() => userRepository.add(req.body, hash, formattedNumber, invitation.isAdmin))
-      .then(user => {
+      .then(async user => {
         // Add user to volunteer or admin table
         if (!user.isAdmin) {
-          return volunteerRepository.add({userId: user.id}).then(() => user);
+          await volunteerRepository.add({userId: user.id});
         } else {
-          return adminRepository.add({userId: user.id}).then(() => user);
+          await adminRepository.add({userId: user.id});
         }
-      })
-      .then(user => {
         // Create entry for user's contact preferences
-        return userContactPreferenceRepository.add(user.id, {
-          email: false,
-          text: false
-        }).then(() => user);
-      })
-      .then(user =>
+        await userContactPreferenceRepository.add(user.id, {
+            email: false,
+            text: false
+        });
         res.status(201).json({
           message: "Successful! User created",
           user: {
@@ -112,7 +115,7 @@ let AuthController = function (
             isAdmin: user.isAdmin
           }
         })
-      )
+      })
       .catch(error => res.status(500).json({message: errorMessage(error)}));
   };
 
@@ -120,14 +123,16 @@ let AuthController = function (
 
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
-      return res.status(400).json({
+      res.status(400).json({
         message: "Invalid request",
         errors: errors.array()
       });
+      return;
     }
     // Check request has the correct key
     if (req.body.adminKey !== process.env.ADMIN_KEY) {
-      return res.status(401).json({message: "Not authenticated"});
+      res.status(401).json({message: "Not authenticated"});
+      return;
     }
 
     // Check the user does not already have an account
@@ -135,10 +140,12 @@ let AuthController = function (
     try {
       existingUser = await userRepository.getByEmail(req.body.email);
     } catch (err) {
-      return res.status(500).json(errorMessage(err));
+      res.status(500).json(errorMessage(err));
+      return;
     }
     if (existingUser) {
-      return res.status(400).json({message: "User already has an account"});
+      res.status(400).json({message: "User already has an account"});
+      return;
     }
 
     // Check there is not already a valid invitation for user
@@ -146,10 +153,12 @@ let AuthController = function (
     try {
       existingInvitation = await invitationTokenRepository.getByEmail(req.body.email);
     } catch (err) {
-      return res.status(500).json(errorMessage(err));
+      res.status(500).json(errorMessage(err));
+      return;
     }
     if (existingInvitation && moment().isBefore(existingInvitation.expires)) {
-      return res.status(400).json({message: "User with that email has already been invited!"});
+      res.status(400).json({message: "User with that email has already been invited!"});
+      return;
     }
 
     // Create new invitation and send it
@@ -175,20 +184,23 @@ This link will expire in 24 hours.`)
   this.loginUser = async function (req, res) {
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
-      return res.status(400).json({
+      res.status(400).json({
         message: "Invalid request",
         errors: errors.array()
       });
+      return;
     }
     // Check the credentials
     let user;
     try {
       user = await userRepository.getByEmail(req.body.email);
     } catch (err) {
-      return res.status(500).json({message: errorMessage(err)});
+      res.status(500).json({message: errorMessage(err)});
+      return;
     }
     if (!user || !validatePassword(req.body.password, user.password)) {
-      return res.status(400).json({message: "Invalid username/password"})
+      res.status(400).json({message: "Invalid username/password"});
+      return;
     }
     const lastLogin = user.lastLogin;
     const currentDate = moment();
@@ -212,17 +224,19 @@ This link will expire in 24 hours.`)
   this.forgotPassword = async function (req, res) {
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
-      return res.status(400).json({
+      res.status(400).json({
         message: "Invalid request",
         errors: errors.array()
       });
+      return;
     }
     // Check for user
     let user;
     try {
       user = await userRepository.getByEmail(req.body.email);
     } catch (err) {
-      return res.status(500).json({message: errorMessage(err)})
+      res.status(500).json({message: errorMessage(err)});
+      return;
     }
     if (!user) {
       res.status(200).json({message: "Instructions to reset your password have been sent to the email entered if an account with that email exists."});
@@ -256,34 +270,39 @@ This link will expire in 30 minutes.`)
   this.resetPassword = async function (req, res) {
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
-      return res.status(400).json({
+      res.status(400).json({
         message: "Invalid request",
         errors: errors.array()
       });
+      return;
     }
     // Check they have provided a valid forgot password token
     let token;
     try {
       token = await forgotPasswordTokenRepository.getByToken(req.body.token);
     } catch (err) {
-      return res.status(500).json({message: errorMessage(err)});
+      res.status(500).json({message: errorMessage(err)});
+      return;
     }
     if (!token) {
-      return res.status(400).json({message: "Invalid token"});
+      res.status(400).json({message: "Invalid token"});
+      return;
     }
     if (moment().isAfter(token.expiry)) {
-      return res.status(400).json({
+      res.status(400).json({
         message: "Token has expired. " +
           "Please request to reset your password again."
       });
+      return;
     }
 
     // Check password
     if (!isSecure(req.body.newPassword)) {
-      return res.status(400).json({
+      res.status(400).json({
         message: "Password must be at least 8 characters, contain at least one uppercase letter, " +
           "one lowercase letter and one number/special character"
       });
+      return;
     }
 
     // Check there is a user for the email
@@ -291,10 +310,12 @@ This link will expire in 30 minutes.`)
     try {
       user = await userRepository.getByEmail(token.email);
     } catch (err) {
-      return res.status(500).json({message: errorMessage(err)})
+      res.status(500).json({message: errorMessage(err)});
+      return;
     }
     if (!user) {
-      return res.status(400).json({message: "Invalid token"});
+      res.status(400).json({message: "Invalid token"});
+      return;
     }
 
     // Remove the token and update the password

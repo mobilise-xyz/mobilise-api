@@ -6,10 +6,12 @@ let PredictionController = function () {
   this.computeExpectedShortages = function (req, res) {
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
-      return res.status(400).json({message: "Invalid request", errors: errors.array()});
+      res.status(400).json({message: "Invalid request", errors: errors.array()});
+      return;
     }
     if (process.env.COMPUTATION_TRIGGER_KEY !== req.body.key) {
-      return res.status(401).json({message: "Unauthorised request"});
+      res.status(401).json({message: "Unauthorised request"});
+      return;
     }
     Predictor.computeExpectedShortages()
       .catch(err => {

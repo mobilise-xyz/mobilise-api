@@ -7,10 +7,12 @@ let MetricController = function(metricRepository) {
   this.update = function(req, res) {
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
-      return res.status(400).json({message: "Invalid request", errors: errors.array()});
+      res.status(400).json({message: "Invalid request", errors: errors.array()});
+      return;
     }
     if (!req.user.isAdmin) {
-      return res.status(401).json({message: "Only admin can set the metric"});
+      res.status(401).json({message: "Only admin can set the metric"});
+      return;
     }
     metricRepository.set(
       req.body.name,
