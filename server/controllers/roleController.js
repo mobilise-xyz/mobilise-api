@@ -39,21 +39,21 @@ let RoleController = function (roleRepository) {
       return;
     }
     // Create the role
-    return roleRepository.add(req.body)
+    await roleRepository.add(req.body)
       .then(role => res.status(201).json({message: "Success! Role created.", role}))
       .catch(error => res.status(500).json({message: errorMessage(error)}));
   };
 
   // Retrieve all existing roles
-  this.list = function (req, res) {
-    roleRepository
+  this.list = async function (req, res) {
+    await roleRepository
       .getAll()
       .then(roles => res.status(200).json({message: "Success!", roles}))
       .catch(error => res.status(500).json({message: errorMessage(error)}));
   };
 
   // Removing a role
-  this.remove = function (req, res) {
+  this.remove = async function (req, res) {
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
       res.status(400).json({message: "Invalid request", errors: errors.array()});
@@ -64,7 +64,7 @@ let RoleController = function (roleRepository) {
       res.status(401).json({message: "Only admins can remove roles"});
       return;
     }
-    roleRepository
+    await roleRepository
       .removeByName(req.body.name)
       .then(() => res.status(200).json({message: "Successfully removed role"}))
       .catch(error => res.status(500).json({message: errorMessage(error)}));

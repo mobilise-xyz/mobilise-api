@@ -11,7 +11,7 @@ const invitationTokenRepository = require("../repositories").InvitationTokenRepo
 
 let UserController = function (userRepository) {
 
-  this.getById = function (req, res) {
+  this.getById = async function (req, res) {
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
       res.status(400).json({message: "Invalid request", errors: errors.array()});
@@ -26,7 +26,7 @@ let UserController = function (userRepository) {
       return;
     }
 
-    userRepository
+    await userRepository
       .getById(req.params.id)
       .then(user => {
         if (!user) {
@@ -46,14 +46,14 @@ let UserController = function (userRepository) {
       .catch(error => res.status(500).json({message: errorMessage(error)}));
   };
 
-  this.getContactPreferences = function (req, res) {
+  this.getContactPreferences = async function (req, res) {
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
       res.status(400).json({message: "Invalid request", errors: errors.array()});
       return;
     }
 
-    userContactPreferenceRepository
+    await userContactPreferenceRepository
       .getById(req.params.id)
       .then(result => {
         if (!result) {
@@ -65,7 +65,7 @@ let UserController = function (userRepository) {
       .catch(error => res.status(500).json({message: errorMessage(error)}));
   };
 
-  this.updateContactPreferences = function (req, res) {
+  this.updateContactPreferences = async function (req, res) {
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
       res.status(400).json({message: "Invalid request", errors: errors.array()});
@@ -76,7 +76,7 @@ let UserController = function (userRepository) {
       res.status(401).send({message: "You can only update your own contact preferences."});
       return;
     }
-    userContactPreferenceRepository
+    await userContactPreferenceRepository
       .update(req.params.id, req.body.contactPreferences)
       .then(result => {
         if (!result) {
@@ -88,7 +88,7 @@ let UserController = function (userRepository) {
       .catch(error => res.status(500).json({message: errorMessage(error)}));
   };
 
-  this.changePassword = function (req, res) {
+  this.changePassword = async function (req, res) {
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
       res.status(400).json({message: "Invalid request", errors: errors.array()});
@@ -105,7 +105,7 @@ let UserController = function (userRepository) {
       });
       return;
     }
-    userRepository.update(req.user, {password: hashedPassword(req.body.newPassword)})
+    await userRepository.update(req.user, {password: hashedPassword(req.body.newPassword)})
       .then(() => res.status(200).json({message: "Success! Password has been changed."}))
       .catch(err => res.status(500).json({message: errorMessage(err)}));
   };
@@ -139,7 +139,7 @@ let UserController = function (userRepository) {
     
     Love from
     Mobilise.`.trim());
-    return emailClient.send(process.env.CONTACT_MAIL_SENDER_USER, "User feedback", feedbackMessage)
+    await emailClient.send(process.env.CONTACT_MAIL_SENDER_USER, "User feedback", feedbackMessage)
       .then(() => res.status(200).json({message: "Success!"}))
       .catch(err => res.status(500).json({message: errorMessage(err)}));
   };
@@ -183,7 +183,7 @@ let UserController = function (userRepository) {
     // Create token and send it
     const token = crypto.randomBytes(16).toString('hex');
     const expires = moment().add(1, 'days').format();
-    return invitationTokenRepository.add(req.body.email, token, expires, req.body.isAdmin)
+    await invitationTokenRepository.add(req.body.email, token, expires, req.body.isAdmin)
       .then(() => {
         const emailClient = new EmailClient(emailClientTypes.NOREPLY);
         return emailClient.send(req.body.email,

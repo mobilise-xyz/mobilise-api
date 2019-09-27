@@ -38,7 +38,7 @@ let CalendarController = function(bookingRepository) {
     }
 
     // Retrieve bookings for volunteer and generate ical events
-    return bookingRepository.getByVolunteerId(user.id, whereShift)
+    await bookingRepository.getByVolunteerId(user.id, whereShift)
       .then(bookings => {
         bookings.forEach(booking => {
           cal.createEvent({
@@ -79,7 +79,7 @@ let CalendarController = function(bookingRepository) {
       return;
     }
     // Retrieve shifts and generate ical events
-    return shiftRepository.getAll(null, whereShift)
+    await shiftRepository.getAll(null, whereShift)
       .then(shifts => {
         shifts.forEach(shift => {
           cal.createEvent({

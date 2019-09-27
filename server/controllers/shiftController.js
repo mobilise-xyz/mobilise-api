@@ -51,7 +51,7 @@ let ShiftController = function (
   bookingRepository
 ) {
 
-  this.list = function (req, res) {
+  this.list = async function (req, res) {
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
       res.status(400).json({message: "Invalid request", errors: errors.array()});
@@ -63,7 +63,7 @@ let ShiftController = function (
     const whereTrue = getDateRange(req.query.before, req.query.after);
     const page = req.query.page;
 
-    shiftRepository
+    await shiftRepository
       .getAll(null, whereTrue, [
         REQUIREMENTS_WITH_BOOKINGS(withVolunteers),
         CREATOR(),
@@ -79,8 +79,8 @@ let ShiftController = function (
       .catch(err => res.status(500).json({message: errorMessage(err)}));
   };
 
-  this.listTitles = function (req, res) {
-    shiftRepository
+  this.listTitles = async function (req, res) {
+    await shiftRepository
       .getAll(["title"])
       .then(shifts => {
         let titles = [];
@@ -94,7 +94,7 @@ let ShiftController = function (
       .catch(err => res.status(500).json({message: errorMessage(err)}));
   };
 
-  this.getCalendarForShifts = function (req, res) {
+  this.getCalendarForShifts = async function (req, res) {
       if (req.user.calendarAccessKey) {
         res.status(200).json({
           message: "Success!",
@@ -102,7 +102,7 @@ let ShiftController = function (
         });
       } else {
         const key = uuid();
-        userRepository.update(req.user, {calendarAccessKey: key})
+        await userRepository.update(req.user, {calendarAccessKey: key})
           .then(() => {
             res.status(200).json({
               message: "Success!",
@@ -151,7 +151,7 @@ let ShiftController = function (
     });
 
     // Remove the shift
-    shiftRepository.removeById(req.params.id)
+    await shiftRepository.removeById(req.params.id)
       .then(shift => res.status(200).json({message: "Successfully deleted", shift: shift}))
       .catch(err => res.status(500).json({message: errorMessage(err)}));
   };
@@ -220,7 +220,7 @@ let ShiftController = function (
       smsClient.send(creator.user.telephone, message);
     }
 
-    return bookingRepository.delete(req.params.id, req.user.id)
+    await bookingRepository.delete(req.params.id, req.user.id)
       .then(booking =>
         res
           .status(200)
@@ -287,7 +287,7 @@ let ShiftController = function (
       return;
     }
 
-    return shiftRepository.getRepeatedById(
+    await shiftRepository.getRepeatedById(
       shift.repeated.id,
       [SHIFTS_WITH_REQUIREMENTS_WITH_BOOKINGS(shift.date,
       req.body.untilDate,
@@ -373,7 +373,7 @@ let ShiftController = function (
       res.status(400).json({message: "Shift does not exist"});
       return;
     }
-    return shiftRepository.update(shift, req.body)
+    await shiftRepository.update(shift, req.body)
       .then(() => res.status(200).json({message: "Shift updated"}))
       .catch(err => res.status(500).json({message: errorMessage(err)}));
   };
@@ -414,7 +414,7 @@ let ShiftController = function (
       return;
     }
     // Update the roles
-    return shiftRepository.updateRoles(shift, rolesRequired)
+    await shiftRepository.updateRoles(shift, rolesRequired)
       .then(shift => res.status(200).json({message: "Success! Updated shift!", shift}))
       .catch(err => res.status(500).send({message: errorMessage(err)}));
   };
@@ -541,11 +541,11 @@ let ShiftController = function (
       });
       return;
     }
-    return shiftRepository
+    await shiftRepository
       .addRepeated(req.body, req.user.id, rolesRequired, type)
-      .then(shifts => {
-        res.status(201).json({message: "Success! Created repeated shift!", lastShift: shifts[shifts.length - 1]});
-      })
+      .then(shifts =>
+        res.status(201).json({message: "Success! Created repeated shift!", lastShift: shifts[shifts.length - 1]})
+      )
       .catch(err => res.status(500).json({message: errorMessage(err)}));
   };
 

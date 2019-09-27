@@ -24,7 +24,7 @@ const DAYS_IN_WEEK = 7;
 const SECTIONS_IN_DAY = 3;
 
 let VolunteerController = function (volunteerRepository, shiftRepository, userRepository) {
-  this.list = function (req, res) {
+  this.list = async function (req, res) {
     // Restrict access to admin
     if (!req.user.isAdmin) {
       res.status(401).json({message: "Only admins can access volunteer catalogue"});
@@ -33,7 +33,7 @@ let VolunteerController = function (volunteerRepository, shiftRepository, userRe
 
     let whereTrue = {};
 
-    volunteerRepository
+    await volunteerRepository
       .getAll({}, [USER(whereTrue), 'contacts'])
       .then(volunteers => res.status(200).json({message: "Success", volunteers}))
       .catch(err => res.status(500).json({message: errorMessage(err)}));
@@ -66,7 +66,7 @@ let VolunteerController = function (volunteerRepository, shiftRepository, userRe
     const now = moment.tz('Europe/London');
     const date = now.format("YYYY-MM-DD");
     const time = now.format("HH:mm");
-    return bookingRepository.getByVolunteerId(volunteer.userId, SHIFT_BEFORE(date, time))
+    await bookingRepository.getByVolunteerId(volunteer.userId, SHIFT_BEFORE(date, time))
       .then(bookings => {
         let contributions = {};
         let hours = 0;
@@ -154,7 +154,7 @@ let VolunteerController = function (volunteerRepository, shiftRepository, userRe
     }
   };
 
-  this.updateAvailability = function (req, res) {
+  this.updateAvailability = async function (req, res) {
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
       res.status(400).json({message: "Invalid request", errors: errors.array()});
@@ -167,7 +167,7 @@ let VolunteerController = function (volunteerRepository, shiftRepository, userRe
       return;
     }
 
-    volunteerRepository
+    await volunteerRepository
       .getById(req.params.id)
       .then(volunteer => {
         if (!volunteer) {
@@ -184,7 +184,7 @@ let VolunteerController = function (volunteerRepository, shiftRepository, userRe
       .catch(error => res.status(500).json({message: errorMessage(error)}));
   };
 
-  this.getAvailability = function (req, res) {
+  this.getAvailability = async function (req, res) {
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
       res.status(400).json({message: "Invalid request", errors: errors.array()});
@@ -197,7 +197,7 @@ let VolunteerController = function (volunteerRepository, shiftRepository, userRe
       return;
     }
 
-    volunteerRepository
+    await volunteerRepository
       .getById(req.params.id)
       .then(volunteer => {
         if (!volunteer) {
@@ -211,7 +211,7 @@ let VolunteerController = function (volunteerRepository, shiftRepository, userRe
       .catch(error => res.status(500).json({message: errorMessage(error)}));
   };
 
-  this.getCalendarForVolunteer = function (req, res) {
+  this.getCalendarForVolunteer = async function (req, res) {
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
       res.status(400).json({message: "Invalid request", errors: errors.array()});
@@ -228,7 +228,7 @@ let VolunteerController = function (volunteerRepository, shiftRepository, userRe
       return;
     }
 
-    userRepository
+    await userRepository
       .getById(req.params.id)
       .then(user => {
         if (!user) {
@@ -273,7 +273,7 @@ let VolunteerController = function (volunteerRepository, shiftRepository, userRe
     }
     const whereTrue = getDateRange(req.query.before, req.query.after);
     const page = req.query.page;
-    return bookingRepository.getByVolunteerId(volunteer.userId)
+    await bookingRepository.getByVolunteerId(volunteer.userId)
       .then(bookings => {
         let shiftIds = bookings.map(booking => booking.shiftId);
         whereTrue["id"] = {[Op.in]: shiftIds};
@@ -323,7 +323,7 @@ let VolunteerController = function (volunteerRepository, shiftRepository, userRe
     const whereTrue = getDateRange(req.query.before, req.query.after);
     const page = req.query.page;
 
-    return bookingRepository.getByVolunteerId(volunteer.userId)
+    await bookingRepository.getByVolunteerId(volunteer.userId)
       .then(bookings => {
         let shiftIds = bookings.map(booking => booking.shiftId);
         whereTrue["id"] = {[Op.notIn]: shiftIds};
@@ -382,7 +382,7 @@ let VolunteerController = function (volunteerRepository, shiftRepository, userRe
       return;
     }
 
-    return contactRepository.add(req.params.id, req.body)
+    await contactRepository.add(req.params.id, req.body)
       .then(contact => {
         res.status(201).json({message: "Success! Contact added.", contact})
       })
@@ -414,7 +414,7 @@ let VolunteerController = function (volunteerRepository, shiftRepository, userRe
       return;
     }
 
-    return contactRepository.getAllByVolunteerId(req.params.id)
+    await contactRepository.getAllByVolunteerId(req.params.id)
       .then(contacts => {
         res.status(200).json({message: "Success! Contacts retrieved.", contacts})
       })
@@ -461,7 +461,7 @@ let VolunteerController = function (volunteerRepository, shiftRepository, userRe
       res.status(401).json({message: "You can only remove your own contacts!"});
       return;
     }
-    return contactRepository.removeById(req.params.contactId)
+    await contactRepository.removeById(req.params.contactId)
       .then(() => res.status(200).json({message: "Success! Contact removed!"}))
       .catch(err => res.status(500).json({message: errorMessage(err)}));
   };

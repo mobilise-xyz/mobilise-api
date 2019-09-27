@@ -164,7 +164,7 @@ let AuthController = function (
     // Create new invitation and send it
     const token = crypto.randomBytes(16).toString('hex');
     const expires = moment().add(1, 'days').format();
-    return invitationTokenRepository.add(req.body.email, token, expires, true)
+    await invitationTokenRepository.add(req.body.email, token, expires, true)
       .then(() => {
         const emailClient = new EmailClient(emailClientTypes.NOREPLY);
         return emailClient.send(req.body.email,
@@ -204,7 +204,7 @@ This link will expire in 24 hours.`)
     }
     const lastLogin = user.lastLogin;
     const currentDate = moment();
-    return userRepository.update(user, {
+    await userRepository.update(user, {
       lastLogin: currentDate
     })
       .then(() => {
@@ -245,7 +245,7 @@ This link will expire in 24 hours.`)
     // Create token and send it
     const token = crypto.randomBytes(16).toString('hex');
     const expires = moment().add(30, 'minutes').format();
-    return forgotPasswordTokenRepository.add(req.body.email, token, expires)
+    await forgotPasswordTokenRepository.add(req.body.email, token, expires)
       .then(() => {
         const emailClient = new EmailClient(emailClientTypes.NOREPLY);
         return emailClient.send(req.body.email,
@@ -319,7 +319,7 @@ This link will expire in 30 minutes.`)
     }
 
     // Remove the token and update the password
-    return forgotPasswordTokenRepository.removeByToken(req.body.token)
+    await forgotPasswordTokenRepository.removeByToken(req.body.token)
       .then(() => userRepository.update(user, {password: hashedPassword(req.body.newPassword)}))
       .then(() => res.status(200).json({message: "Success! Password has been changed."}))
       .catch(err => res.status(500).json({message: errorMessage(err)}))
