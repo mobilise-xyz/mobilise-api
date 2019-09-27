@@ -267,7 +267,7 @@ let VolunteerController = function (volunteerRepository, shiftRepository, userRe
             })
         }
       })
-      .catch(err => res.status(500).json({message: errorMessage(error)}));
+      .catch(err => res.status(500).json({message: errorMessage(err)}));
   };
 
   this.listShiftsForVolunteer = function (req, res) {
@@ -314,7 +314,7 @@ let VolunteerController = function (volunteerRepository, shiftRepository, userRe
           });
       })
       .then(shifts => res.status(200).json({message: "Success!", shifts, count: shifts.length}))
-      .catch(err => res.status(500).json({message: errorMessage(error)}));
+      .catch(err => res.status(500).json({message: errorMessage(err)}));
   };
 
   this.listAvailableShiftsForVolunteer = function (req, res) {
@@ -366,7 +366,7 @@ let VolunteerController = function (volunteerRepository, shiftRepository, userRe
           });
       })
       .then(shifts => res.status(200).json({message: "Success!", shifts, count: shifts.length}))
-      .catch(err => res.status(500).json({message: errorMessage(error)}));
+      .catch(err => res.status(500).json({message: errorMessage(err)}));
   };
 
   this.addContact = function(req, res) {
@@ -391,7 +391,7 @@ let VolunteerController = function (volunteerRepository, shiftRepository, userRe
       .then(contact => {
         res.status(201).json({message: "Success! Contact added.", contact})
       })
-      .catch(err => res.status(500).json({message: errorMessage(error)}))
+      .catch(err => res.status(500).json({message: errorMessage(err)}))
   };
 
   this.getContacts = function(req, res) {
@@ -416,7 +416,7 @@ let VolunteerController = function (volunteerRepository, shiftRepository, userRe
       .then(contacts => {
         res.status(200).json({message: "Success! Contacts retrieved.", contacts})
       })
-      .catch(err => res.status(500).json({message: errorMessage(error)}))
+      .catch(err => res.status(500).json({message: errorMessage(err)}))
   };
 
   this.removeContact = function (req, res) {
@@ -450,7 +450,7 @@ let VolunteerController = function (volunteerRepository, shiftRepository, userRe
         return contactRepository.removeById(req.params.contactId);
       })
       .then(() => res.status(200).json({message: "Success! Contact removed!"}))
-      .catch(err => res.status(500).json({message: errorMessage(error)}));
+      .catch(err => res.status(500).json({message: errorMessage(err)}));
   };
 
   this.validate = function (method) {
@@ -489,7 +489,6 @@ let VolunteerController = function (volunteerRepository, shiftRepository, userRe
           body('firstName').isString(),
           body('lastName').isString(),
           body('telephone').isNumeric(),
-          body('email').optional().isEmail(),
           body('relation').isString()
         ]
       }
