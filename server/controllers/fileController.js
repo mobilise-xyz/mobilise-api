@@ -6,15 +6,16 @@ const {validationResult, param} = require('express-validator');
 
 let FileController = function () {
 
-  this.get = function (req, res) {
+  this.get = async function (req, res) {
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
-      return res.status(400).json({message: "Invalid request", errors: errors.array()});
+      res.status(400).json({message: "Invalid request", errors: errors.array()});
+      return;
     }
 
     const client = new BucketClient();
 
-    client.listContents()
+    await client.listContents()
       .then(data => {
         let files = [];
         data.Contents.forEach(result => {
@@ -31,10 +32,10 @@ let FileController = function () {
       });
   };
 
-  this.downloadByName = function (req, res) {
+  this.downloadByName = async function (req, res) {
     const client = new BucketClient();
 
-    client.getByName(req.params.name)
+    await client.getByName(req.params.name)
       .then(data => {
         res.attachment(req.params.name);
         res.send(data.Body);
@@ -42,11 +43,12 @@ let FileController = function () {
       .catch(() => res.status(404).send({message: "File does not exist"}));
   };
 
-  this.deleteByName = function (req, res) {
+  this.deleteByName = async function (req, res) {
 
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
-      return res.status(400).json({message: "Invalid request", errors: errors.array()});
+      res.status(400).json({message: "Invalid request", errors: errors.array()});
+      return;
     }
 
     const client = new BucketClient();
@@ -56,7 +58,7 @@ let FileController = function () {
       return;
     }
 
-    client.deleteByName(req.params.name)
+    await client.deleteByName(req.params.name)
       .then(data => res.status(200).json({message: "File deleted", data: data}))
       .catch(err => res.status(500).json({message: errorMessage(err)}));
   };

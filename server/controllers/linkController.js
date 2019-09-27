@@ -4,36 +4,38 @@ const {errorMessage} = require("../utils/error");
 
 let LinkController = function (linkRepository) {
 
-  this.get = function (req, res) {
-    linkRepository.getAll()
+  this.get = async function (req, res) {
+    await linkRepository.getAll()
       .then(links => res.status(200).send({message: "Success!", links}))
       .catch(err => res.status(500).send({message: err}));
   };
 
-  this.add = function (req, res) {
+  this.add = async function (req, res) {
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
-      return res.status(400).json({message: "Invalid request", errors: errors.array()});
+      res.status(400).json({message: "Invalid request", errors: errors.array()});
+      return;
     }
     if (!req.user.isAdmin) {
       res.status(401).json({message: "Only admin can add a link"});
       return;
     }
-    linkRepository.add(req.body)
+    await linkRepository.add(req.body)
       .then(link => res.status(201).json({message: "Added link", link: link}))
       .catch(err => res.status(500).json({message: errorMessage(err)}));
   };
 
-  this.deleteById = function (req, res) {
+  this.deleteById = async function (req, res) {
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
-      return res.status(400).json({message: "Invalid request", errors: errors.array()});
+      res.status(400).json({message: "Invalid request", errors: errors.array()});
+      return;
     }
     if (!req.user.isAdmin) {
       res.status(401).json({message: "Only admin can add a link"});
       return;
     }
-    linkRepository.getById(req.params.id)
+    await linkRepository.getById(req.params.id)
       .then(quicklink => {
         if (!quicklink) {
           res.status(400).json({message: "No link exists with that id"});

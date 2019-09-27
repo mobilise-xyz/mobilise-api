@@ -10,25 +10,35 @@ const {SHIFT_AFTER} = require("../sequelizeUtils/where");
 
 let CalendarController = function(bookingRepository) {
 
-  this.subscribeToBookings = function(req, res) {
+  this.subscribeToBookings = async function(req, res) {
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
-      return res.status(400).json({message: "Invalid request", errors: errors.array()});
+      res.status(400).json({message: "Invalid request", errors: errors.array()});
+      return;
     }
     const cal = ical({name: 'City Harvest London - Bookings'});
     const now = moment.tz('Europe/London');
     const whereShift = SHIFT_AFTER(now.format("YYYY-MM-DD"), now.format("HH:mm:ss"));
-    userRepository
-      .getByCalendarKey(req.params.key)
-      .then(user => {
-        if (!user) {
-          res.status(400).json({message: "Not a valid key"});
-        } else if (user.isAdmin) {
-          res.status(400).json({message: "Admin cannot subscribe to bookings"});
-        } else {
-          return bookingRepository.getByVolunteerId(user.id, whereShift);
-        }
-      })
+
+    // Check the calendar key corresponds to a valid volunteer
+    let user;
+    try {
+      user = await userRepository.getByCalendarKey(req.params.key);
+    } catch (err) {
+      res.status(500).json({message: errorMessage(err)});
+      return;
+    }
+    if (!user) {
+      res.status(400).json({message: "Not a valid key"});
+      return;
+    }
+    if (user.isAdmin) {
+      res.status(400).json({message: "Admin cannot subscribe to bookings"});
+      return;
+    }
+
+    // Retrieve bookings for volunteer and generate ical events
+    await bookingRepository.getByVolunteerId(user.id, whereShift)
       .then(bookings => {
         bookings.forEach(booking => {
           cal.createEvent({
@@ -47,23 +57,29 @@ let CalendarController = function(bookingRepository) {
       .catch(err => res.status(500).json({message: errorMessage(err)}));
   };
 
-  this.subscribeToShifts = function(req, res) {
+  this.subscribeToShifts = async function(req, res) {
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
-      return res.status(400).json({message: "Invalid request", errors: errors.array()});
+      res.status(400).json({message: "Invalid request", errors: errors.array()});
+      return;
     }
     const cal = ical({name: 'City Harvest London - Shifts'});
     const now = moment.tz('Europe/London');
     const whereShift = SHIFT_AFTER(now.format("YYYY-MM-DD"), now.format("HH:mm:ss"));
-    userRepository
-      .getByCalendarKey(req.params.key)
-      .then(user => {
-        if (!user) {
-          res.status(400).json({message: "Not a valid key"});
-        } else {
-          return shiftRepository.getAll(null, whereShift)
-        }
-      })
+    // Check the calendar key corresponds to a valid volunteer
+    let user;
+    try {
+      user = await userRepository.getByCalendarKey(req.params.key);
+    } catch (err) {
+      res.status(500).json({message: errorMessage(err)});
+      return;
+    }
+    if (!user) {
+      res.status(400).json({message: "Not a valid key"});
+      return;
+    }
+    // Retrieve shifts and generate ical events
+    await shiftRepository.getAll(null, whereShift)
       .then(shifts => {
         shifts.forEach(shift => {
           cal.createEvent({

@@ -1,4 +1,4 @@
-const Q = require("q");
+
 const shiftRepository = require("../repositories").ShiftRepository;
 const {ShiftRequirement} = require("../models");
 const volunteerRepository = require("../repositories").VolunteerRepository;
@@ -9,16 +9,14 @@ const {
 } = require("../sequelizeUtils/include");
 
 let Predictor = function(shiftRepository) {
-  this.shiftRepository = shiftRepository;
 
   this.computeExpectedShortages = async function(whereTrue) {
-    let deferred = Q.defer();
 
     const cumulativeAvailability = await getCumulativeAvailability();
 
     let updatedShiftRequirements = [];
 
-    await shiftRepository
+    return shiftRepository
       .getAll(null, whereTrue, [REQUIREMENTS_WITH_BOOKINGS()])
       .then(async shifts => {
         let i;
@@ -89,11 +87,7 @@ let Predictor = function(shiftRepository) {
             }
           );
         }
-      })
-      .then(result => deferred.resolve(result))
-      .catch(error => deferred.reject(error));
-
-    return deferred.promise;
+      });
   };
 };
 
