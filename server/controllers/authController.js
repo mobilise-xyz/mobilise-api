@@ -371,7 +371,7 @@ This link will expire in 30 minutes.`)
 
     // Remove the token and update the password
     await forgotPasswordTokenRepository.removeByToken(req.body.token)
-      .then(() => userRepository.update(user, {password: hashedPassword(req.body.newPassword)}))
+      .then(() => userRepository.update(user, {password: hashedPassword(req.body.newPassword), unlockDate: null}))
       .then(() => res.status(200).json({message: "Success! Password has been changed."}))
       .catch(err => res.status(500).json({message: errorMessage(err)}))
   };
