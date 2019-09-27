@@ -9,7 +9,6 @@ ContactRepository.add = function (volunteerId, contact) {
   return Contact.create({
     firstName: contact.firstName,
     lastName: contact.lastName,
-    email: contact.email,
     telephone: contact.telephone,
     relation: contact.relation,
     volunteerId: volunteerId

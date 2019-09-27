@@ -502,7 +502,6 @@ let VolunteerController = function (volunteerRepository, shiftRepository, userRe
           body('firstName').isString(),
           body('lastName').isString(),
           body('telephone').isNumeric(),
-          body('email').optional().isEmail(),
           body('relation').isString()
         ]
       }
