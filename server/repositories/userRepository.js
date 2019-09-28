@@ -10,7 +10,7 @@ UserRepository.add = function(user, hash, phone, isAdmin) {
     lastName: user.lastName,
     email: user.email,
     password: hash,
-    passwordRetries: 3,
+    passwordRetries: 5,
     isAdmin: isAdmin,
     dob: user.dob,
     telephone: phone

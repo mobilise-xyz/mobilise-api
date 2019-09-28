@@ -16,7 +16,7 @@ const crypto = require("crypto");
 const {body, validationResult} = require('express-validator');
 const phoneUtil = PhoneNumberUtil.getInstance();
 
-const PASSWORD_ATTEMPTS = 3;
+const PASSWORD_ATTEMPTS = 5;
 
 let AuthController = function (
   userRepository,
