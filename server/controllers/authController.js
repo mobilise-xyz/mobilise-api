@@ -227,7 +227,7 @@ This link will expire in 24 hours.`)
                 `Hello from Mobilise,
 We've noticed that someone tried to log into your account with the wrong password more times than we normally allow.
 We're just doing our best to keep your account and personal details secure. 
-We've temporarily locked your account out for 10 minutes.
+We've temporarily locked your account for 10 minutes.
 
 If this was you, maybe you forgot your password and would like to reset it? 
 You can do so here:
@@ -370,6 +370,7 @@ This link will expire in 30 minutes.`)
     }
 
     // Remove the token and update the password
+    // If account is locked, then unlock it so they can login with new password
     await forgotPasswordTokenRepository.removeByToken(req.body.token)
       .then(() => userRepository.update(user, {password: hashedPassword(req.body.newPassword), unlockDate: null}))
       .then(() => res.status(200).json({message: "Success! Password has been changed."}))
