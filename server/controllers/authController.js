@@ -198,13 +198,13 @@ This link will expire in 24 hours.`)
         return;
       }
       if (!user) {
-        res.status(400).json({message: "Invalid Username/Password. Please try again."});
+        res.status(400).json({message: "Invalid username/password. Please try again."});
         return;
       }
       // Check if account is locked
       const currentDate = moment();
       if (user.unlockDate && currentDate.isBefore(user.unlockDate)) {
-        res.status(400).json({message: "Invalid Username/Password. Please try again."});
+        res.status(400).json({message: "Invalid username/password. Please try again."});
         return;
       }
 
@@ -238,7 +238,7 @@ If this wasn't you please send us an email at hello@mobilise.xyz so we can keep 
 `)
             })
             .then(() => {
-              res.status(400).json({message: "Incorrect Login details entered too many times. If this email is registered, we have sent instructions to access your account."})
+              res.status(400).json({message: "Incorrect login details entered too many times. If this email is registered, we have sent instructions to access your account."})
             })
             .catch(err => res.status(500).json({message: errorMessage(err)}));
         } else {
@@ -247,7 +247,7 @@ If this wasn't you please send us an email at hello@mobilise.xyz so we can keep 
             passwordRetries: newPasswordRetries
           })
             .then(() => {
-              return res.status(400).json({message: "Invalid Username/Password. Please try again."});
+              return res.status(400).json({message: "Invalid username/password. Please try again."});
             })
             .catch(err => res.status(500).json({message: errorMessage(err)}));
         }
