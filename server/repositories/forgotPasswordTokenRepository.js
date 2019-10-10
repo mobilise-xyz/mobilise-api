@@ -1,5 +1,5 @@
 const {ForgotPasswordToken} = require("../models");
-const ForgotPasswordTokenRepositoryInterface = require("./interfaces/ForgotPasswordTokenRepositoryInterface");
+const ForgotPasswordTokenRepositoryInterface = require("./interfaces/forgotPasswordTokenRepositoryInterface");
 
 let ForgotPasswordTokenRepository = Object.create(
   ForgotPasswordTokenRepositoryInterface

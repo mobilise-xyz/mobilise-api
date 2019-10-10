@@ -16,6 +16,8 @@ const crypto = require("crypto");
 const {body, validationResult} = require('express-validator');
 const phoneUtil = PhoneNumberUtil.getInstance();
 
+const PASSWORD_ATTEMPTS = 5;
+
 let AuthController = function (
   userRepository,
   volunteerRepository,
@@ -181,45 +183,94 @@ This link will expire in 24 hours.`)
       .catch(err => res.status(500).json({message: errorMessage(err)}));
   };
 
-  this.loginUser = async function (req, res) {
-    const errors = validationResult(req);
-    if (!errors.isEmpty()) {
-      res.status(400).json({
-        message: "Invalid request",
-        errors: errors.array()
-      });
-      return;
-    }
-    // Check the credentials
-    let user;
-    try {
-      user = await userRepository.getByEmail(req.body.email);
-    } catch (err) {
-      res.status(500).json({message: errorMessage(err)});
-      return;
-    }
-    if (!user || !validatePassword(req.body.password, user.password)) {
-      res.status(400).json({message: "Invalid username/password"});
-      return;
-    }
-    const lastLogin = user.lastLogin;
-    const currentDate = moment();
-    await userRepository.update(user, {
-      lastLogin: currentDate
-    })
-      .then(() => {
-        res.status(200).json({
-          message: "Successful login!",
-          user: {
-            uid: user.id,
-            isAdmin: user.isAdmin,
-            lastLogin: lastLogin,
-            token: generateToken(user)
-          }
-        });
+    this.loginUser = async function (req, res) {
+      const errors = validationResult(req);
+      if (!errors.isEmpty()) {
+        res.status(400).json({message: "Invalid request", errors: errors.array()});
+        return;
+      }
+      // Check there is a user
+      let user;
+      try {
+        user = await userRepository.getByEmail(req.body.email);
+      } catch (err) {
+        res.status(500).json({message: errorMessage(err)});
+        return;
+      }
+      if (!user) {
+        res.status(400).json({message: "Invalid username/password. Please try again."});
+        return;
+      }
+      // Check if account is locked
+      const currentDate = moment();
+      if (user.unlockDate && currentDate.isBefore(user.unlockDate)) {
+        res.status(400).json({message: "Invalid username/password. Please try again."});
+        return;
+      }
+
+      // Check password
+      if (!validatePassword(req.body.password, user.password)) {
+        const newPasswordRetries = user.passwordRetries - 1;
+        if (newPasswordRetries <= 0) {
+          // Lock account if that was last try
+          // Restore password retries so when account unlocks they can try again
+          const unlockDate = moment().add(10, 'minutes').format();
+          await userRepository.update(user, {
+            unlockDate: unlockDate,
+            passwordRetries: PASSWORD_ATTEMPTS
+          })
+            .then(() => {
+              // Inform user that account is locked
+              const emailClient = new EmailClient(emailClientTypes.NOREPLY);
+              return emailClient.send(req.body.email,
+                "Incorrect Password Limit Reached",
+                `Hello from Mobilise,
+We've noticed that someone tried to log into your account with the wrong password more times than we normally allow.
+We're just doing our best to keep your account and personal details secure. 
+We've temporarily locked your account for 10 minutes.
+
+If this was you, maybe you forgot your password and would like to reset it? 
+You can do so here:
+
+${process.env.WEB_URL}/forgot-password
+
+If this wasn't you please send us an email at hello@mobilise.xyz so we can keep an eye on anyone trying to access your account that's not you.
+`)
+            })
+            .then(() => {
+              res.status(400).json({message: "Incorrect login details entered too many times. If this email is registered, we have sent instructions to access your account."})
+            })
+            .catch(err => res.status(500).json({message: errorMessage(err)}));
+        } else {
+          // Update the password retries
+          await userRepository.update(user, {
+            passwordRetries: newPasswordRetries
+          })
+            .then(() => {
+              return res.status(400).json({message: "Invalid username/password. Please try again."});
+            })
+            .catch(err => res.status(500).json({message: errorMessage(err)}));
+        }
+        return;
+      }
+      const lastLogin = user.lastLogin;
+      await userRepository.update(user, {
+        lastLogin: currentDate,
+        passwordRetries: PASSWORD_ATTEMPTS
       })
-      .catch(err => res.status(500).send(errorMessage(err)));
-  };
+        .then(() => {
+          res.status(200).json({
+            message: "Successful login!",
+            user: {
+              uid: user.id,
+              isAdmin: user.isAdmin,
+              lastLogin: lastLogin,
+              token: generateToken(user)
+            }
+          });
+        })
+        .catch(err => res.status(500).send(errorMessage(err)));
+    };
 
   this.forgotPassword = async function (req, res) {
     const errors = validationResult(req);
@@ -319,50 +370,52 @@ This link will expire in 30 minutes.`)
     }
 
     // Remove the token and update the password
+    // If account is locked, then unlock it so they can login with new password
     await forgotPasswordTokenRepository.removeByToken(req.body.token)
-      .then(() => userRepository.update(user, {password: hashedPassword(req.body.newPassword)}))
+      .then(() => userRepository.update(user, {password: hashedPassword(req.body.newPassword), unlockDate: null}))
       .then(() => res.status(200).json({message: "Success! Password has been changed."}))
       .catch(err => res.status(500).json({message: errorMessage(err)}))
   };
 
-  this.validate = function (method) {
-    switch (method) {
-      case 'registerUser': {
-        return [
-          body('token').isString(),
-          body('email').isEmail(),
-          body('firstName').isString(),
-          body('lastName').isString(),
-          body('telephone').isNumeric(),
-          body('password').isString()
-        ]
+    this.validate = function (method) {
+      switch (method) {
+        case 'registerUser': {
+          return [
+            body('token').isString(),
+            body('email').isEmail(),
+            body('firstName').isString(),
+            body('lastName').isString(),
+            body('telephone').isNumeric(),
+            body('password').isString()
+          ]
+        }
+        case 'inviteAdmin': {
+          return [
+            body('adminKey').isString(),
+            body('email').isEmail()
+          ]
+        }
+        case 'loginUser': {
+          return [
+            body('email').isEmail(),
+            body('password').isString()
+          ]
+        }
+        case 'forgotPassword': {
+          return [
+            body('email').isEmail()
+          ]
+        }
+        case 'resetPassword': {
+          return [
+            body('newPassword').isString()
+          ]
+        }
       }
-      case 'inviteAdmin': {
-        return [
-          body('adminKey').isString(),
-          body('email').isEmail()
-        ]
-      }
-      case 'loginUser': {
-        return [
-          body('email').isEmail(),
-          body('password').isString()
-        ]
-      }
-      case 'forgotPassword': {
-        return [
-          body('email').isEmail()
-        ]
-      }
-      case 'resetPassword': {
-        return [
-          body('newPassword').isString()
-        ]
-      }
-    }
-  };
+    };
 
-};
+  }
+;
 
 module.exports = new AuthController(
   userRepository,
