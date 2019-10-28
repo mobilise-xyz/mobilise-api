@@ -3,7 +3,7 @@ const userRepository = require("../repositories").UserRepository;
 const userContactPreferenceRepository = require("../repositories")
   .UserContactPreferenceRepository;
 const {errorMessage} = require("../utils/error");
-const {isSecure, validatePassword, hashedPassword} = require("../utils/password");
+const {isSecure, validatePassword, hashed} = require("../utils/password");
 const moment = require("moment");
 const crypto = require("crypto");
 const {body, param, validationResult} = require('express-validator');
@@ -106,7 +106,7 @@ let UserController = function (userRepository) {
       });
       return;
     }
-    await userRepository.update(req.user, {password: hashedPassword(req.body.newPassword)})
+    await userRepository.update(req.user, {password: hashed(req.body.newPassword)})
       .then(() => res.status(200).json({message: "Success! Password has been changed."}))
       .catch(err => res.status(500).json({message: errorMessage(err)}));
   };

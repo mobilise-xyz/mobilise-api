@@ -10,7 +10,7 @@ const jwt = require("jsonwebtoken");
 const invitationTokenRepository = require("../repositories").InvitationTokenRepository;
 const forgotPasswordTokenRepository = require("../repositories").ForgotPasswordTokenRepository;
 const {EmailClient, emailClientTypes} = require("../utils/email");
-const {isSecure, hashedPassword, validatePassword} = require("../utils/password");
+const {isSecure, hashed, validatePassword} = require("../utils/password");
 const {PhoneNumberFormat: PNF, PhoneNumberUtil} = require('google-libphonenumber');
 const crypto = require("crypto");
 const {body, validationResult} = require('express-validator');
@@ -91,7 +91,7 @@ let AuthController = function (
 
     // Create the account
 
-    const hash = hashedPassword(req.body.password);
+    const hash = hashed(req.body.password);
     const formattedNumber = phoneUtil.format(number, PNF.E164);
     await invitationTokenRepository.removeByToken(req.body.token)
       .then(() => userRepository.add(req.body, hash, formattedNumber, invitation.isAdmin))
@@ -372,7 +372,7 @@ This link will expire in 30 minutes.`)
     // Remove the token and update the password
     // If account is locked, then unlock it so they can login with new password
     await forgotPasswordTokenRepository.removeByToken(req.body.token)
-      .then(() => userRepository.update(user, {password: hashedPassword(req.body.newPassword), unlockDate: null}))
+      .then(() => userRepository.update(user, {password: hashed(req.body.newPassword), unlockDate: null}))
       .then(() => res.status(200).json({message: "Success! Password has been changed."}))
       .catch(err => res.status(500).json({message: errorMessage(err)}))
   };

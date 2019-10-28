@@ -1,7 +1,7 @@
 const bcrypt = require("bcryptjs");
 
-function hashedPassword(password) {
-  return bcrypt.hashSync(password, bcrypt.genSaltSync(8), null);
+function hashed(key) {
+  return bcrypt.hashSync(key, bcrypt.genSaltSync(8), null);
 }
 
 function validatePassword(password, hashedPassword) {
@@ -16,7 +16,7 @@ function isSecure(password) {
 }
 
 module.exports = {
-  hashedPassword,
+  hashed: hashed,
   validatePassword,
   isSecure
 };
