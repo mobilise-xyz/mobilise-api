@@ -3,7 +3,8 @@ const userRepository = require("../repositories").UserRepository;
 const userContactPreferenceRepository = require("../repositories")
   .UserContactPreferenceRepository;
 const {errorMessage} = require("../utils/error");
-const {isSecure, validatePassword, hashed} = require("../utils/password");
+const {isSecure} = require("../utils/password");
+const {hashed, validateHash} = require("../utils/hash");
 const moment = require("moment");
 const crypto = require("crypto");
 const {body, param, validationResult} = require('express-validator');
@@ -95,7 +96,7 @@ let UserController = function (userRepository) {
       res.status(400).json({message: "Invalid request", errors: errors.array()});
       return;
     }
-    if (!validatePassword(req.body.oldPassword, req.user.password)) {
+    if (!validateHash(req.body.oldPassword, req.user.password)) {
       res.status(400).json({message: "Password given is incorrect"});
       return;
     }
