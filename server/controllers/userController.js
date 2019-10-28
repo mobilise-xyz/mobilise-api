@@ -184,7 +184,7 @@ let UserController = function (userRepository) {
     // Create token and send it
     const token = crypto.randomBytes(16).toString('hex');
     const expires = moment().add(1, 'days').format();
-    await invitationTokenRepository.add(req.body.email, token, expires, req.body.isAdmin)
+    await invitationTokenRepository.add(req.body.email, hashed(token), expires, req.body.isAdmin)
       .then(() => {
         const emailClient = new EmailClient(emailClientTypes.NOREPLY);
         return emailClient.send(req.body.email,
