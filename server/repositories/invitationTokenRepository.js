@@ -18,12 +18,8 @@ InvitationTokenRepository.getByEmail = function(email) {
   return InvitationToken.findOne({ where: { email: email } });
 };
 
-InvitationTokenRepository.getByToken = function(token) {
-  return InvitationToken.findOne({ where: { token: token } });
-};
-
-InvitationTokenRepository.removeByToken = function(token) {
-  return InvitationToken.destroy({ where: { token: token } });
+InvitationTokenRepository.removeByEmail = function(email) {
+  return InvitationToken.destroy({ where: { email: email } });
 };
 
 

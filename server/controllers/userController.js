@@ -3,7 +3,8 @@ const userRepository = require("../repositories").UserRepository;
 const userContactPreferenceRepository = require("../repositories")
   .UserContactPreferenceRepository;
 const {errorMessage} = require("../utils/error");
-const {isSecure, validatePassword, hashedPassword} = require("../utils/password");
+const {isSecure} = require("../utils/password");
+const {hashed, validateHash} = require("../utils/hash");
 const moment = require("moment");
 const crypto = require("crypto");
 const {body, param, validationResult} = require('express-validator');
@@ -95,7 +96,7 @@ let UserController = function (userRepository) {
       res.status(400).json({message: "Invalid request", errors: errors.array()});
       return;
     }
-    if (!validatePassword(req.body.oldPassword, req.user.password)) {
+    if (!validateHash(req.body.oldPassword, req.user.password)) {
       res.status(400).json({message: "Password given is incorrect"});
       return;
     }
@@ -106,7 +107,7 @@ let UserController = function (userRepository) {
       });
       return;
     }
-    await userRepository.update(req.user, {password: hashedPassword(req.body.newPassword)})
+    await userRepository.update(req.user, {password: hashed(req.body.newPassword)})
       .then(() => res.status(200).json({message: "Success! Password has been changed."}))
       .catch(err => res.status(500).json({message: errorMessage(err)}));
   };
@@ -184,7 +185,7 @@ let UserController = function (userRepository) {
     // Create token and send it
     const token = crypto.randomBytes(16).toString('hex');
     const expires = moment().add(1, 'days').format();
-    await invitationTokenRepository.add(req.body.email, token, expires, req.body.isAdmin)
+    await invitationTokenRepository.add(req.body.email, hashed(token), expires, req.body.isAdmin)
       .then(() => {
         const emailClient = new EmailClient(emailClientTypes.NOREPLY);
         return emailClient.send(req.body.email,

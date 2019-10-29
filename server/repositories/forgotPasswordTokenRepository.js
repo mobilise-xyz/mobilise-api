@@ -17,12 +17,8 @@ ForgotPasswordTokenRepository.getByEmail = function(email) {
   return ForgotPasswordToken.findOne({ where: { email: email } });
 };
 
-ForgotPasswordTokenRepository.getByToken = function(token) {
-  return ForgotPasswordToken.findOne({ where: { token: token } });
-};
-
-ForgotPasswordTokenRepository.removeByToken = function(token) {
-  return ForgotPasswordToken.destroy({ where: { token: token } });
+ForgotPasswordTokenRepository.removeByEmail = function(email) {
+  return ForgotPasswordToken.destroy({ where: { email: email } });
 };
 
 
