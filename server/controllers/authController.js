@@ -10,7 +10,8 @@ const jwt = require("jsonwebtoken");
 const invitationTokenRepository = require("../repositories").InvitationTokenRepository;
 const forgotPasswordTokenRepository = require("../repositories").ForgotPasswordTokenRepository;
 const {EmailClient, emailClientTypes} = require("../utils/email");
-const {isSecure, hashedPassword, validatePassword} = require("../utils/password");
+const {isSecure} = require("../utils/password");
+const {hashed, validateHash} = require("../utils/hash");
 const {PhoneNumberFormat: PNF, PhoneNumberUtil} = require('google-libphonenumber');
 const crypto = require("crypto");
 const {body, validationResult} = require('express-validator');
@@ -38,7 +39,7 @@ let AuthController = function (
     // Check they have provided a valid invitation token
     let invitation;
     try {
-      invitation = await invitationTokenRepository.getByToken(req.body.token);
+      invitation = await invitationTokenRepository.getByEmail(req.body.email);
     } catch (e) {
       res.status(500).json(errorMessage(e));
       return;
@@ -47,7 +48,7 @@ let AuthController = function (
       res.status(400).json({message: "Invalid token"});
       return;
     }
-    if (invitation.email !== req.body.email) {
+    if (!validateHash(req.body.token, invitation.token)) {
       res.status(400).json({message: "Please use the email that received the invitation."});
       return;
     }
@@ -91,10 +92,10 @@ let AuthController = function (
 
     // Create the account
 
-    const hash = hashedPassword(req.body.password);
+    const hashPassword = hashed(req.body.password);
     const formattedNumber = phoneUtil.format(number, PNF.E164);
-    await invitationTokenRepository.removeByToken(req.body.token)
-      .then(() => userRepository.add(req.body, hash, formattedNumber, invitation.isAdmin))
+    await invitationTokenRepository.removeByEmail(req.body.email)
+      .then(() => userRepository.add(req.body, hashPassword, formattedNumber, invitation.isAdmin))
       .then(async user => {
         // Add user to volunteer or admin table
         if (!user.isAdmin) {
@@ -122,7 +123,6 @@ let AuthController = function (
   };
 
   this.inviteAdmin = async function (req, res) {
-
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
       res.status(400).json({
@@ -166,7 +166,7 @@ let AuthController = function (
     // Create new invitation and send it
     const token = crypto.randomBytes(16).toString('hex');
     const expires = moment().add(1, 'days').format();
-    await invitationTokenRepository.add(req.body.email, token, expires, true)
+    await invitationTokenRepository.add(req.body.email, hashed(token), expires, true)
       .then(() => {
         const emailClient = new EmailClient(emailClientTypes.NOREPLY);
         return emailClient.send(req.body.email,
@@ -209,7 +209,7 @@ This link will expire in 24 hours.`)
       }
 
       // Check password
-      if (!validatePassword(req.body.password, user.password)) {
+      if (!validateHash(req.body.password, user.password)) {
         const newPasswordRetries = user.passwordRetries - 1;
         if (newPasswordRetries <= 0) {
           // Lock account if that was last try
@@ -296,7 +296,7 @@ If this wasn't you please send us an email at hello@mobilise.xyz so we can keep 
     // Create token and send it
     const token = crypto.randomBytes(16).toString('hex');
     const expires = moment().add(30, 'minutes').format();
-    await forgotPasswordTokenRepository.add(req.body.email, token, expires)
+    await forgotPasswordTokenRepository.add(req.body.email, hashed(token), expires)
       .then(() => {
         const emailClient = new EmailClient(emailClientTypes.NOREPLY);
         return emailClient.send(req.body.email,
@@ -330,12 +330,16 @@ This link will expire in 30 minutes.`)
     // Check they have provided a valid forgot password token
     let token;
     try {
-      token = await forgotPasswordTokenRepository.getByToken(req.body.token);
+      token = await forgotPasswordTokenRepository.getByEmail(req.body.email);
     } catch (err) {
       res.status(500).json({message: errorMessage(err)});
       return;
     }
     if (!token) {
+      res.status(400).json({message: "Invalid token"});
+      return;
+    }
+    if (!validateHash(req.body.token, token.token)) {
       res.status(400).json({message: "Invalid token"});
       return;
     }
@@ -371,8 +375,8 @@ This link will expire in 30 minutes.`)
 
     // Remove the token and update the password
     // If account is locked, then unlock it so they can login with new password
-    await forgotPasswordTokenRepository.removeByToken(req.body.token)
-      .then(() => userRepository.update(user, {password: hashedPassword(req.body.newPassword), unlockDate: null}))
+    await forgotPasswordTokenRepository.removeByEmail(req.body.email)
+      .then(() => userRepository.update(user, {password: hashed(req.body.newPassword), unlockDate: null}))
       .then(() => res.status(200).json({message: "Success! Password has been changed."}))
       .catch(err => res.status(500).json({message: errorMessage(err)}))
   };
@@ -408,6 +412,7 @@ This link will expire in 30 minutes.`)
         }
         case 'resetPassword': {
           return [
+            body('email').isEmail(),
             body('newPassword').isString()
           ]
         }
