@@ -1,4 +1,5 @@
 'use strict';
+let bcrypt = require('bcryptjs');
 
 const Seeded = require('../utils/seeded');
 
@@ -7,7 +8,7 @@ module.exports = {
     return queryInterface.bulkInsert('InvitationTokens', [
       {
         email: Seeded.invitationTokens[0].email,
-        token: Seeded.invitationTokens[0].token,
+        token: bcrypt.hashSync(Seeded.invitationTokens[0].token, bcrypt.genSaltSync(8), null),
         expires: Seeded.invitationTokens[0].expires,
         isAdmin: Seeded.invitationTokens[0].isAdmin,
         createdAt: Seeded.invitationTokens[0].createdAt,
@@ -15,7 +16,7 @@ module.exports = {
       },
       {
         email: Seeded.invitationTokens[1].email,
-        token: Seeded.invitationTokens[1].token,
+        token: bcrypt.hashSync(Seeded.invitationTokens[1].token, bcrypt.genSaltSync(8), null),
         expires: Seeded.invitationTokens[1].expires,
         isAdmin: Seeded.invitationTokens[1].isAdmin,
         createdAt: Seeded.invitationTokens[1].createdAt,
@@ -26,9 +27,9 @@ module.exports = {
 
   down: (queryInterface) => {
     return queryInterface.bulkDelete('InvitationTokens', {
-      token : [
-        Seeded.invitationTokens[0].token,
-        Seeded.invitationTokens[1].token
+      email : [
+        Seeded.invitationTokens[0].email,
+        Seeded.invitationTokens[1].email
       ]
     });
   }
