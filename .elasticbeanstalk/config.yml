@@ -1,9 +1,9 @@
 branch-defaults:
   master:
-    environment: mobilise-dev
+    environment: MobiliseLive-env
     group_suffix: null
 environment-defaults:
-  mobiliselive-env:
+  mobilise-api-dev:
     branch: null
     repository: null
 global:
