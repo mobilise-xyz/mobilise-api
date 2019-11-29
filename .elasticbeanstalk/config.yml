@@ -3,11 +3,11 @@ branch-defaults:
     environment: mobilise-dev
     group_suffix: null
 environment-defaults:
-  mobilise-api-dev:
+  mobiliselive-env:
     branch: null
     repository: null
 global:
-  application_name: mobilise-api
+  application_name: mobilise-live
   branch: null
   default_ec2_keyname: null
   default_platform: Node.js
